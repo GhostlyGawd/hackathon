@@ -4,8 +4,8 @@
 | --- | --- |
 | Task | FND-01 — Bootstrap the TypeScript workspace and deterministic CI |
 | PRD sections | 8, 13, 21, and 22 |
-| Status | IN PROGRESS — local acceptance green; clean-checkout CI pending |
-| Verified source commit | Pending first implementation commit |
+| Status | COMPLETE |
+| Verified source commit | `c2f70849d4717f1c86e7ee1c4f12d4d954594ce6` |
 | Local verification date | 2026-07-19 |
 | Environment | Windows, Node.js 24.14.1, pnpm 11.6.0 |
 | Sanitization | Reviewed; no credentials, tokens, personal paths, or third-party data included |
@@ -75,11 +75,16 @@ Property tests and BDD scenarios are not applicable to FND-01 under its task con
 
 ## Clean-checkout CI
 
-The pull-request workflow installs from the committed lockfile and runs `pnpm verify` on both `ubuntu-latest` and `windows-latest`. Links and final results will be added here before this task changes to `COMPLETE`.
+Pull request [#7](https://github.com/GhostlyGawd/hackathon/pull/7) installed from the committed lockfile and ran `pnpm verify` from clean checkouts on both required operating systems:
+
+- [Verify on ubuntu-latest](https://github.com/GhostlyGawd/hackathon/actions/runs/29697220944/job/88219931666) — passed on 2026-07-19.
+- [Verify on windows-latest](https://github.com/GhostlyGawd/hackathon/actions/runs/29697220944/job/88219931668) — passed on 2026-07-19.
+
+Both jobs used the same source commit recorded above. Neither job reported a failure, retry, or skipped test.
 
 ## Visual evidence
 
-Visual UI proof is not applicable. FND-01 introduces infrastructure and a machine-readable `/health` route, not a user-facing screen or browser-operated journey. The required proof for this task is the sanitized terminal result above and the pending clean-checkout CI matrix.
+Visual UI proof is not applicable. FND-01 introduces infrastructure and a machine-readable `/health` route, not a user-facing screen or browser-operated journey. The required proof for this task is the sanitized terminal result above and the green clean-checkout CI matrix.
 
 ## Known limitations
 

@@ -225,7 +225,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 
 | Task | Priority | Depends on | Primary output | Status |
 | --- | --- | --- | --- | --- |
-| FND-01 | P0 | — | TypeScript workspace and deterministic CI | IN PROGRESS |
+| FND-01 | P0 | — | TypeScript workspace and deterministic CI | COMPLETE |
 | FND-02 | P0 | FND-01 | Verification/evidence harness | NOT STARTED |
 | FND-03 | P0 | FND-01, FND-02 | Domain schemas, state machines, migrations | NOT STARTED |
 | AUT-01 | P0 | FND-03 | Workspace roles and authorization | NOT STARTED |
@@ -298,7 +298,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### FND-01 — Bootstrap the TypeScript workspace and deterministic CI
 
-- **Status:** IN PROGRESS — local acceptance is green; clean-checkout Linux and Windows CI evidence is pending.
+- **Status:** COMPLETE — local acceptance and clean-checkout Linux and Windows CI are green.
 - **Deliver:** pnpm workspace containing apps/web, apps/runner, apps/fixture, packages/core, packages/evidence, and packages/testkit; strict TypeScript; linting; build graph; database and object-store test services; canonical scripts; CI.
 - **PRD:** Sections 8, 13, 21, and 22.
 - **Depends on:** none.
