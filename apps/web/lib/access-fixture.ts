@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 import {
   InMemoryWorkspaceAuthorizationRepository,
+  InMemorySoftwareInventoryRepository,
+  SoftwareInventoryService,
   WorkspaceAuthorizationService,
   type WorkspacePrincipal,
 } from "@pactwire/core";
@@ -48,6 +50,8 @@ export const fixtureUsers: Readonly<Record<FixtureUser["key"], FixtureUser>> =
 export interface AccessRuntime {
   readonly repository: InMemoryWorkspaceAuthorizationRepository;
   readonly service: WorkspaceAuthorizationService;
+  readonly inventoryRepository: InMemorySoftwareInventoryRepository;
+  readonly inventoryService: SoftwareInventoryService;
 }
 
 export function isFixtureMode(): boolean {
@@ -94,9 +98,11 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     throw new Error("The local access fixture is disabled");
   }
   const repository = new InMemoryWorkspaceAuthorizationRepository();
+  const idFactory = fixtureIdFactory();
+  const now = fixtureClock();
   const service = new WorkspaceAuthorizationService(repository, {
-    idFactory: fixtureIdFactory(),
-    now: fixtureClock(),
+    idFactory,
+    now,
   });
   await service.createWorkspace({
     principal: principalForFixtureUser(fixtureUsers.officer),
@@ -118,7 +124,20 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     targetUserId: fixtureUsers.reviewer.userId,
     role: "REVIEWER",
   });
-  return Object.freeze({ repository, service });
+  const inventoryRepository = new InMemorySoftwareInventoryRepository(
+    repository,
+  );
+  const inventoryService = new SoftwareInventoryService(
+    inventoryRepository,
+    service,
+    { idFactory, now },
+  );
+  return Object.freeze({
+    repository,
+    service,
+    inventoryRepository,
+    inventoryService,
+  });
 }
 
 let fixtureRuntime: Promise<AccessRuntime> | undefined;

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 1,
-  "totalTables": 19,
+  "migrationCount": 2,
+  "totalTables": 21,
   "migrations": [
     {
       "version": "0001",
@@ -41,6 +41,18 @@
         "approval_events",
         "human_decisions",
         "audit_events"
+      ]
+    },
+    {
+      "version": "0002",
+      "name": "software_inventory",
+      "sha256": "ece87180bafac0824deed0006acebc97ce85abd61e4c11d8f7ac39eb21059139",
+      "tables": [
+        "software_inventory_details",
+        "software_approval_origins"
+      ],
+      "immutableTables": [
+        "software_approval_origins"
       ]
     }
   ]

@@ -22,18 +22,23 @@ afterEach(async () => {
 });
 
 describe("core domain migrations", () => {
-  it("loads the initial PostgreSQL schema migration", async () => {
+  it("loads the ordered PostgreSQL schema migrations", async () => {
     const migrations = await loadCoreMigrations();
 
-    expect(migrations).toHaveLength(1);
-    expect(migrations[0]?.version).toBe("0001");
+    expect(migrations.map((migration) => migration.version)).toEqual([
+      "0001",
+      "0002",
+    ]);
   });
 
   it("applies all domain tables exactly once with a stable checksum", async () => {
     const service = await createDatabaseTestService();
     databases.push(service);
 
-    await expect(applyCoreMigrations(service.database)).resolves.toEqual(["0001"]);
+    await expect(applyCoreMigrations(service.database)).resolves.toEqual([
+      "0001",
+      "0002",
+    ]);
     await expect(applyCoreMigrations(service.database)).resolves.toEqual([]);
     const tables = await service.database.query<{ table_name: string }>(
       "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name",
@@ -43,6 +48,8 @@ describe("core domain migrations", () => {
       expect.arrayContaining([
         "workspaces",
         "software_records",
+        "software_inventory_details",
+        "software_approval_origins",
         "agreement_versions",
         "requirement_versions",
         "runs",
@@ -54,7 +61,7 @@ describe("core domain migrations", () => {
         "audit_events",
       ]),
     );
-    expect(tables.rows).toHaveLength(20);
+    expect(tables.rows).toHaveLength(22);
   });
 
   it("rejects a cross-workspace foreign-key reference", async () => {

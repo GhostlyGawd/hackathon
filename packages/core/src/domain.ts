@@ -212,6 +212,18 @@ export const actorSchema = z.discriminatedUnion("kind", [
 export type Actor = z.infer<typeof actorSchema>;
 export type HumanActor = z.infer<typeof humanActorSchema>;
 
+export const humanApprovalSetterSchema = humanActorSchema
+  .extend({ displayName: nonEmpty })
+  .strict();
+export const importedApprovalSetterSchema = importedSystemActorSchema
+  .extend({ displayName: nonEmpty })
+  .strict();
+export const approvalSetterSchema = z.discriminatedUnion("kind", [
+  humanApprovalSetterSchema,
+  importedApprovalSetterSchema,
+]);
+export type ApprovalSetter = z.infer<typeof approvalSetterSchema>;
+
 export const workspaceSchema = z
   .object({
     id: uuid,
@@ -243,26 +255,86 @@ export const userRoleSchema = z
   .strict();
 export type UserRole = z.infer<typeof userRoleSchema>;
 
+export const approvalOriginSchema = z
+  .object({
+    id: uuid,
+    workspaceId: uuid,
+    softwareId: uuid,
+    state: approvalStateSchema,
+    setBy: approvalSetterSchema,
+    reason: nonEmpty,
+    sourceReference: nonEmpty.optional(),
+    recordedBy: humanActorSchema,
+    recordedAt: timestamp,
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (
+      value.setBy.kind === "IMPORTED_SYSTEM" &&
+      (value.state === "HOLD" || value.state === "RETIRED")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["setBy"],
+        message: `${value.state} must identify the human who set it`,
+      });
+    }
+  });
+export type ApprovalOrigin = z.infer<typeof approvalOriginSchema>;
+
+export const authorizedTenantUrlSchema = z
+  .url()
+  .superRefine((value, context) => {
+    const url = new URL(value);
+    if (url.protocol !== "https:") {
+      context.addIssue({
+        code: "custom",
+        message: "Authorized tenant URLs must use HTTPS",
+      });
+    }
+    if (url.username || url.password) {
+      context.addIssue({
+        code: "custom",
+        message: "Authorized tenant URLs cannot contain credentials",
+      });
+    }
+  });
+
 export const softwareRecordSchema = z
   .object({
     id: uuid,
     workspaceId: uuid,
     name: nonEmpty,
     vendorName: nonEmpty,
+    authorizedTenantUrl: authorizedTenantUrlSchema,
+    districtOwner: nonEmpty,
+    knownVersion: nonEmpty.optional(),
     approvalState: approvalStateSchema,
-    approvalOwner: z.enum(["HUMAN", "IMPORTED_SYSTEM", "NONE"]),
+    approvalOrigin: approvalOriginSchema,
     createdAt: timestamp,
+    createdBy: humanActorSchema,
   })
   .strict()
   .superRefine((value, context) => {
-    if (value.approvalState === "APPROVED" && value.approvalOwner === "NONE") {
+    if (value.approvalState !== value.approvalOrigin.state) {
       context.addIssue({
         code: "custom",
-        path: ["approvalOwner"],
-        message: "APPROVED must identify a human or imported owner",
+        path: ["approvalOrigin", "state"],
+        message: "Approval origin state must match the current state",
+      });
+    }
+    if (
+      value.workspaceId !== value.approvalOrigin.workspaceId ||
+      value.id !== value.approvalOrigin.softwareId
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["approvalOrigin"],
+        message: "Approval origin must belong to the same software record",
       });
     }
   });
+export type SoftwareRecord = z.infer<typeof softwareRecordSchema>;
 
 export const authorizationSchema = z
   .object({

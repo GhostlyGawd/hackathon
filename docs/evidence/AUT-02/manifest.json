@@ -1,0 +1,235 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "AUT-02",
+  "title": "Implement software inventory and approval provenance",
+  "status": "COMPLETE",
+  "prdSections": [10, 12, 14],
+  "functionalRequirements": ["FR-002", "FR-006"],
+  "sourceCommitSha": "8092c84a0beb23c8930970e5f5dd5d8ad43e2267",
+  "startedAt": "2026-07-19T20:38:30.000Z",
+  "completedAt": "2026-07-19T21:21:19.000Z",
+  "artifactRoot": "artifacts/verification/AUT-02/",
+  "curatedEvidenceRoot": "docs/evidence/AUT-02/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29704046449",
+      "jobs": [
+        {
+          "name": "Ubuntu",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29704046449/job/88237886063",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Windows",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29704046449/job/88237886085",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing software inventory module and routes",
+      "command": "pnpm exec vitest run --project unit tests/unit/software-inventory.test.ts --project property tests/property/software-inventory.property.test.ts --project integration tests/integration/software-inventory.test.ts apps/web/tests/integration/software-inventory-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 2734,
+      "expectedFailure": "The inventory module and software HTTP route did not exist"
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined software inventory acceptance steps",
+      "command": "pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 36423,
+      "expectedFailure": "Three inventory scenarios and eighteen steps were undefined"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Focused software inventory contracts",
+      "command": "pnpm exec vitest run --project unit tests/unit/software-inventory.test.ts tests/unit/domain-schemas.test.ts --project property tests/property/software-inventory.property.test.ts --project integration tests/integration/software-inventory.test.ts",
+      "exitCode": 0,
+      "durationMs": 5460
+    },
+    {
+      "phase": "GREEN",
+      "name": "Software inventory HTTP boundary",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/software-inventory-routes.test.ts apps/web/tests/integration/workspace-routes.test.ts",
+      "exitCode": 0,
+      "durationMs": 1070
+    },
+    {
+      "phase": "GREEN",
+      "name": "Browser acceptance scenarios",
+      "command": "pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 44409
+    },
+    {
+      "phase": "GREEN",
+      "name": "Production build and focused visual capture",
+      "command": "pnpm --filter @pactwire/web build && PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=AUT-02 PACTWIRE_BDD_PRODUCTION=1 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 44700
+    },
+    {
+      "phase": "RED",
+      "name": "Expanded regression exposed evidence and parallel-startup gaps",
+      "command": "pnpm test:unit && pnpm test:property && pnpm test:integration",
+      "exitCode": 1,
+      "durationMs": 26000,
+      "expectedFailure": "The first expanded run rejected the missing AUT-02 manifest and the five-second integration timeout under parallel PGlite startup; both gaps were fixed before the full green gate"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Deterministic repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 159850
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency audit",
+      "command": "pnpm audit --prod --json",
+      "exitCode": 0,
+      "durationMs": 1105
+    }
+  ],
+  "testSummary": {
+    "files": 20,
+    "passed": 82,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-01-PROP-02-no-automated-import-origin",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-01-every-status-names-source",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-11-immutable-origin-provenance",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "software-inventory.feature",
+        "scenario": "A privacy officer imports an existing district approval",
+        "passed": true
+      },
+      {
+        "feature": "software-inventory.feature",
+        "scenario": "A test operator can read inventory but cannot set an imported status",
+        "passed": true
+      },
+      {
+        "feature": "software-inventory.feature",
+        "scenario": "Approval-state filtering preserves the source label",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/AUT-02/inventory-approved-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-19T21:06:29.958Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop software inventory showing a fictional approved district record with its imported source and explicit no-run state.",
+        "caption": "The imported APPROVED status names the fictional district registry and is labelled as a district record, not a Pactwire conclusion.",
+        "provenance": "captured",
+        "sourceCommitSha": "8092c84a0beb23c8930970e5f5dd5d8ad43e2267"
+      },
+      {
+        "path": "docs/evidence/AUT-02/inventory-filtered-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-19T21:06:38.504Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow software inventory filtered to approved records with readable district source, empty states, and next action.",
+        "caption": "The APPROVED filter preserves source provenance and bounded no-run language at a 390-pixel viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "8092c84a0beb23c8930970e5f5dd5d8ad43e2267"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/software-inventory.test.ts",
+      "description": "Approval-origin, tenant URL, source copy, and bounded empty-state examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/software-inventory.property.test.ts",
+      "description": "Seeded source-authority and immutable-provenance properties"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/software-inventory.test.ts",
+      "description": "PostgreSQL transactions, immutability, filters, and tenant isolation"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/software-inventory-routes.test.ts",
+      "description": "Signed-session, server-role, invalid-origin, filter, and cross-workspace HTTP checks"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/software-inventory.feature",
+      "description": "Imported source, operator denial, and approval-filter browser journeys"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/workspace-access.steps.mjs",
+      "description": "Playwright inventory steps and strict browser failure gate"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/inventory.ts",
+      "description": "Inventory service, summaries, and in-memory/PostgreSQL repositories"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0002_software_inventory.sql",
+      "description": "Inventory detail and immutable approval-origin persistence"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/AUT-02/README.md",
+      "description": "Curated AUT-02 red/green record and bounded limitations"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-19T21:07:00.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "Agreement, authorization, run, and finding summaries remain explicit empty states until their owning tasks are implemented.",
+    "The browser fixture uses in-memory storage while PostgreSQL persistence is verified in integration tests.",
+    "Raw GitHub Actions artifacts follow the repository retention policy; the curated, source-bound screenshots remain in this repository."
+  ],
+  "reviewer": "codex-agent"
+}

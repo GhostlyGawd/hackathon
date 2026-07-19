@@ -21,7 +21,7 @@ describe("FND-03 generated domain evidence", () => {
 
     expect(stateEvidence).toBe(generateStateTransitionMarkdown());
     expect(JSON.parse(migrationEvidence) as unknown).toEqual(report);
-    expect(report.totalTables).toBe(19);
+    expect(report.totalTables).toBe(21);
     expect(report.migrations[0]?.immutableTables).toEqual(
       expect.arrayContaining([
         "agreement_versions",
@@ -32,6 +32,9 @@ describe("FND-03 generated domain evidence", () => {
         "approval_events",
         "human_decisions",
       ]),
+    );
+    expect(report.migrations[1]?.immutableTables).toContain(
+      "software_approval_origins",
     );
     expect(stateEvidence).toContain("stateDiagram-v2");
     expect(stateEvidence).toContain("AUTOMATION");

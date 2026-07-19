@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { SoftwareInventory } from "./software-inventory";
 
 type WorkspaceRole =
   | "PRIVACY_OFFICER"
@@ -363,9 +364,10 @@ export function AccessConsole() {
         </a>
         <nav aria-label="Primary navigation">
           <a href="#overview">Overview</a>
-          <a href="#authority" aria-current="page">
-            Authority
+          <a href="#inventory" aria-current="page">
+            Inventory
           </a>
+          <a href="#authority">Authority</a>
           <span aria-disabled="true">Evidence</span>
         </nav>
         <span className="environment-badge">
@@ -376,45 +378,46 @@ export function AccessConsole() {
       <main id="main">
         <section className="hero" id="overview">
           <div className="hero-copy">
-            <p className="eyebrow">Authority / AUT-01</p>
-            <h1>Workspace access is decided on the server.</h1>
+            <p className="eyebrow">Inventory / AUT-02</p>
+            <h1>Every software status shows who set it.</h1>
             <p className="lede">
-              Pactwire loads a person&apos;s workspace roles for every request.
-              A client cannot grant itself permission or read another district&apos;s
-              records by changing an ID.
+              Record the exact district tenant, owner, version, and current
+              approval status. Pactwire keeps the named person or district
+              system behind that status visible—it never presents an imported
+              status as its own conclusion.
             </p>
             <div className="principle-row">
               <span>
-                <ShieldIcon /> Server-enforced roles
+                <ShieldIcon /> Named district source
               </span>
               <span>
-                <AuditIcon /> Every denied action is recorded
+                <AuditIcon /> Immutable approval origin
               </span>
             </div>
           </div>
-          <div className="decision-flow" aria-label="Server authorization flow">
-            <p className="flow-label">For every restricted request</p>
+          <div className="decision-flow" aria-label="District status provenance flow">
+            <p className="flow-label">For every inventory record</p>
             <div className="flow-step">
               <span className="step-index">01</span>
               <div>
-                <strong>Signed identity</strong>
-                <span>User ID + active workspace</span>
+                <strong>Software and tenant</strong>
+                <span>The exact district URL under review</span>
               </div>
             </div>
             <ArrowIcon />
             <div className="flow-step">
               <span className="step-index">02</span>
               <div>
-                <strong>Server role lookup</strong>
-                <span>No role comes from the browser</span>
+                <strong>Existing district status</strong>
+                <span>Unknown, approved, hold, rejected, or retired</span>
               </div>
             </div>
             <ArrowIcon />
             <div className="flow-step emphasized">
               <span className="step-index">03</span>
               <div>
-                <strong>Allow or deny</strong>
-                <span>Decision appended to audit history</span>
+                <strong>Named source</strong>
+                <span>Person or imported district system—not Pactwire</span>
               </div>
             </div>
           </div>
@@ -513,7 +516,12 @@ export function AccessConsole() {
               </p>
             </div>
           ) : (
-            <div className="workspace-grid">
+            <>
+              <SoftwareInventory
+                workspaceId={principal.activeWorkspaceId}
+                principalUserId={principal.userId}
+              />
+              <div className="workspace-grid">
               <div className="workspace-column">
                 <article className="workspace-card">
                   <div className="card-kicker">
@@ -686,14 +694,15 @@ export function AccessConsole() {
                   append-only
                 </div>
               </aside>
-            </div>
+              </div>
+            </>
           )}
         </section>
       </main>
 
       <footer>
         <span>Pactwire controlled fixture · no real student data</span>
-        <span className="mono">AUTHORITY_CONTRACT / v1</span>
+        <span className="mono">DISTRICT_STATUS_PROVENANCE / v1</span>
       </footer>
     </div>
   );

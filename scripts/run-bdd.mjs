@@ -28,6 +28,26 @@ await mkdir(
     repositoryRoot,
     "artifacts",
     "verification",
+    "AUT-02",
+    "reports",
+  ),
+  { recursive: true },
+);
+await mkdir(
+  path.join(
+    repositoryRoot,
+    "artifacts",
+    "verification",
+    "AUT-02",
+    "screenshots",
+  ),
+  { recursive: true },
+);
+await mkdir(
+  path.join(
+    repositoryRoot,
+    "artifacts",
+    "verification",
     "AUT-01",
     "screenshots",
   ),

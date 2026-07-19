@@ -18,6 +18,11 @@ export interface MigrationDatabase {
 
 const migrationFiles = [
   { version: "0001", name: "initial", fileName: "0001_initial.sql" },
+  {
+    version: "0002",
+    name: "software_inventory",
+    fileName: "0002_software_inventory.sql",
+  },
 ] as const;
 
 export async function loadCoreMigrations(): Promise<readonly CoreMigration[]> {
