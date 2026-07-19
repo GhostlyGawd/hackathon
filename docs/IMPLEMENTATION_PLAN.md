@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Source | [Pactwire PRD](PRD.md) |
-| Plan status | Version 1 — execution backlog; implementation not started |
+| Plan status | Version 1 — execution backlog; implementation in progress |
 | Task packages | 35 |
 | P0 functional requirements | 40 |
 | P1 functional requirements | 3 |
@@ -225,7 +225,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 
 | Task | Priority | Depends on | Primary output | Status |
 | --- | --- | --- | --- | --- |
-| FND-01 | P0 | — | TypeScript workspace and deterministic CI | NOT STARTED |
+| FND-01 | P0 | — | TypeScript workspace and deterministic CI | IN PROGRESS |
 | FND-02 | P0 | FND-01 | Verification/evidence harness | NOT STARTED |
 | FND-03 | P0 | FND-01, FND-02 | Domain schemas, state machines, migrations | NOT STARTED |
 | AUT-01 | P0 | FND-03 | Workspace roles and authorization | NOT STARTED |
@@ -298,13 +298,14 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### FND-01 — Bootstrap the TypeScript workspace and deterministic CI
 
+- **Status:** IN PROGRESS — local acceptance is green; clean-checkout Linux and Windows CI evidence is pending.
 - **Deliver:** pnpm workspace containing apps/web, apps/runner, apps/fixture, packages/core, packages/evidence, and packages/testkit; strict TypeScript; linting; build graph; database and object-store test services; canonical scripts; CI.
 - **PRD:** Sections 8, 13, 21, and 22.
 - **Depends on:** none.
 - **Red first:** repository smoke test fails because the declared packages, scripts, and isolated test services do not exist.
 - **Tests:** clean-checkout install, lint, typecheck, build, unit smoke, database migration smoke.
 - **Property/BDD:** no property or BDD requirement; configuration matrix tests cover supported Node and packaged Chromium versions.
-- **Evidence:** CI link and sanitized clean-checkout terminal capture. Visual UI proof is not applicable.
+- **Evidence:** [FND-01 verification evidence](evidence/FND-01/README.md). Visual UI proof is not applicable.
 - **Complete when:** every deterministic canonical command exists, CI blocks failure, lockfile is committed, and setup is reproducible from a clean checkout.
 
 #### FND-02 — Build the verification and evidence harness

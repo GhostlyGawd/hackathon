@@ -2,7 +2,7 @@
 
 > **Pactwire checks whether school websites and software collect more student information than the district allowed or send it to unapproved companies.**
 
-This repository currently contains the evidence and decision record for an OpenAI Build Week submission. It does **not** yet claim a working product.
+This repository contains the evidence, product specification, and verified engineering foundation for an OpenAI Build Week submission. The user-facing product is still under implementation and is **not** yet presented as complete.
 
 ## Problem
 
@@ -35,3 +35,21 @@ Read the [authoritative recommendation](research/recommendation.md) and the [fin
 - [Independent and focused novelty reviews](research/reviews/)
 
 Earlier rankings in the review directory are intermediate tournament artifacts. The recommendation and final second-pass decision supersede them.
+
+## Development foundation
+
+Prerequisites:
+
+- Node.js 24
+- pnpm 11.6
+
+Install and run every deterministic foundation gate:
+
+~~~powershell
+pnpm install --frozen-lockfile
+pnpm verify
+~~~
+
+The workspace contains the Next.js web service, browser-runner service, controlled fixture, core domain package, evidence package, and shared testkit. Deterministic database tests use an isolated embedded PostgreSQL service; evidence-storage tests use an isolated temporary filesystem adapter. Docker is not required for the foundation test suite.
+
+The foundation does not yet implement the Pactwire user workflow. Follow task status and acceptance evidence in the [implementation plan](docs/IMPLEMENTATION_PLAN.md).
