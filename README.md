@@ -1,16 +1,18 @@
 # Pactwire
 
-> **When app behavior crosses the contract, approval stops.**
+> **Pactwire alerts school districts when an app's observed data sharing conflicts with its signed privacy agreement.**
 
 This repository currently contains the evidence and decision record for an OpenAI Build Week submission. It does **not** yet claim a working product.
 
-## Selected direction
+## Problem
 
-**Pactwire** is a district DPA behavior-regression tripwire for the Education track:
+School districts approve education apps based on signed student-data privacy agreements, but an app's data-sharing behavior can change after approval. District privacy staff need a repeatable way to detect observable conflicts without testing with real student data.
 
-> For a district privacy officer responsible for a signed data-protection agreement, replay authorized synthetic student and teacher journeys after a product change. If deterministic instrumentation witnesses a newly contradictory data flow or loses required observability, move the app from `APPROVED` to `HOLD` pending human review.
+## Product
 
-The system may witness a contradiction. It may never declare legal compliance, infer that unobserved behavior is safe, or restore approval automatically.
+Pactwire replays authorized synthetic student and teacher journeys after an app changes. It records where synthetic data is sent and compares that evidence with human-confirmed terms in the district's agreement. If Pactwire witnesses a new conflict or can no longer observe a required journey, it moves the app from `APPROVED` to `HOLD` for human review.
+
+Pactwire may report a witnessed conflict. It may never declare legal compliance, infer that unobserved behavior is safe, or restore approval automatically.
 
 Read the [authoritative recommendation](research/recommendation.md) and the [final adversarial decision](research/reviews/final-second-pass-decision.md).
 
