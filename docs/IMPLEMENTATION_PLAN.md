@@ -229,7 +229,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | FND-02 | P0 | FND-01 | Verification/evidence harness | COMPLETE |
 | FND-03 | P0 | FND-01, FND-02 | Domain schemas, state machines, migrations | COMPLETE |
 | AUT-01 | P0 | FND-03 | Workspace roles and authorization | COMPLETE |
-| AUT-02 | P0 | AUT-01, FND-03 | Software inventory and approval provenance | IN PROGRESS |
+| AUT-02 | P0 | AUT-01, FND-03 | Software inventory and approval provenance | COMPLETE |
 | AUT-03 | P0 | AUT-01, FND-03 | Test authorization and action policy | NOT STARTED |
 | AUT-04 | P0 | AUT-03 | Secret isolation and redaction | NOT STARTED |
 | AGR-01 | P0 | AUT-01, FND-03 | Immutable agreement intake | NOT STARTED |
