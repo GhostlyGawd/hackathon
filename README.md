@@ -1,10 +1,12 @@
-# OpenAI Build Week idea tournament
+# Pactwire
+
+> **When app behavior crosses the contract, approval stops.**
 
 This repository currently contains the evidence and decision record for an OpenAI Build Week submission. It does **not** yet claim a working product.
 
 ## Selected direction
 
-Build a **district DPA behavior-regression tripwire** for the Education track:
+**Pactwire** is a district DPA behavior-regression tripwire for the Education track:
 
 > For a district privacy officer responsible for a signed data-protection agreement, replay authorized synthetic student and teacher journeys after a product change. If deterministic instrumentation witnesses a newly contradictory data flow or loses required observability, move the app from `APPROVED` to `HOLD` pending human review.
 

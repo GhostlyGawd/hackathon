@@ -1,10 +1,12 @@
-# Authoritative idea recommendation
+# Pactwire — authoritative idea recommendation
 
 Research snapshot: 2026-07-19. This decision deliberately excludes schedule and time-to-build. It selects the strongest evidence-adjusted hackathon bet, not a guaranteed winner or a claim that a new market category has already been proven.
 
 ## Decision
 
-Select the **district DPA behavior-regression tripwire** for the **Education** track.
+Select **Pactwire**, a **district DPA behavior-regression tripwire** for the **Education** track.
+
+> **When app behavior crosses the contract, approval stops.**
 
 > For a district privacy officer responsible for a signed data-protection agreement (DPA), replay authorized synthetic student and teacher journeys after a meaningful app change. If deterministic instrumentation witnesses a newly contradictory data flow or loses required observability, change the district's app state from `APPROVED` to `HOLD` pending human review.
 
@@ -98,4 +100,4 @@ Kill this as the lead if the deterministic recorder matches it, the contradictio
 
 ## Bottom line
 
-Build the **district DPA behavior-regression tripwire**. Its strongest claim is narrow but real: turn a district-specific contract regression into a replayable external witness and a reversible institutional hold. Keep the Completion Offer Network as the higher category-upside direction only after real issuers make its central promise non-fictional.
+Build **Pactwire** as the district DPA behavior-regression tripwire. Its strongest claim is narrow but real: turn a district-specific contract regression into a replayable external witness and a reversible institutional hold. Keep the Completion Offer Network as the higher category-upside direction only after real issuers make its central promise non-fictional.
