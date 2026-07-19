@@ -104,6 +104,14 @@
       "command": "pnpm verify",
       "exitCode": 0,
       "durationMs": 233800
+    },
+    {
+      "phase": "RED",
+      "name": "Production capture exposed secure-cookie harness mismatch",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=AUT-04 PACTWIRE_BDD_PRODUCTION=1 PACTWIRE_BDD_TAGS=@AUT-04 pnpm --filter @pactwire/web build && pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 64000,
+      "expectedFailure": "The browser journey passed credential management and redaction but Playwright's out-of-page HTTP client omitted the production Secure session cookie from a local HTTP export request, returning 401; the step was moved to the same-origin browser path without weakening cookie security"
     }
   ],
   "testSummary": {

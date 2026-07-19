@@ -14,6 +14,8 @@ The first unit/property command failed because the secret-isolation module did n
 
 During implementation, PROP-20 found that the automation audit actor lacked its required component identifier. The first full browser run then found that the new panel read a nested software inventory response as a flat record, producing undefined React keys and no selectable software. Both failures were corrected at their actual boundaries and the exact focused commands passed before the full regression run.
 
+The first optimized-production capture exposed a harness-specific authentication mismatch: Playwright's out-of-page HTTP client did not send the production `Secure` session cookie over the local HTTP test URL, so the export assertion received 401 after the in-page credential and redaction checks had passed. The export step now uses the same-origin browser request path used by the product. The fix preserves the production cookie's `Secure` attribute.
+
 ## Current local evidence
 
 - Unit tests cover every configured representation, idempotent replacement, structured sensitive fields, authenticated encryption with bound additional data, and screenshot selectors.

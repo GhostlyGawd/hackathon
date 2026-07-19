@@ -852,11 +852,13 @@ Then("every configured credential representation is redacted", async function ()
 Then(
   "the workspace export contains secret metadata but no secret value",
   async function () {
-    const response = await this.context.request.get(
-      "/api/workspaces/11111111-1111-4111-8111-111111111111/export",
-    );
-    const body = await response.text();
-    assert.equal(response.status(), 200);
+    const { body, status } = await this.page.evaluate(async () => {
+      const response = await fetch(
+        "/api/workspaces/11111111-1111-4111-8111-111111111111/export",
+      );
+      return { body: await response.text(), status: response.status };
+    });
+    assert.equal(status, 200);
     assert.match(body, /"secretMetadata"/u);
     assert.match(body, /"rawValuesIncluded":false/u);
     assertNoSecretRepresentation(body, this.generatedSecret);
