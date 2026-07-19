@@ -1,10 +1,10 @@
-# Final second-pass decision
+# Final second-pass decision: Pactwire
 
 Research snapshot: 2026-07-19. This decision ignores schedule and implementation-time constraints. It applies the official equal-weight rubric and treats external truth, decision authority, prior art, and model ablation as score gates.
 
 ## Decision
 
-**Select the district DPA behavior-regression tripwire in the Education track as the sole evidence-adjusted hackathon bet. Confidence: medium.**
+**Select Pactwire—the district DPA behavior-regression tripwire—in the Education track as the sole evidence-adjusted hackathon bet. Confidence: medium.**
 
 It is not a proven new category. It is a differentiated procurement-assurance wedge whose closest predecessors already perform behavior-versus-contract audits. It wins this tournament because it has the best combination of a consequential documented problem, a deep system, a complete user journey, and an externally witnessed state change that can be demonstrated without asking GPT-5.6 to certify its own work.
 
@@ -22,7 +22,7 @@ These are credible ceilings for honest, complete products, not scores for the cu
 
 | Direction | Tech | Design | Impact | Idea | Ceiling | Adversarial result |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| **District DPA behavior tripwire** | **4** | **4** | **4** | **2** | **14** | **Select as hackathon bet.** A canary-bearing network request, replay receipt, and buyer-controlled `APPROVED -> HOLD` transition are externally inspectable. Direct Utah/ISL, AppCensus, policy-flow research, and K–12 workflow prior art cap novelty. |
+| **Pactwire: district DPA behavior tripwire** | **4** | **4** | **4** | **2** | **14** | **Select as hackathon bet.** A canary-bearing network request, replay receipt, and buyer-controlled `APPROVED -> HOLD` transition are externally inspectable. Direct Utah/ISL, AppCensus, policy-flow research, and K–12 workflow prior art cap novelty. |
 | **Completion Offer Network** | **3** | **4** | **4** | **3** | **14** | **Conditional category bet, not selected now.** The signed comparison object appears distinct, but every analytic component already ships and the central state exists only when real institutions bind themselves before deposit. |
 | **Capability settlement** | **3** | **4** | **4** | **2** | **13** | **Do not select.** It has the strongest direct proxy-failure evidence, but its residue is a portable delayed-transfer state around familiar mastery assessment. It must beat an ordinary LMS plus teacher-authored delayed probes. |
 | **Function-grounded manufacturing witness** | **4** | **3** | **3** | **3** | **13** | **Keep as a research wildcard.** It has the best technical and visual raw ceiling, but two conforming parts prove only allowed variation unless an engineer supplies an authoritative CTQ. Once supplied, existing checking and tolerance systems perform much of the causal work. |
@@ -81,6 +81,6 @@ Kill the tripwire as the lead if any one of these remains true after the decisiv
 
 ## Final call
 
-Build the **district DPA behavior-regression tripwire** as the Education-track hackathon bet. Do not call it an AI privacy scanner, an automated compliance gate, or a new category. Its winning thesis is narrower and stronger: **turn a district-specific contract regression into a replayable external witness and a reversible institutional hold.**
+Build **Pactwire**, the district DPA behavior-regression tripwire, as the Education-track hackathon bet. Do not call it an AI privacy scanner, an automated compliance gate, or a new category. Its winning thesis is narrower and stronger: **turn a district-specific contract regression into a replayable external witness and a reversible institutional hold.**
 
 Keep the **Completion Offer Network** as the best conditional category bet. Promote it above the tripwire only when real institutional issuers make its central state change non-fictional.

@@ -1,5 +1,7 @@
 # Focused novelty audit — contract-to-behavior procurement gate for school apps
 
+> **Naming note:** The selected residual mechanism in this audit was subsequently named **Pactwire**. The original descriptive terminology is retained because this document records the pre-selection audit.
+
 Research snapshot: 2026-07-19.
 
 ## Verdict
