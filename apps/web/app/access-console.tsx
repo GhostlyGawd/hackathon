@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { SecretIsolationPanel } from "./secret-isolation-panel";
 import { SoftwareInventory } from "./software-inventory";
 import { TestAuthorizationPanel } from "./test-authorization-panel";
 
@@ -373,7 +374,7 @@ export function AccessConsole() {
             Inventory
           </a>
           <a href="#authorization">Authorization</a>
-          <span aria-disabled="true">Evidence</span>
+          <a href="#credentials" aria-current="page">Credentials</a>
         </nav>
         <span className="environment-badge">
           <span aria-hidden="true" /> Controlled fixture
@@ -383,13 +384,13 @@ export function AccessConsole() {
       <main id="main">
         <section className="hero" id="overview">
           <div className="hero-copy">
-            <p className="eyebrow">Test authorization / AUT-03</p>
-            <h1>Set the exact boundary before an automated test runs.</h1>
+            <p className="eyebrow">Credential isolation / AUT-04</p>
+            <h1>Use test credentials without exposing them to the page or model.</h1>
             <p className="lede">
-              A district user records why testing is authorized, when that
-              authority must be reviewed, which destinations are allowed, and
-              which actions are prohibited. Pactwire blocks anything outside
-              that stored policy before the model or page can act.
+              Pactwire stores fictional passwords, tokens, and cookies as
+              encrypted values. It releases a value only inside one authorized
+              browser harness context, then removes it from prompts, logs,
+              screenshots, and exports.
             </p>
             <div className="principle-row">
               <span>
@@ -405,24 +406,24 @@ export function AccessConsole() {
             <div className="flow-step">
               <span className="step-index">01</span>
               <div>
-                <strong>Human authority</strong>
-                <span>Basis, attestation, review date, and expiry</span>
+                <strong>Encrypted storage</strong>
+                <span>Pages receive a label and status, never the saved value</span>
               </div>
             </div>
             <ArrowIcon />
             <div className="flow-step">
               <span className="step-index">02</span>
               <div>
-                <strong>Exact scope</strong>
-                <span>Base URL, listed hostnames, and allowed actions</span>
+                <strong>One harness context</strong>
+                <span>A short-lived, single-use lease binds each injection</span>
               </div>
             </div>
             <ArrowIcon />
             <div className="flow-step emphasized">
               <span className="step-index">03</span>
               <div>
-                <strong>Block and record</strong>
-                <span>Expired, redirected, popup, and prohibited attempts stop</span>
+                <strong>Redact and record</strong>
+                <span>Raw and encoded forms are removed from every normal output</span>
               </div>
             </div>
           </div>
@@ -527,6 +528,11 @@ export function AccessConsole() {
                 principalUserId={principal.userId}
               />
               <TestAuthorizationPanel
+                workspaceId={principal.activeWorkspaceId}
+                principalUserId={principal.userId}
+              />
+              <SecretIsolationPanel
+                key={`${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
                 principalUserId={principal.userId}
               />
@@ -711,7 +717,7 @@ export function AccessConsole() {
 
       <footer>
         <span>Pactwire controlled fixture · no real student data</span>
-        <span className="mono">TEST_AUTHORIZATION_POLICY / v1</span>
+        <span className="mono">SECRET_ISOLATION_BOUNDARY / v1</span>
       </footer>
     </div>
   );

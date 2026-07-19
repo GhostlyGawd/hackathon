@@ -18,11 +18,17 @@ export async function GET(
       throw new AuthenticationRequiredError();
     }
     const { workspaceId } = await context.params;
-    const exported = await (await getAccessRuntime()).service.exportWorkspace({
+    const runtime = await getAccessRuntime();
+    const exported = await runtime.service.exportWorkspace({
       principal,
       workspaceId,
     });
-    return NextResponse.json(exported);
+    const redacted = await runtime.secretIsolationService.redactWorkspaceExport({
+      principal,
+      workspaceId,
+      content: exported,
+    });
+    return NextResponse.json(redacted);
   } catch (error) {
     return authorizationErrorResponse(error);
   }

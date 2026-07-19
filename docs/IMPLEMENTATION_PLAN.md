@@ -231,7 +231,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | AUT-01 | P0 | FND-03 | Workspace roles and authorization | COMPLETE |
 | AUT-02 | P0 | AUT-01, FND-03 | Software inventory and approval provenance | COMPLETE |
 | AUT-03 | P0 | AUT-01, FND-03 | Test authorization and action policy | COMPLETE |
-| AUT-04 | P0 | AUT-03 | Secret isolation and redaction | NOT STARTED |
+| AUT-04 | P0 | AUT-03 | Secret isolation and redaction | IN PROGRESS |
 | AGR-01 | P0 | AUT-01, FND-03 | Immutable agreement intake | NOT STARTED |
 | AGR-02 | P0 | AGR-01, FND-02 | GPT-5.6 structured proposals | NOT STARTED |
 | AGR-03 | P0 + P1 follow-on | AGR-01, AGR-02, AUT-01 | Human review and requirement versions | NOT STARTED |

@@ -18,6 +18,26 @@ await mkdir(
     repositoryRoot,
     "artifacts",
     "verification",
+    "AUT-04",
+    "reports",
+  ),
+  { recursive: true },
+);
+await mkdir(
+  path.join(
+    repositoryRoot,
+    "artifacts",
+    "verification",
+    "AUT-04",
+    "screenshots",
+  ),
+  { recursive: true },
+);
+await mkdir(
+  path.join(
+    repositoryRoot,
+    "artifacts",
+    "verification",
     "AUT-01",
     "reports",
   ),
@@ -136,7 +156,14 @@ try {
   if (server) await waitForServer(baseUrl, server);
   const cucumber = spawn(
     process.execPath,
-    [cucumberBinary, "--config", "cucumber.mjs"],
+    [
+      cucumberBinary,
+      "--config",
+      "cucumber.mjs",
+      ...(process.env.PACTWIRE_BDD_TAGS
+        ? ["--tags", process.env.PACTWIRE_BDD_TAGS]
+        : []),
+    ],
     {
       cwd: repositoryRoot,
       env: { ...process.env, PACTWIRE_BDD_BASE_URL: baseUrl },
