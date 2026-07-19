@@ -179,6 +179,7 @@ export function AccessConsole() {
   const [lookupId, setLookupId] = useState("");
   const [feedback, setFeedback] = useState<Feedback>();
   const [busy, setBusy] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
 
   const loadAudit = useCallback(
     async (
@@ -225,6 +226,10 @@ export function AccessConsole() {
         if (active) {
           setPrincipal(undefined);
         }
+      } finally {
+        if (active) {
+          setSessionReady(true);
+        }
       }
     }
     void restore();
@@ -234,6 +239,7 @@ export function AccessConsole() {
   }, [loadWorkspace]);
 
   async function startSession(): Promise<void> {
+    if (!sessionReady) return;
     setBusy(true);
     setFeedback(undefined);
     try {
@@ -455,13 +461,19 @@ export function AccessConsole() {
             <button
               className="primary-button"
               data-testid="start-session"
-              disabled={busy}
+              disabled={busy || !sessionReady}
               type="button"
               onClick={() => {
                 void startSession();
               }}
             >
-              {busy ? "Checking…" : principal ? "Switch user" : "Start session"}
+              {!sessionReady
+                ? "Restoring session…"
+                : busy
+                  ? "Checking…"
+                  : principal
+                    ? "Switch user"
+                    : "Start session"}
             </button>
             <p>
               Fixture sessions are signed, HTTP-only, and contain no permission

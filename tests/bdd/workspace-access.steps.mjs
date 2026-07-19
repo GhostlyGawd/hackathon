@@ -59,6 +59,12 @@ class AccessWorld {
       viewport: { width: 1440, height: 1100 },
     });
     this.page = await this.context.newPage();
+    await this.page.route("**/api/demo/session", async (route) => {
+      if (route.request().method() === "GET") {
+        await new Promise((resolve) => setTimeout(resolve, 350));
+      }
+      await route.continue();
+    });
     this.page.on("console", (message) => {
       if (message.type() === "error") this.consoleErrors.push(message.text());
     });
