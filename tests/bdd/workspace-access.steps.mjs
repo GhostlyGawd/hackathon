@@ -40,6 +40,9 @@ function isExpectedAuthorizationFailure(response) {
     (method === "POST" &&
       pathname.endsWith("/software") &&
       response.status() === 403) ||
+    (method === "POST" &&
+      pathname.endsWith("/queue-check") &&
+      response.status() === 409) ||
     (method === "GET" &&
       pathname ===
         "/api/workspaces/22222222-2222-4222-8222-222222222222" &&
@@ -54,6 +57,8 @@ class AccessWorld {
   expectedHttpErrorStatuses = [];
   unexpectedHttpFailures = [];
   page;
+  beforePolicyUrl;
+  unexpectedPopupCount = 0;
 
   async openBrowser() {
     this.browser = await chromium.launch();
@@ -62,6 +67,9 @@ class AccessWorld {
       viewport: { width: 1440, height: 1100 },
     });
     this.page = await this.context.newPage();
+    this.context.on("page", (openedPage) => {
+      if (openedPage !== this.page) this.unexpectedPopupCount += 1;
+    });
     await this.page.route("**/api/demo/session", async (route) => {
       if (route.request().method() === "GET") {
         await new Promise((resolve) => setTimeout(resolve, 350));
@@ -104,6 +112,8 @@ After(async function ({ result, pickle }) {
       const slug = pickle.name.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-");
       const taskId = pickle.tags.some((tag) => tag.name === "@AUT-02")
         ? "AUT-02"
+        : pickle.tags.some((tag) => tag.name === "@AUT-03")
+          ? "AUT-03"
         : "AUT-01";
       await this.page.screenshot({
         fullPage: true,
@@ -144,6 +154,11 @@ After(async function ({ result, pickle }) {
         [],
         "No unexpected browser errors were emitted",
       );
+      assert.equal(
+        this.unexpectedPopupCount,
+        0,
+        "No out-of-policy popup was opened",
+      );
     }
   } finally {
     await this.closeBrowser();
@@ -155,6 +170,12 @@ Given("the fictional workspace access fixture is reset", async function () {
   assert.equal(response.status(), 200);
   await this.page.goto("/");
 });
+
+function shouldCaptureCurated(taskId) {
+  if (process.env.PACTWIRE_CAPTURE_CURATED_EVIDENCE !== "1") return false;
+  const requestedTask = process.env.PACTWIRE_EVIDENCE_TASK;
+  return !requestedTask || requestedTask === taskId;
+}
 
 async function startSession(world, role) {
   const key = roleKeys[role];
@@ -261,10 +282,7 @@ Then(
           `${name}.png`,
         ),
       });
-      if (
-        process.env.PACTWIRE_CAPTURE_CURATED_EVIDENCE === "1" &&
-        process.env.PACTWIRE_EVIDENCE_TASK !== "AUT-02"
-      ) {
+      if (shouldCaptureCurated("AUT-01")) {
         await this.page.screenshot({
           fullPage: true,
           path: path.join(
@@ -449,10 +467,7 @@ async function captureInventory(world, name, narrow) {
       "screenshots",
     ),
   );
-  if (
-    process.env.PACTWIRE_CAPTURE_CURATED_EVIDENCE === "1" &&
-    process.env.PACTWIRE_EVIDENCE_TASK !== "AUT-01"
-  ) {
+  if (shouldCaptureCurated("AUT-02")) {
     await capture(
       path.join(process.cwd(), "docs", "evidence", "AUT-02"),
     );
@@ -471,5 +486,224 @@ Then(
   "I capture the {string} narrow inventory evidence",
   async function (evidenceName) {
     await captureInventory(this, evidenceName, true);
+  },
+);
+
+Given("the fictional Northstar software exists", async function () {
+  await fillSoftwareForm(this, softwareFixtures.northstar, "APPROVED");
+  const creationResponse = this.page.waitForResponse((response) => {
+    const request = response.request();
+    return (
+      request.method() === "POST" &&
+      new URL(response.url()).pathname.endsWith("/software")
+    );
+  });
+  await submitSoftware(this);
+  assert.equal((await creationResponse).status(), 201);
+  await this.page.reload();
+  await this.page.getByTestId("workspace-title").waitFor();
+  await this.page.getByTestId("authorization-panel").waitFor();
+  await this.page
+    .getByTestId("authorization-software-select")
+    .locator("option")
+    .filter({ hasText: "Northstar Classroom (Fictional)" })
+    .waitFor({ state: "attached" });
+});
+
+async function defineAuthorization(world, expired) {
+  const form = world.page.getByTestId("authorization-form");
+  if ((await form.count()) === 0) {
+    await world.page.getByTestId("new-authorization").click();
+  }
+  await form.waitFor();
+  await world.page
+    .getByTestId("authority-basis")
+    .fill("District-owned fictional training tenant.");
+  await world.page
+    .getByTestId("authorization-base-url")
+    .fill("https://cedar.northstar.invalid/classroom");
+  await world.page
+    .getByTestId("authorization-supporting-domains")
+    .fill("assets.northstar.invalid");
+  await world.page
+    .getByTestId("authorization-valid-from")
+    .fill(expired ? "2026-07-18T18:00" : "2026-07-19T20:00");
+  await world.page
+    .getByTestId("authorization-review-at")
+    .fill(expired ? "2026-07-19T18:30" : "2026-07-20T20:00");
+  await world.page
+    .getByTestId("authorization-expires-at")
+    .fill(expired ? "2026-07-19T19:00" : "2026-07-21T20:00");
+  await world.page.getByTestId("authority-confirmed").check();
+  await world.page.getByTestId("synthetic-confirmed").check();
+  await world.page.getByTestId("save-authorization").click();
+  await world.page.getByTestId("authorization-current").waitFor();
+}
+
+When(
+  "I define a current authorization for the fictional Northstar software",
+  async function () {
+    await defineAuthorization(this, false);
+  },
+);
+
+When(
+  "I define an expired authorization for the fictional Northstar software",
+  async function () {
+    await defineAuthorization(this, true);
+  },
+);
+
+Then("the authorization is shown as {string}", async function (status) {
+  await this.page
+    .getByTestId("authorization-status")
+    .getByText(status, { exact: true })
+    .waitFor();
+});
+
+Then(
+  "the authorization names the human attestation and authority basis",
+  async function () {
+    const current = this.page.getByTestId("authorization-current");
+    await current
+      .getByText("District-owned fictional training tenant.", { exact: true })
+      .waitFor();
+    const proof = this.page.getByTestId("attestation-proof");
+    await proof
+      .getByText("Human attestation recorded", { exact: true })
+      .waitFor();
+    await proof.getByText("fictional-officer-a", { exact: false }).waitFor();
+  },
+);
+
+Then(
+  "the authorization shows its base URL, review date, expiry, allowed actions, and prohibited actions",
+  async function () {
+    const scope = this.page.getByTestId("authorization-scope");
+    await scope
+      .getByText("https://cedar.northstar.invalid/classroom", { exact: true })
+      .waitFor();
+    await scope.getByText("NAVIGATE", { exact: true }).waitFor();
+    await scope.getByText("DELETE", { exact: true }).waitFor();
+    const dates = this.page.getByTestId("authorization-dates");
+    await dates.getByText("Review by", { exact: true }).waitFor();
+    await dates.getByText("Expires", { exact: true }).waitFor();
+  },
+);
+
+When("I check whether the authorized run can queue", async function () {
+  await this.page.getByTestId("queue-check").click();
+  await this.page.getByTestId("policy-result").waitFor();
+});
+
+Then("the run queue is blocked because {string}", async function (reason) {
+  const result = this.page.getByTestId("policy-result");
+  await result.getByText("Blocked by stored policy", { exact: true }).waitFor();
+  await result.getByText(reason, { exact: true }).waitFor();
+});
+
+Then("the blocked run queue attempt is recorded", async function () {
+  await this.page
+    .getByTestId("policy-result")
+    .getByText("Blocked attempt recorded", { exact: true })
+    .waitFor();
+  await this.page
+    .getByTestId("policy-decisions")
+    .getByText("AUTHORIZATION_EXPIRED", { exact: false })
+    .waitFor();
+});
+
+async function checkTargetAttempt(world, kind, targetUrl) {
+  world.beforePolicyUrl = world.page.url();
+  await world.page.getByTestId("attempt-kind").selectOption(kind);
+  await world.page.getByTestId("attempt-url").fill(targetUrl);
+  await world.page.getByTestId("check-policy-attempt").click();
+  await world.page.getByTestId("policy-result").waitFor();
+}
+
+When("the runner attempts a redirect to {string}", async function (targetUrl) {
+  await checkTargetAttempt(this, "REDIRECT", targetUrl);
+});
+
+Then(
+  "the redirect is blocked before the browser leaves Pactwire",
+  async function () {
+    assert.equal(this.page.url(), this.beforePolicyUrl);
+    assert.equal(this.unexpectedPopupCount, 0);
+    await this.page
+      .getByTestId("policy-result")
+      .getByText("DOMAIN_NOT_ALLOWED", { exact: false })
+      .waitFor();
+  },
+);
+
+Then("the reason says {string}", async function (reason) {
+  await this.page
+    .getByTestId("policy-result")
+    .getByText(reason, { exact: true })
+    .waitFor();
+});
+
+When("the runner attempts a popup to {string}", async function (targetUrl) {
+  await checkTargetAttempt(this, "POPUP", targetUrl);
+});
+
+When(
+  "the runner attempts the prohibited {string} action",
+  async function (action) {
+    await this.page.getByTestId("attempt-kind").selectOption("ACTION");
+    await this.page.getByTestId("attempt-action").selectOption(action);
+    await this.page.getByTestId("check-policy-attempt").click();
+    await this.page.getByTestId("policy-result").waitFor();
+  },
+);
+
+Then(
+  "all three blocked attempts are recorded with bounded reasons",
+  async function () {
+    const history = this.page.getByTestId("policy-decisions");
+    await history.locator("li").nth(2).waitFor();
+    assert.equal(await history.locator("li").count(), 3);
+    const text = await history.innerText();
+    assert.match(text, /DOMAIN_NOT_ALLOWED/u);
+    assert.match(text, /POPUP_BLOCKED/u);
+    assert.match(text, /ACTION_PROHIBITED/u);
+    assert.equal(text.includes("?student=fictional"), false);
+  },
+);
+
+async function captureAuthorization(world, name, narrow) {
+  if (narrow) await world.page.setViewportSize({ width: 390, height: 844 });
+  const capture = async (root) => {
+    await world.page.getByTestId("authorization-panel").screenshot({
+      path: path.join(root, `${name}.png`),
+    });
+  };
+  await capture(
+    path.join(
+      process.cwd(),
+      "artifacts",
+      "verification",
+      "AUT-03",
+      "screenshots",
+    ),
+  );
+  if (shouldCaptureCurated("AUT-03")) {
+    await capture(path.join(process.cwd(), "docs", "evidence", "AUT-03"));
+  }
+  if (narrow) await world.page.setViewportSize({ width: 1440, height: 1100 });
+}
+
+Then(
+  "I capture the {string} authorization evidence",
+  async function (evidenceName) {
+    await captureAuthorization(this, evidenceName, false);
+  },
+);
+
+Then(
+  "I capture the {string} narrow authorization evidence",
+  async function (evidenceName) {
+    await captureAuthorization(this, evidenceName, true);
   },
 );

@@ -1,0 +1,299 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "AUT-03",
+  "title": "Implement authorization, allowlists, and action policy",
+  "status": "COMPLETE",
+  "prdSections": [9, 14, 16, 17],
+  "functionalRequirements": ["FR-003", "FR-004"],
+  "sourceCommitSha": "b162c44e995fb1d094fafcc2481325bc56a5d1fc",
+  "startedAt": "2026-07-19T21:35:59.000Z",
+  "completedAt": "2026-07-19T22:40:06.000Z",
+  "artifactRoot": "artifacts/verification/AUT-03/",
+  "curatedEvidenceRoot": "docs/evidence/AUT-03/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29706438216",
+      "jobs": [
+        {
+          "name": "Ubuntu",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29706438216/job/88244143332",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Windows",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29706438216/job/88244143316",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing test-authorization module and HTTP routes",
+      "command": "pnpm exec vitest run --project unit tests/unit/test-authorization.test.ts --project property tests/property/test-authorization.property.test.ts --project integration tests/integration/test-authorization.test.ts apps/web/tests/integration/test-authorization-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 3467,
+      "expectedFailure": "All four suites failed to import the not-yet-implemented policy module or routes and zero tests ran"
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined authorization acceptance steps",
+      "command": "pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 51121,
+      "expectedFailure": "The six prior scenarios passed while three authorization scenarios and twenty-two steps were undefined"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Authorization schema and deterministic policy properties",
+      "command": "pnpm exec vitest run --project unit tests/unit/test-authorization.test.ts tests/unit/domain-schemas.test.ts --project property tests/property/test-authorization.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 4000
+    },
+    {
+      "phase": "GREEN",
+      "name": "PostgreSQL, queue-trigger, and HTTP policy boundaries",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/test-authorization-routes.test.ts tests/integration/test-authorization.test.ts",
+      "exitCode": 0,
+      "durationMs": 7020
+    },
+    {
+      "phase": "RED",
+      "name": "Browser assertion exposed native option visibility semantics",
+      "command": "pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 141428,
+      "expectedFailure": "The new scenarios reached the authorization API but the step incorrectly waited for a native select option to become visible instead of attached"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Browser authorization acceptance scenarios",
+      "command": "pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 82543
+    },
+    {
+      "phase": "GREEN",
+      "name": "Production build and focused visual capture",
+      "command": "pnpm --filter @pactwire/web build && PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=AUT-03 PACTWIRE_BDD_PRODUCTION=1 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 78517
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Static and focused integration regression",
+      "command": "pnpm lint && pnpm typecheck && pnpm exec vitest run --project integration apps/web/tests/integration/test-authorization-routes.test.ts tests/integration/test-authorization.test.ts",
+      "exitCode": 0,
+      "durationMs": 44300
+    },
+    {
+      "phase": "RED",
+      "name": "Full gate exposed stale domain migration inventory expectation",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 67905,
+      "expectedFailure": "The new policy migration correctly raised the domain table total from twenty-one to twenty-two, while one evidence assertion still expected the former count"
+    },
+    {
+      "phase": "RED",
+      "name": "Full gate exposed stale verification-manifest inventory expectation",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 87621,
+      "expectedFailure": "All product integration tests passed, while the evidence harness still expected five manifests instead of the six now present"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete local verification gate",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 175935
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency vulnerability audit",
+      "command": "pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 1041
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Repository credential-pattern scan",
+      "command": "rg -n -P --hidden with token-boundary patterns and generated/vendor exclusions; no matches is success",
+      "exitCode": 0,
+      "durationMs": 97
+    },
+    {
+      "phase": "RED",
+      "name": "Windows clean-checkout browser setup race",
+      "command": "GitHub Actions run 29705997132, Windows job 88242995881: pnpm verify",
+      "exitCode": 1,
+      "durationMs": 286291,
+      "expectedFailure": "The software POST persisted successfully with status 201, but the authorization setup step waited for a transient success banner that disappeared during the development server's first-route refresh"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Windows CI-mode browser regression after durable setup assertion",
+      "command": "CI=true pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 68942
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete local verification after Windows browser fix",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 168712
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows",
+      "command": "GitHub Actions run 29706438216: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 247000
+    }
+  ],
+  "testSummary": {
+    "files": 24,
+    "passed": 98,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-13-outside-domain-denied",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-13-outside-action-denied",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-14-expired-or-revoked-never-queues",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "authorization.feature",
+        "scenario": "A privacy officer records current test authority and scope",
+        "passed": true
+      },
+      {
+        "feature": "authorization.feature",
+        "scenario": "Expired authorization cannot pass the run queue gate",
+        "passed": true
+      },
+      {
+        "feature": "authorization.feature",
+        "scenario": "Redirects, popups, and actions stay inside deterministic policy",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/AUT-03/authorization-active-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-19T22:07:26.542Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop authorization panel showing a current human attestation, authority basis, review and expiry dates, exact domains, actions, and redirect and popup policy.",
+        "caption": "The current policy names the signed district actor and makes the exact browser boundary readable before any run queues.",
+        "provenance": "captured",
+        "sourceCommitSha": "b162c44e995fb1d094fafcc2481325bc56a5d1fc"
+      },
+      {
+        "path": "docs/evidence/AUT-03/authorization-blocked-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-19T22:07:37.346Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow authorization panel showing a blocked delete action and recorded delete, popup, and outside-domain redirect decisions.",
+        "caption": "Three distinct out-of-policy attempts stop with fixed reason codes, direct messages, and no raw query string in the append-only history.",
+        "provenance": "captured",
+        "sourceCommitSha": "b162c44e995fb1d094fafcc2481325bc56a5d1fc"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/test-authorization.test.ts",
+      "description": "Attestation, date, exact-path, redirect, popup, action, and effective-status examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/test-authorization.property.test.ts",
+      "description": "Seeded outside-domain, outside-action, expired, and revoked authorization properties"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/test-authorization.test.ts",
+      "description": "PostgreSQL policy transactions, audits, revocation, queue gate, and direct-SQL bypass rejection"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/test-authorization-routes.test.ts",
+      "description": "Signed actor, permission, decision, expiry, revocation, invalid-attestation, and isolation HTTP checks"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/authorization.feature",
+      "description": "Human scope setup, expired queue denial, and redirect, popup, and action browser journeys"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/workspace-access.steps.mjs",
+      "description": "Playwright authorization steps, URL stability, zero-popup assertion, strict error gate, and visual capture"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/test-authorization.ts",
+      "description": "Deterministic policy evaluator, service, bounded decisions, and in-memory/PostgreSQL repositories"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0003_test_authorization_policy.sql",
+      "description": "Append-only decisions and database-enforced current human authorization for queued runs"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/test-authorization-panel.tsx",
+      "description": "Responsive direct-language authorization setup, scope, gate, decision history, and revocation interface"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/AUT-03/README.md",
+      "description": "Curated AUT-03 red/green record, visual explanation, and bounded limitations"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-19T22:08:30.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "AUT-03 proves authorization and queue eligibility; later runner tasks will call the same deterministic gate during real model-operated execution.",
+    "The controlled browser fixture uses in-memory state while PostgreSQL persistence and the direct SQL queue trigger are verified independently.",
+    "Raw GitHub Actions artifacts follow the repository retention policy; the curated, source-bound screenshots remain in this repository."
+  ],
+  "reviewer": "codex-agent"
+}

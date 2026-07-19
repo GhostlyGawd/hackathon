@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { SoftwareInventory } from "./software-inventory";
+import { TestAuthorizationPanel } from "./test-authorization-panel";
 
 type WorkspaceRole =
   | "PRIVACY_OFFICER"
@@ -140,6 +141,10 @@ function formatAction(action: string): string {
     "workspace.role_assigned": "Role assigned",
     "workspace.access_allowed": "Access allowed",
     "workspace.access_denied": "Access denied",
+    "test_authorization.created": "Test authorization created",
+    "test_authorization.policy_allowed": "Policy attempt allowed",
+    "test_authorization.policy_denied": "Policy attempt blocked",
+    "test_authorization.revoked": "Test authorization revoked",
   };
   return labels[action] ?? action;
 }
@@ -367,7 +372,7 @@ export function AccessConsole() {
           <a href="#inventory" aria-current="page">
             Inventory
           </a>
-          <a href="#authority">Authority</a>
+          <a href="#authorization">Authorization</a>
           <span aria-disabled="true">Evidence</span>
         </nav>
         <span className="environment-badge">
@@ -378,46 +383,46 @@ export function AccessConsole() {
       <main id="main">
         <section className="hero" id="overview">
           <div className="hero-copy">
-            <p className="eyebrow">Inventory / AUT-02</p>
-            <h1>Every software status shows who set it.</h1>
+            <p className="eyebrow">Test authorization / AUT-03</p>
+            <h1>Set the exact boundary before an automated test runs.</h1>
             <p className="lede">
-              Record the exact district tenant, owner, version, and current
-              approval status. Pactwire keeps the named person or district
-              system behind that status visible—it never presents an imported
-              status as its own conclusion.
+              A district user records why testing is authorized, when that
+              authority must be reviewed, which destinations are allowed, and
+              which actions are prohibited. Pactwire blocks anything outside
+              that stored policy before the model or page can act.
             </p>
             <div className="principle-row">
               <span>
-                <ShieldIcon /> Named district source
+                <ShieldIcon /> Human-attested authority
               </span>
               <span>
-                <AuditIcon /> Immutable approval origin
+                <AuditIcon /> Every denial recorded
               </span>
             </div>
           </div>
           <div className="decision-flow" aria-label="District status provenance flow">
-            <p className="flow-label">For every inventory record</p>
+            <p className="flow-label">Before every automated test</p>
             <div className="flow-step">
               <span className="step-index">01</span>
               <div>
-                <strong>Software and tenant</strong>
-                <span>The exact district URL under review</span>
+                <strong>Human authority</strong>
+                <span>Basis, attestation, review date, and expiry</span>
               </div>
             </div>
             <ArrowIcon />
             <div className="flow-step">
               <span className="step-index">02</span>
               <div>
-                <strong>Existing district status</strong>
-                <span>Unknown, approved, hold, rejected, or retired</span>
+                <strong>Exact scope</strong>
+                <span>Base URL, listed hostnames, and allowed actions</span>
               </div>
             </div>
             <ArrowIcon />
             <div className="flow-step emphasized">
               <span className="step-index">03</span>
               <div>
-                <strong>Named source</strong>
-                <span>Person or imported district system—not Pactwire</span>
+                <strong>Block and record</strong>
+                <span>Expired, redirected, popup, and prohibited attempts stop</span>
               </div>
             </div>
           </div>
@@ -518,6 +523,10 @@ export function AccessConsole() {
           ) : (
             <>
               <SoftwareInventory
+                workspaceId={principal.activeWorkspaceId}
+                principalUserId={principal.userId}
+              />
+              <TestAuthorizationPanel
                 workspaceId={principal.activeWorkspaceId}
                 principalUserId={principal.userId}
               />
@@ -702,7 +711,7 @@ export function AccessConsole() {
 
       <footer>
         <span>Pactwire controlled fixture · no real student data</span>
-        <span className="mono">DISTRICT_STATUS_PROVENANCE / v1</span>
+        <span className="mono">TEST_AUTHORIZATION_POLICY / v1</span>
       </footer>
     </div>
   );
