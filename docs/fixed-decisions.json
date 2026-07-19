@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0.0",
+  "decisions": [
+    "The product is named **Pactwire**.",
+    "The selected track is **Education**.",
+    "The primary user is a district student-data privacy officer.",
+    "P0 tests browser-based school software in an authorized synthetic tenant.",
+    "The district's signed DPA, not a generic public privacy policy, supplies the reviewed requirements.",
+    "GPT-5.6 assists with requirement proposals, interface exploration, and journey repair.",
+    "Deterministic instrumentation supplies observed facts.",
+    "A person confirms executable rules and destination identity.",
+    "Pactwire may automatically move **APPROVED → HOLD** only for a witnessed conflict or persistent loss of previously required visibility.",
+    "Pactwire never automatically creates or restores **APPROVED**.",
+    "A clean sampled run never means safe or compliant.",
+    "The demonstration uses a controlled fictional application or an explicitly authorized tenant."
+  ]
+}

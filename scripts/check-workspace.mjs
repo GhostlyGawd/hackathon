@@ -12,6 +12,7 @@ const expectedPackages = [
   "packages/testkit",
 ];
 const expectedScripts = [
+  "evidence:check",
   "lint",
   "typecheck",
   "build",

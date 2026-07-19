@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "FND-01",
+  "title": "Bootstrap the TypeScript workspace and deterministic CI",
+  "status": "COMPLETE",
+  "prdSections": [8, 13, 21, 22],
+  "functionalRequirements": [],
+  "sourceCommitSha": "c2f70849d4717f1c86e7ee1c4f12d4d954594ce6",
+  "startedAt": "2026-07-19T17:37:48.000Z",
+  "completedAt": "2026-07-19T17:40:27.000Z",
+  "artifactRoot": "artifacts/verification/FND-01/",
+  "curatedEvidenceRoot": "docs/evidence/FND-01/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29697220944",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29697220944/job/88219931666",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29697220944/job/88219931668",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing workspace contract",
+      "command": "node scripts/check-workspace.mjs",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "Declared packages, scripts, configs, lockfile, and CI workflow did not exist"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Frozen lockfile install",
+      "command": "pnpm install --frozen-lockfile --reporter append-only",
+      "exitCode": 0,
+      "durationMs": 1300
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Deterministic repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 44800
+    }
+  ],
+  "testSummary": {
+    "files": 2,
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": false,
+    "rationale": "FND-01 is workspace infrastructure and defines no domain invariant.",
+    "results": []
+  },
+  "bdd": {
+    "applicable": false,
+    "rationale": "FND-01 introduces no user-facing workflow.",
+    "scenarios": []
+  },
+  "visualEvidence": {
+    "applicable": false,
+    "rationale": "FND-01 introduces infrastructure and a machine-readable health route, not a user-facing screen.",
+    "assets": []
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/foundation-contract.test.ts",
+      "description": "Foundation package import and claim-boundary smoke tests"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/foundation-services.test.ts",
+      "description": "Database and isolated object-store integration tests"
+    },
+    {
+      "kind": "test",
+      "path": "scripts/check-workspace.mjs",
+      "description": "Workspace and canonical-script contract"
+    },
+    {
+      "kind": "config",
+      "path": ".github/workflows/ci.yml",
+      "description": "Clean-checkout Ubuntu and Windows verification matrix"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/FND-01/README.md",
+      "description": "Curated sanitized terminal and CI evidence"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-19T17:40:27.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "The exact pre-harness session start and red-command duration were not retained; startedAt records the first implementation commit and zero records the unavailable duration.",
+    "Production PostgreSQL compatibility remains a later integration obligation.",
+    "No user-facing Pactwire workflow is implemented by FND-01."
+  ],
+  "reviewer": "codex-agent"
+}

@@ -226,7 +226,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | Task | Priority | Depends on | Primary output | Status |
 | --- | --- | --- | --- | --- |
 | FND-01 | P0 | — | TypeScript workspace and deterministic CI | COMPLETE |
-| FND-02 | P0 | FND-01 | Verification/evidence harness | NOT STARTED |
+| FND-02 | P0 | FND-01 | Verification/evidence harness | IN PROGRESS |
 | FND-03 | P0 | FND-01, FND-02 | Domain schemas, state machines, migrations | NOT STARTED |
 | AUT-01 | P0 | FND-03 | Workspace roles and authorization | NOT STARTED |
 | AUT-02 | P0 | AUT-01, FND-03 | Software inventory and approval provenance | NOT STARTED |
@@ -310,6 +310,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### FND-02 — Build the verification and evidence harness
 
+- **Status:** IN PROGRESS — local acceptance is green; clean-checkout Linux and Windows CI evidence is pending.
 - **Deliver:** verification manifest JSON Schema, task evidence collector, artifact directory conventions, screenshot metadata validator, and traceability checker.
 - **PRD:** Sections 19, 21, 22, and 26.
 - **Depends on:** FND-01.
@@ -317,7 +318,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 - **Tests:** manifest unit tests, schema integration, artifact sanitization checks, broken-link detection, orphan detection.
 - **Property:** generated manifests accept exactly valid required-field combinations; arbitrary missing or contradictory fields are rejected.
 - **BDD:** not applicable.
-- **Evidence:** FND-02's own complete manifest and terminal report. Visual proof is not applicable.
+- **Evidence:** [FND-02 verification evidence](evidence/FND-02/README.md) and its machine-readable manifest. Visual proof is not applicable.
 - **Complete when:** CI fails on missing required evidence, bad metadata, broken curated evidence links, or orphan traceability.
 
 #### FND-03 — Implement core domain schemas, state machines, and data boundaries
