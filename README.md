@@ -20,6 +20,8 @@ Before a district approves a product, the vendor signs a privacy agreement descr
 
 Pactwire can report only what happened during the specific tests it ran. It cannot prove that a product is safe or legally compliant, cannot treat untested activity as safe, and cannot restore approval without a person making that decision.
 
+The implementation source of truth is the [Pactwire product requirements document](docs/PRD.md).
+
 Read the [authoritative recommendation](research/recommendation.md) and the [final adversarial decision](research/reviews/final-second-pass-decision.md).
 
 ## Research map
