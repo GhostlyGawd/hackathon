@@ -2,17 +2,34 @@
   "schemaVersion": "1.0.0",
   "taskId": "AUT-03",
   "title": "Implement authorization, allowlists, and action policy",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [9, 14, 16, 17],
   "functionalRequirements": ["FR-003", "FR-004"],
-  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "sourceCommitSha": "b162c44e995fb1d094fafcc2481325bc56a5d1fc",
   "startedAt": "2026-07-19T21:35:59.000Z",
+  "completedAt": "2026-07-19T22:40:06.000Z",
   "artifactRoot": "artifacts/verification/AUT-03/",
   "curatedEvidenceRoot": "docs/evidence/AUT-03/",
   "environment": {
-    "os": "Windows local; clean-checkout GitHub Actions pending on Ubuntu and Windows",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29706438216",
+      "jobs": [
+        {
+          "name": "Ubuntu",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29706438216/job/88244143332",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Windows",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29706438216/job/88244143316",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -132,6 +149,13 @@
       "command": "pnpm verify",
       "exitCode": 0,
       "durationMs": 168712
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows",
+      "command": "GitHub Actions run 29706438216: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 247000
     }
   ],
   "testSummary": {
@@ -195,7 +219,7 @@
         "altText": "Desktop authorization panel showing a current human attestation, authority basis, review and expiry dates, exact domains, actions, and redirect and popup policy.",
         "caption": "The current policy names the signed district actor and makes the exact browser boundary readable before any run queues.",
         "provenance": "captured",
-        "sourceCommitSha": "0000000000000000000000000000000000000000"
+        "sourceCommitSha": "b162c44e995fb1d094fafcc2481325bc56a5d1fc"
       },
       {
         "path": "docs/evidence/AUT-03/authorization-blocked-narrow.png",
@@ -205,7 +229,7 @@
         "altText": "Narrow authorization panel showing a blocked delete action and recorded delete, popup, and outside-domain redirect decisions.",
         "caption": "Three distinct out-of-policy attempts stop with fixed reason codes, direct messages, and no raw query string in the append-only history.",
         "provenance": "captured",
-        "sourceCommitSha": "0000000000000000000000000000000000000000"
+        "sourceCommitSha": "b162c44e995fb1d094fafcc2481325bc56a5d1fc"
       }
     ]
   },
@@ -269,7 +293,7 @@
   "knownLimitations": [
     "AUT-03 proves authorization and queue eligibility; later runner tasks will call the same deterministic gate during real model-operated execution.",
     "The controlled browser fixture uses in-memory state while PostgreSQL persistence and the direct SQL queue trigger are verified independently.",
-    "Visual source binding and clean-checkout CI are pending the source commit."
+    "Raw GitHub Actions artifacts follow the repository retention policy; the curated, source-bound screenshots remain in this repository."
   ],
   "reviewer": "codex-agent"
 }
