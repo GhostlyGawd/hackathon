@@ -4,8 +4,8 @@
 | --- | --- |
 | Task | FND-02 — Build the verification and evidence harness |
 | PRD sections | 19, 21, 22, and 26 |
-| Status | IN PROGRESS — local acceptance green; clean-checkout CI pending |
-| Verified source commit | Pending first implementation commit |
+| Status | COMPLETE |
+| Verified source commit | `3b7f8dfecf08fa6d54992ed38ecace6262d0393b` |
 | Local verification date | 2026-07-19 |
 | Visual evidence | Not applicable; this task changes repository verification infrastructure, not a user-facing screen |
 
@@ -50,10 +50,14 @@ Retries: 0
 Skipped tests: 0
 ~~~
 
-## Pending completion gates
+## Clean-checkout CI and raw artifacts
 
-- Prove frozen-lockfile installation and the full gate from clean Ubuntu and Windows checkouts.
-- Attach the source SHA and CI job links, then change FND-02 to `COMPLETE`.
+Pull request [#8](https://github.com/GhostlyGawd/hackathon/pull/8) installed from the frozen lockfile and passed `pnpm verify` on both required operating systems:
+
+- [Verify on ubuntu-latest](https://github.com/GhostlyGawd/hackathon/actions/runs/29698425357/job/88223093468) — passed; [traceability artifact](https://github.com/GhostlyGawd/hackathon/actions/runs/29698425357/artifacts/8445708885) uploaded.
+- [Verify on windows-latest](https://github.com/GhostlyGawd/hackathon/actions/runs/29698425357/job/88223093464) — passed; [traceability artifact](https://github.com/GhostlyGawd/hackathon/actions/runs/29698425357/artifacts/8445715146) uploaded.
+
+Both jobs verified source commit `3b7f8dfecf08fa6d54992ed38ecace6262d0393b`. Neither reported a failure, retry, or skipped test. Raw artifacts expire after the configured 14-day retention period; this sanitized record and the manifest remain durable.
 
 ## Known limitations
 
