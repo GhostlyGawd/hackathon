@@ -1,0 +1,150 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "FND-02",
+  "title": "Build the verification and evidence harness",
+  "status": "COMPLETE",
+  "prdSections": [19, 21, 22, 26],
+  "functionalRequirements": [],
+  "sourceCommitSha": "3b7f8dfecf08fa6d54992ed38ecace6262d0393b",
+  "startedAt": "2026-07-19T17:46:40.000Z",
+  "completedAt": "2026-07-19T18:18:16.000Z",
+  "artifactRoot": "artifacts/verification/FND-02/",
+  "curatedEvidenceRoot": "docs/evidence/FND-02/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29698425357",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29698425357/job/88223093468",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29698425357/job/88223093464",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing evidence modules",
+      "command": "pnpm exec vitest run --project unit tests/unit/verification-manifest.test.ts tests/unit/traceability.test.ts",
+      "exitCode": 1,
+      "durationMs": 2700,
+      "expectedFailure": "The manifest validator and traceability modules did not exist"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Focused unit verification",
+      "command": "pnpm exec vitest run --project unit tests/unit/verification-manifest.test.ts tests/unit/traceability.test.ts",
+      "exitCode": 0,
+      "durationMs": 2800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Deterministic repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 49100
+    }
+  ],
+  "testSummary": {
+    "files": 4,
+    "passed": 25,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "generated-valid-manifests-are-accepted",
+        "seed": 20260719,
+        "numRuns": 200,
+        "passed": true
+      },
+      {
+        "id": "arbitrarily-removed-required-fields-are-rejected",
+        "seed": 20260719,
+        "numRuns": 200,
+        "passed": true
+      },
+      {
+        "id": "contradictory-completion-claims-are-rejected",
+        "seed": 20260719,
+        "numRuns": 200,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": false,
+    "rationale": "FND-02 introduces no user-facing workflow.",
+    "scenarios": []
+  },
+  "visualEvidence": {
+    "applicable": false,
+    "rationale": "FND-02 changes repository verification infrastructure, not a screen or browser journey.",
+    "assets": []
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/verification-manifest.test.ts",
+      "description": "Manifest and screenshot metadata unit tests"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/traceability.test.ts",
+      "description": "Requirement ownership and orphan unit tests"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/verification-manifest.property.test.ts",
+      "description": "Generated manifest validity and contradiction properties"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/evidence-harness.test.ts",
+      "description": "Schema, artifact collector, sanitization, and broken-link integration tests"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/evidence/schema/verification-manifest.schema.json",
+      "description": "Draft 2020-12 verification manifest contract"
+    },
+    {
+      "kind": "test",
+      "path": "scripts/check-evidence.ts",
+      "description": "Repository evidence and traceability gate"
+    },
+    {
+      "kind": "config",
+      "path": "docs/fixed-decisions.json",
+      "description": "Machine-readable fixed-decision drift contract"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/FND-02/README.md",
+      "description": "Curated FND-02 verification record"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-19T17:58:00.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "This harness validates implementation proof, not Pactwire product effectiveness.",
+    "Raw CI artifacts are retained for 14 days; durable sanitized proof is committed under docs/evidence."
+  ],
+  "reviewer": "codex-agent"
+}

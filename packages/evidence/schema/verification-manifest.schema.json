@@ -1,0 +1,442 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pactwire.local/schemas/verification-manifest.schema.json",
+  "title": "Pactwire task verification manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "taskId",
+    "title",
+    "status",
+    "prdSections",
+    "functionalRequirements",
+    "sourceCommitSha",
+    "startedAt",
+    "artifactRoot",
+    "curatedEvidenceRoot",
+    "environment",
+    "commands",
+    "testSummary",
+    "propertyTests",
+    "bdd",
+    "visualEvidence",
+    "proofs",
+    "sanitization",
+    "knownLimitations",
+    "reviewer"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "taskId": { "$ref": "#/$defs/taskId" },
+    "title": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["IN_PROGRESS", "COMPLETE"] },
+    "prdSections": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "integer", "minimum": 1, "maximum": 26 }
+    },
+    "functionalRequirements": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^FR-[0-9]{3}$" }
+    },
+    "sourceCommitSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "startedAt": { "type": "string", "format": "date-time" },
+    "completedAt": { "type": "string", "format": "date-time" },
+    "artifactRoot": {
+      "type": "string",
+      "pattern": "^artifacts/verification/[A-Z]{2,4}-[0-9]{2}/$"
+    },
+    "curatedEvidenceRoot": {
+      "type": "string",
+      "pattern": "^docs/evidence/[A-Z]{2,4}-[0-9]{2}/$"
+    },
+    "environment": { "$ref": "#/$defs/environment" },
+    "commands": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "#/$defs/command" },
+      "allOf": [
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "phase": { "const": "RED" } },
+            "required": ["phase"]
+          },
+          "minContains": 1
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "phase": { "const": "REGRESSION" } },
+            "required": ["phase"]
+          },
+          "minContains": 1
+        }
+      ]
+    },
+    "testSummary": { "$ref": "#/$defs/testSummary" },
+    "propertyTests": { "$ref": "#/$defs/propertyGroup" },
+    "bdd": { "$ref": "#/$defs/bddGroup" },
+    "visualEvidence": { "$ref": "#/$defs/visualGroup" },
+    "proofs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/proof" }
+    },
+    "sanitization": { "$ref": "#/$defs/sanitization" },
+    "knownLimitations": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "reviewer": { "type": "string", "minLength": 1 }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "COMPLETE" } },
+        "required": ["status"]
+      },
+      "then": {
+        "required": ["completedAt"],
+        "properties": {
+          "sourceCommitSha": {
+            "not": { "const": "0000000000000000000000000000000000000000" }
+          },
+          "commands": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "if": {
+                "properties": {
+                  "phase": { "enum": ["GREEN", "REGRESSION"] }
+                },
+                "required": ["phase"]
+              },
+              "then": {
+                "properties": { "exitCode": { "const": 0 } }
+              }
+            }
+          },
+          "testSummary": {
+            "type": "object",
+            "properties": {
+              "files": { "type": "integer", "minimum": 1 },
+              "passed": { "type": "integer", "minimum": 1 },
+              "failed": { "const": 0 },
+              "skipped": { "const": 0 },
+              "retries": { "const": 0 }
+            }
+          },
+          "propertyTests": {
+            "type": "object",
+            "properties": {
+              "results": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": { "passed": { "const": true } }
+                }
+              }
+            }
+          },
+          "bdd": {
+            "type": "object",
+            "properties": {
+              "scenarios": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": { "passed": { "const": true } }
+                }
+              }
+            }
+          },
+          "sanitization": {
+            "type": "object",
+            "properties": { "reviewed": { "const": true } }
+          },
+          "environment": { "type": "object", "required": ["ci"] }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "taskId": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,4}-[0-9]{2}$"
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "node", "pnpm"],
+      "properties": {
+        "os": { "type": "string", "minLength": 1 },
+        "node": { "type": "string", "pattern": "^24\\.[0-9]+\\.[0-9]+$" },
+        "pnpm": { "const": "11.6.0" },
+        "ci": { "$ref": "#/$defs/ci" }
+      }
+    },
+    "ci": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "runUrl", "jobs"],
+      "properties": {
+        "provider": { "const": "github-actions" },
+        "runUrl": { "type": "string", "format": "uri" },
+        "jobs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "url", "status"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "url": { "type": "string", "format": "uri" },
+              "status": { "const": "SUCCESS" }
+            }
+          }
+        }
+      }
+    },
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["phase", "name", "command", "exitCode", "durationMs"],
+      "properties": {
+        "phase": { "enum": ["RED", "GREEN", "REGRESSION"] },
+        "name": { "type": "string", "minLength": 1 },
+        "command": { "type": "string", "minLength": 1 },
+        "exitCode": { "type": "integer" },
+        "durationMs": { "type": "integer", "minimum": 0 },
+        "expectedFailure": { "type": "string", "minLength": 1 },
+        "outputPath": {
+          "type": "string",
+          "pattern": "^artifacts/verification/[A-Z]{2,4}-[0-9]{2}/"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "phase": { "const": "RED" } },
+            "required": ["phase"]
+          },
+          "then": {
+            "required": ["expectedFailure"],
+            "properties": { "exitCode": { "type": "integer", "minimum": 1 } }
+          }
+        }
+      ]
+    },
+    "testSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["files", "passed", "failed", "skipped", "retries"],
+      "properties": {
+        "files": { "type": "integer", "minimum": 0 },
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "skipped": { "type": "integer", "minimum": 0 },
+        "retries": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "propertyResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "seed", "numRuns", "passed"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "seed": { "type": "integer" },
+        "numRuns": { "type": "integer", "minimum": 1 },
+        "passed": { "type": "boolean" },
+        "counterexample": { "type": "string", "minLength": 1 }
+      }
+    },
+    "propertyGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["applicable", "results"],
+      "properties": {
+        "applicable": { "type": "boolean" },
+        "rationale": { "type": "string", "minLength": 1 },
+        "results": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/propertyResult" }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "applicable": { "const": true } },
+            "required": ["applicable"]
+          },
+          "then": { "properties": { "results": { "type": "array", "minItems": 1 } } },
+          "else": {
+            "required": ["rationale"],
+            "properties": { "results": { "type": "array", "maxItems": 0 } }
+          }
+        }
+      ]
+    },
+    "bddScenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["feature", "scenario", "passed"],
+      "properties": {
+        "feature": { "type": "string", "minLength": 1 },
+        "scenario": { "type": "string", "minLength": 1 },
+        "passed": { "type": "boolean" }
+      }
+    },
+    "bddGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["applicable", "scenarios"],
+      "properties": {
+        "applicable": { "type": "boolean" },
+        "rationale": { "type": "string", "minLength": 1 },
+        "scenarios": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/bddScenario" }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "applicable": { "const": true } },
+            "required": ["applicable"]
+          },
+          "then": { "properties": { "scenarios": { "type": "array", "minItems": 1 } } },
+          "else": {
+            "required": ["rationale"],
+            "properties": { "scenarios": { "type": "array", "maxItems": 0 } }
+          }
+        }
+      ]
+    },
+    "viewport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "visualAsset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "kind",
+        "capturedAt",
+        "viewport",
+        "altText",
+        "caption",
+        "provenance",
+        "sourceCommitSha"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^docs/evidence/[A-Z]{2,4}-[0-9]{2}/"
+        },
+        "kind": { "enum": ["screenshot", "trace", "video", "chart", "diagram"] },
+        "capturedAt": { "type": "string", "format": "date-time" },
+        "viewport": { "$ref": "#/$defs/viewport" },
+        "altText": { "type": "string", "minLength": 1 },
+        "caption": { "type": "string", "minLength": 1 },
+        "provenance": { "enum": ["captured", "generated"] },
+        "sourceCommitSha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "kind": { "const": "screenshot" } },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "\\.(png|jpe?g|webp)$"
+              },
+              "provenance": { "const": "captured" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "kind": { "enum": ["trace", "video"] } },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": { "provenance": { "const": "captured" } }
+          }
+        }
+      ]
+    },
+    "visualGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["applicable", "assets"],
+      "properties": {
+        "applicable": { "type": "boolean" },
+        "rationale": { "type": "string", "minLength": 1 },
+        "assets": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/visualAsset" }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "applicable": { "const": true } },
+            "required": ["applicable"]
+          },
+          "then": { "properties": { "assets": { "type": "array", "minItems": 1 } } },
+          "else": {
+            "required": ["rationale"],
+            "properties": { "assets": { "type": "array", "maxItems": 0 } }
+          }
+        }
+      ]
+    },
+    "proof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "description"],
+      "properties": {
+        "kind": { "enum": ["test", "scenario", "evidence", "report", "schema", "config"] },
+        "path": {
+          "type": "string",
+          "pattern": "^(\\.github|apps|docs|packages|scripts|tests)/"
+        },
+        "description": { "type": "string", "minLength": 1 }
+      }
+    },
+    "sanitization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewed", "reviewedAt", "findings"],
+      "properties": {
+        "reviewed": { "type": "boolean" },
+        "reviewedAt": { "type": "string", "format": "date-time" },
+        "findings": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

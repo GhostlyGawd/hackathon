@@ -43,3 +43,12 @@ jobs:
 
       - name: Verify deterministic gates
         run: pnpm verify
+
+      - name: Upload verification artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-${{ matrix.os }}
+          path: artifacts/verification/
+          if-no-files-found: error
+          retention-days: 14
