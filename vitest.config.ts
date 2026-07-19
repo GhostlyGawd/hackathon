@@ -1,7 +1,7 @@
 import { defineConfig } from "vitest/config";
 
 const project = (name: string, include: string[]) => ({
-  extends: true,
+  extends: true as const,
   test: {
     environment: "node",
     include,

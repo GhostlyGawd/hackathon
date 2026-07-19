@@ -227,7 +227,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | --- | --- | --- | --- | --- |
 | FND-01 | P0 | — | TypeScript workspace and deterministic CI | COMPLETE |
 | FND-02 | P0 | FND-01 | Verification/evidence harness | COMPLETE |
-| FND-03 | P0 | FND-01, FND-02 | Domain schemas, state machines, migrations | NOT STARTED |
+| FND-03 | P0 | FND-01, FND-02 | Domain schemas, state machines, migrations | COMPLETE |
 | AUT-01 | P0 | FND-03 | Workspace roles and authorization | NOT STARTED |
 | AUT-02 | P0 | AUT-01, FND-03 | Software inventory and approval provenance | NOT STARTED |
 | AUT-03 | P0 | AUT-01, FND-03 | Test authorization and action policy | NOT STARTED |
@@ -323,6 +323,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### FND-03 — Implement core domain schemas, state machines, and data boundaries
 
+- **Status:** COMPLETE — focused and full local verification plus clean-checkout Ubuntu and Windows CI are green.
 - **Deliver:** shared schemas and reducers for workspaces, roles, software, authorization, agreements, requirements, personas, canaries, journeys, runs, observations, findings, receipts, approval events, and human decisions; initial migrations.
 - **PRD:** Sections 6, 10, 14, 15, and 23.
 - **Depends on:** FND-01 and FND-02.
@@ -330,7 +331,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 - **Tests:** schema, migration, reducer, serialization, and referential-integrity tests.
 - **Properties:** PROP-01, PROP-02, PROP-05, PROP-11, PROP-12, PROP-18, and PROP-19.
 - **BDD:** state vocabulary is exercised later through user flows.
-- **Evidence:** generated state-transition table and migration report. A diagram is required because the state relationships are central.
+- **Evidence:** [FND-03 verification evidence](evidence/FND-03/README.md), including the generated state-transition diagram and migration report.
 - **Complete when:** impossible states are unrepresentable or rejected, every transition has actor provenance, and domain events round-trip without semantic loss.
 
 ### Authority, inventory, and secrets

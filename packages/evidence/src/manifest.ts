@@ -1,7 +1,7 @@
-import * as Ajv2020Module from "ajv/dist/2020.js";
-import type { ErrorObject } from "ajv/dist/2020.js";
-import * as addFormatsModule from "ajv-formats";
+import { Ajv2020, type ErrorObject } from "ajv/dist/2020.js";
+import type { FormatsPlugin } from "ajv-formats";
 import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 
 export interface VerificationCommand {
   readonly phase: "RED" | "GREEN" | "REGRESSION";
@@ -72,10 +72,12 @@ export const verificationManifestSchema = JSON.parse(
   readFileSync(schemaUrl, "utf8"),
 ) as object;
 
-// These packages publish CommonJS defaults; NodeNext exposes the typed default
-// one level below the namespace while preserving the same runtime function.
-const Ajv2020 = Ajv2020Module.default.default;
-const addFormats = addFormatsModule.default.default;
+const loadCommonJs = createRequire(import.meta.url);
+const formatsPlugin: unknown = loadCommonJs("ajv-formats");
+if (typeof formatsPlugin !== "function") {
+  throw new Error("ajv-formats did not expose its CommonJS plugin function");
+}
+const addFormats = formatsPlugin as FormatsPlugin;
 
 const ajv = new Ajv2020({
   allErrors: true,
