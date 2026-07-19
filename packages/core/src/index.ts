@@ -7,5 +7,6 @@ export const productIdentity = Object.freeze({
 export * from "./domain.js";
 export * from "./authorization.js";
 export * from "./inventory.js";
+export * from "./test-authorization.js";
 export * from "./evidence.js";
 export * from "./migrations.js";

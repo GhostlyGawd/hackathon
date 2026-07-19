@@ -1,11 +1,26 @@
 import {
   AuthenticationRequiredError,
+  PolicyDeniedError,
   PermissionDeniedError,
   WorkspaceUnavailableError,
 } from "@pactwire/core";
 import { NextResponse } from "next/server";
 
 export function authorizationErrorResponse(error: unknown): NextResponse {
+  if (error instanceof PolicyDeniedError) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: error.publicMessage,
+          reason: error.reason,
+          auditRecorded: error.auditRecorded,
+          decision: error.decision,
+        },
+      },
+      { status: error.status },
+    );
+  }
   if (
     error instanceof AuthenticationRequiredError ||
     error instanceof PermissionDeniedError ||

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 2,
-  "totalTables": 21,
+  "migrationCount": 3,
+  "totalTables": 22,
   "migrations": [
     {
       "version": "0001",
@@ -53,6 +53,17 @@
       ],
       "immutableTables": [
         "software_approval_origins"
+      ]
+    },
+    {
+      "version": "0003",
+      "name": "test_authorization_policy",
+      "sha256": "a43c46e098b7a99a88a23643e88b3eb695a182eefa1760887decf97e72c2349d",
+      "tables": [
+        "authorization_policy_decisions"
+      ],
+      "immutableTables": [
+        "authorization_policy_decisions"
       ]
     }
   ]

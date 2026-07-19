@@ -2,7 +2,9 @@ import { randomUUID } from "node:crypto";
 import {
   InMemoryWorkspaceAuthorizationRepository,
   InMemorySoftwareInventoryRepository,
+  InMemoryTestAuthorizationRepository,
   SoftwareInventoryService,
+  TestAuthorizationService,
   WorkspaceAuthorizationService,
   type WorkspacePrincipal,
 } from "@pactwire/core";
@@ -52,6 +54,8 @@ export interface AccessRuntime {
   readonly service: WorkspaceAuthorizationService;
   readonly inventoryRepository: InMemorySoftwareInventoryRepository;
   readonly inventoryService: SoftwareInventoryService;
+  readonly testAuthorizationRepository: InMemoryTestAuthorizationRepository;
+  readonly testAuthorizationService: TestAuthorizationService;
 }
 
 export function isFixtureMode(): boolean {
@@ -132,11 +136,22 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     service,
     { idFactory, now },
   );
+  const testAuthorizationRepository = new InMemoryTestAuthorizationRepository(
+    repository,
+  );
+  const testAuthorizationService = new TestAuthorizationService(
+    testAuthorizationRepository,
+    service,
+    inventoryRepository,
+    { idFactory, now },
+  );
   return Object.freeze({
     repository,
     service,
     inventoryRepository,
     inventoryService,
+    testAuthorizationRepository,
+    testAuthorizationService,
   });
 }
 

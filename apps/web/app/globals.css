@@ -42,7 +42,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -55,9 +56,685 @@ select {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
-select:focus-visible {
+select:focus-visible,
+textarea:focus-visible {
   outline: 2px solid var(--cyan);
   outline-offset: 3px;
+}
+
+.authorization-panel {
+  padding: 34px 36px 40px;
+  border-top: 1px solid var(--line);
+  background:
+    linear-gradient(135deg, rgba(99, 216, 229, 0.035), transparent 30rem),
+    #0a1016;
+  scroll-margin-top: 24px;
+}
+
+.authorization-heading {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.authorization-heading > div {
+  max-width: 760px;
+}
+
+.authorization-heading h2 {
+  max-width: 690px;
+  margin: 7px 0 9px;
+  font-size: clamp(26px, 3vw, 40px);
+  line-height: 1.07;
+  letter-spacing: -0.045em;
+}
+
+.authorization-heading p:last-child {
+  max-width: 650px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.authorization-boundary-note {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  margin: 24px 0 20px;
+  padding: 13px 15px;
+  border: 1px solid rgba(99, 216, 229, 0.3);
+  border-radius: 9px;
+  background: rgba(99, 216, 229, 0.07);
+  color: var(--muted);
+}
+
+.authorization-boundary-note strong {
+  color: var(--cyan);
+}
+
+.authorization-software-select {
+  display: grid;
+  gap: 7px;
+  max-width: 760px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.authorization-software-select select,
+.authorization-fields input,
+.authorization-fields select,
+.authorization-fields textarea,
+.attestation-box textarea,
+.policy-attempt-form input,
+.policy-attempt-form select,
+.revoke-authorization input {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: 7px;
+  background: #091017;
+  color: var(--text);
+}
+
+.authorization-software-select select,
+.authorization-fields input,
+.authorization-fields select,
+.policy-attempt-form input,
+.policy-attempt-form select,
+.revoke-authorization input {
+  min-height: 43px;
+  padding: 0 12px;
+}
+
+.authorization-fields textarea,
+.attestation-box textarea {
+  min-height: 68px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.authorization-empty,
+.authorization-error {
+  display: grid;
+  gap: 4px;
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 10px;
+  color: var(--muted);
+}
+
+.authorization-empty strong,
+.authorization-error strong {
+  color: var(--text);
+}
+
+.authorization-error {
+  border-style: solid;
+  border-color: rgba(255, 143, 145, 0.45);
+  background: var(--red-soft);
+}
+
+.authorization-form,
+.authorization-current {
+  margin-top: 24px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: rgba(12, 18, 24, 0.88);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+}
+
+.authorization-form {
+  padding: 26px;
+}
+
+.authorization-form-title {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.authorization-form-title > div {
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+}
+
+.authorization-form-title h3,
+.policy-checker-heading h3,
+.decision-history h3,
+.authorization-summary-main h3 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.025em;
+}
+
+.authorization-form-title p,
+.policy-checker-heading p,
+.authorization-summary-main p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.step-number {
+  display: grid;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid rgba(99, 216, 229, 0.36);
+  border-radius: 50%;
+  background: var(--cyan-soft);
+  color: var(--cyan);
+  font: 700 11px/1 var(--font-geist-mono), monospace;
+}
+
+.section-divider {
+  margin-top: 30px;
+  padding-top: 27px;
+  border-top: 1px solid var(--line);
+}
+
+.authorization-fields {
+  margin-top: 18px;
+}
+
+.authorization-fields.two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.authorization-fields label,
+.attestation-box > label:last-child,
+.policy-attempt-form label,
+.revoke-authorization label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.authorization-fields label small {
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.authorization-fields .full-field {
+  grid-column: 1 / -1;
+}
+
+.action-policy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.action-policy-grid fieldset {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+
+.action-policy-grid legend {
+  padding: 0 7px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.action-policy-grid label {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: flex-start;
+  min-height: 54px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.018);
+  cursor: pointer;
+}
+
+.action-policy-grid label:has(input:checked) {
+  border-color: rgba(99, 216, 229, 0.27);
+  background: var(--cyan-soft);
+}
+
+.action-policy-grid fieldset:last-child label:has(input:checked) {
+  border-color: rgba(255, 143, 145, 0.28);
+  background: var(--red-soft);
+}
+
+.action-policy-grid input,
+.attestation-box input {
+  margin-top: 3px;
+  accent-color: var(--cyan);
+}
+
+.action-policy-grid label span {
+  display: grid;
+  color: var(--faint);
+  font-size: 10px;
+}
+
+.action-policy-grid label strong {
+  color: var(--text);
+  font: 700 10px/1.5 var(--font-geist-mono), monospace;
+}
+
+.policy-selects {
+  margin-top: 16px;
+}
+
+.attestation-box {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 17px;
+  border: 1px solid rgba(125, 226, 184, 0.25);
+  border-radius: 9px;
+  background: var(--green-soft);
+}
+
+.attestation-box > label:not(:last-child) {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.authorization-form-actions {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 24px -26px -26px;
+  padding: 17px 26px;
+  border-top: 1px solid var(--line);
+  background: rgba(7, 11, 15, 0.68);
+  color: var(--faint);
+  font-size: 12px;
+}
+
+.authorization-status-row {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(7, 11, 15, 0.45);
+}
+
+.authorization-status-row > div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.authorization-status-row p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.authorization-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 25px;
+  padding: 0 9px;
+  border: 1px solid rgba(125, 226, 184, 0.4);
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  font: 700 10px/1 var(--font-geist-mono), monospace;
+  letter-spacing: 0.08em;
+}
+
+.authorization-status.expired,
+.authorization-status.revoked,
+.authorization-status.review-due {
+  border-color: rgba(255, 143, 145, 0.45);
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.authorization-status.not-yet-valid {
+  border-color: rgba(245, 197, 106, 0.45);
+  background: rgba(245, 197, 106, 0.1);
+  color: var(--amber);
+}
+
+.authorization-summary-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(270px, 0.8fr);
+  border-bottom: 1px solid var(--line);
+}
+
+.authorization-summary-main,
+.authorization-dates {
+  margin: 0;
+  padding: 24px;
+}
+
+.authorization-summary-main {
+  border-right: 1px solid var(--line);
+}
+
+.authorization-summary-main h3 {
+  max-width: 650px;
+  margin-top: 7px;
+  font-size: 23px;
+}
+
+.attestation-proof {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 13px;
+  border: 1px solid rgba(125, 226, 184, 0.23);
+  border-radius: 8px;
+  background: var(--green-soft);
+}
+
+.attestation-proof > span {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--green);
+  color: #07120e;
+  font-weight: 800;
+}
+
+.attestation-proof p {
+  margin: 2px 0 5px;
+  color: var(--muted);
+}
+
+.attestation-proof small {
+  color: var(--faint);
+}
+
+.authorization-dates {
+  display: grid;
+  gap: 13px;
+}
+
+.authorization-dates div {
+  display: grid;
+  gap: 2px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid var(--line);
+}
+
+.authorization-dates div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.authorization-dates dt {
+  color: var(--faint);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.authorization-dates dd {
+  margin: 0;
+  color: var(--text);
+  font: 500 12px/1.5 var(--font-geist-mono), monospace;
+}
+
+.authorization-scope {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-bottom: 1px solid var(--line);
+}
+
+.scope-block {
+  min-width: 0;
+  padding: 21px 23px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.scope-block:nth-child(2n) {
+  border-right: 0;
+}
+
+.scope-block:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.scope-block > strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.scope-block > p:not(.card-kicker) {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.scope-block ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scope-block li,
+.scope-chips span {
+  padding: 5px 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  background: #091017;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.scope-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 11px;
+}
+
+.scope-chips.allowed span {
+  border-color: rgba(125, 226, 184, 0.28);
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.scope-chips.prohibited span {
+  border-color: rgba(255, 143, 145, 0.28);
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.policy-scope {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+}
+
+.policy-checker {
+  padding: 24px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(7, 11, 15, 0.25);
+}
+
+.policy-checker-heading {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.policy-attempt-form {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.35fr) minmax(260px, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  margin-top: 18px;
+}
+
+.policy-result {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 11px;
+  margin-top: 17px;
+  padding: 14px;
+  border: 1px solid rgba(255, 143, 145, 0.36);
+  border-radius: 9px;
+  background: var(--red-soft);
+}
+
+.policy-result.allowed {
+  border-color: rgba(125, 226, 184, 0.34);
+  background: var(--green-soft);
+}
+
+.policy-result-mark {
+  display: grid;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--red);
+  color: #170505;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.policy-result.allowed .policy-result-mark {
+  background: var(--green);
+  color: #06130e;
+}
+
+.policy-result p {
+  margin: 2px 0 4px;
+  color: var(--text);
+}
+
+.policy-result small {
+  color: var(--muted);
+}
+
+.recorded-label {
+  display: block;
+  width: max-content;
+  margin-top: 7px;
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.decision-history {
+  padding: 23px 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.decision-history ol {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.decision-history li {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 0;
+  border-top: 1px solid var(--line);
+}
+
+.decision-history li > span {
+  color: var(--green);
+  font: 700 10px/1 var(--font-geist-mono), monospace;
+}
+
+.decision-history li > span.blocked {
+  color: var(--red);
+}
+
+.decision-history li div {
+  display: grid;
+  gap: 3px;
+}
+
+.decision-history li small,
+.decision-history time,
+.decision-empty {
+  color: var(--faint);
+  font-size: 11px;
+}
+
+.decision-empty {
+  margin: 15px 0 0;
+}
+
+.revoke-authorization {
+  padding: 17px 24px;
+  background: rgba(7, 11, 15, 0.4);
+}
+
+.revoke-authorization summary {
+  width: max-content;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.revoke-authorization > div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+  margin-top: 14px;
+}
+
+.danger-button {
+  min-height: 42px;
+  padding: 0 15px;
+  border: 1px solid rgba(255, 143, 145, 0.45);
+  border-radius: 7px;
+  background: var(--red-soft);
+  color: var(--red);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.danger-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .mono {
@@ -1344,6 +2021,24 @@ footer {
   .audit-card {
     border-top: 1px solid var(--line);
   }
+
+  .authorization-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .authorization-summary-main {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .policy-attempt-form {
+    grid-template-columns: minmax(150px, 0.4fr) minmax(260px, 1fr);
+  }
+
+  .policy-attempt-form .primary-button {
+    grid-column: 1 / -1;
+    width: max-content;
+  }
 }
 
 @media (max-width: 720px) {
@@ -1396,6 +2091,77 @@ footer {
 
   .inventory-panel {
     padding: 22px 16px;
+  }
+
+  .authorization-panel {
+    padding: 26px 16px 30px;
+  }
+
+  .authorization-heading,
+  .authorization-boundary-note,
+  .authorization-status-row,
+  .policy-checker-heading,
+  .authorization-form-actions {
+    display: grid;
+  }
+
+  .authorization-heading .secondary-button,
+  .policy-checker-heading .secondary-button,
+  .authorization-form-actions .primary-button {
+    width: 100%;
+  }
+
+  .authorization-form {
+    padding: 20px 14px;
+  }
+
+  .authorization-form-actions {
+    margin: 22px -14px -20px;
+    padding: 16px 14px;
+  }
+
+  .authorization-form-title {
+    display: grid;
+  }
+
+  .authorization-fields.two-column,
+  .action-policy-grid,
+  .authorization-scope,
+  .policy-attempt-form,
+  .revoke-authorization > div {
+    grid-template-columns: 1fr;
+  }
+
+  .action-policy-grid fieldset {
+    grid-template-columns: 1fr;
+  }
+
+  .scope-block,
+  .scope-block:nth-child(2n),
+  .scope-block:nth-last-child(-n + 2) {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .scope-block:last-child {
+    border-bottom: 0;
+  }
+
+  .policy-attempt-form .primary-button {
+    grid-column: auto;
+    width: 100%;
+  }
+
+  .decision-history li {
+    grid-template-columns: 58px 1fr;
+  }
+
+  .decision-history time {
+    grid-column: 2;
+  }
+
+  .authorization-status-row p {
+    overflow-wrap: anywhere;
   }
 
   .inventory-heading,

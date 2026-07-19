@@ -336,6 +336,35 @@ export const softwareRecordSchema = z
   });
 export type SoftwareRecord = z.infer<typeof softwareRecordSchema>;
 
+export const authorizationActionSchema = z.enum([
+  "NAVIGATE",
+  "SUBMIT",
+  "DOWNLOAD",
+  "UPLOAD",
+  "MESSAGE",
+  "PURCHASE",
+  "DELETE",
+  "ADMINISTER",
+]);
+export type AuthorizationAction = z.infer<typeof authorizationActionSchema>;
+
+export const authorizationAttestationSchema = z
+  .object({
+    authorityConfirmed: z.literal(true),
+    syntheticAccountsOnlyConfirmed: z.literal(true),
+    statement: nonEmpty,
+  })
+  .strict();
+
+const authorizedDomainSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .regex(
+    /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/u,
+    "Authorization domains must be exact hostnames without wildcards",
+  );
+
 export const authorizationSchema = z
   .object({
     id: uuid,
@@ -344,10 +373,16 @@ export const authorizationSchema = z
     version: z.number().int().positive(),
     status: z.enum(["ACTIVE", "EXPIRED", "REVOKED"]),
     validFrom: timestamp,
+    reviewAt: timestamp,
     expiresAt: timestamp,
-    allowedDomains: z.array(nonEmpty).min(1),
-    allowedActions: z.array(nonEmpty).min(1),
-    prohibitedActions: z.array(nonEmpty),
+    authorityBasis: nonEmpty,
+    allowedBaseUrl: authorizedTenantUrlSchema,
+    allowedDomains: z.array(authorizedDomainSchema).min(1),
+    allowedActions: z.array(authorizationActionSchema).min(1),
+    prohibitedActions: z.array(authorizationActionSchema).min(1),
+    redirectPolicy: z.literal("ALLOW_LISTED_ONLY"),
+    popupPolicy: z.enum(["BLOCK_ALL", "ALLOW_LISTED_ONLY"]),
+    attestation: authorizationAttestationSchema,
     attestedBy: humanActorSchema,
     attestedAt: timestamp,
   })
@@ -358,6 +393,24 @@ export const authorizationSchema = z
         code: "custom",
         path: ["expiresAt"],
         message: "expiresAt must be after validFrom",
+      });
+    }
+    if (
+      Date.parse(value.reviewAt) <= Date.parse(value.validFrom) ||
+      Date.parse(value.reviewAt) > Date.parse(value.expiresAt)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["reviewAt"],
+        message: "reviewAt must be after validFrom and no later than expiresAt",
+      });
+    }
+    const base = new URL(value.allowedBaseUrl);
+    if (!value.allowedDomains.includes(base.hostname.toLowerCase())) {
+      context.addIssue({
+        code: "custom",
+        path: ["allowedDomains"],
+        message: "The authorized base URL hostname must be explicitly allowed",
       });
     }
     if (

@@ -28,6 +28,7 @@ describe("core domain migrations", () => {
     expect(migrations.map((migration) => migration.version)).toEqual([
       "0001",
       "0002",
+      "0003",
     ]);
   });
 
@@ -38,6 +39,7 @@ describe("core domain migrations", () => {
     await expect(applyCoreMigrations(service.database)).resolves.toEqual([
       "0001",
       "0002",
+      "0003",
     ]);
     await expect(applyCoreMigrations(service.database)).resolves.toEqual([]);
     const tables = await service.database.query<{ table_name: string }>(
@@ -50,6 +52,7 @@ describe("core domain migrations", () => {
         "software_records",
         "software_inventory_details",
         "software_approval_origins",
+        "authorization_policy_decisions",
         "agreement_versions",
         "requirement_versions",
         "runs",
@@ -61,7 +64,7 @@ describe("core domain migrations", () => {
         "audit_events",
       ]),
     );
-    expect(tables.rows).toHaveLength(22);
+    expect(tables.rows).toHaveLength(23);
   });
 
   it("rejects a cross-workspace foreign-key reference", async () => {
@@ -201,7 +204,7 @@ describe("core domain migrations", () => {
       [workspace, software],
     );
     await database.query(
-      "INSERT INTO authorizations (workspace_id, id, software_id, version, status, valid_from, expires_at, scope, attested_by, attested_at) VALUES ($1, $2, $3, 1, 'ACTIVE', now(), now() + interval '1 day', '{}', '{}', now())",
+      "INSERT INTO authorizations (workspace_id, id, software_id, version, status, valid_from, expires_at, scope, attested_by, attested_at) VALUES ($1, $2, $3, 1, 'ACTIVE', now(), now() + interval '1 day', '{\"reviewAt\":\"2099-01-01T00:00:00.000Z\",\"attestation\":{\"authorityConfirmed\":true,\"syntheticAccountsOnlyConfirmed\":true}}', '{\"kind\":\"HUMAN\",\"actorId\":\"fictional-officer\"}', now())",
       [workspace, authorization, software],
     );
     await database.query(
@@ -351,7 +354,7 @@ describe("core domain migrations", () => {
       [workspace, softwareA, softwareB],
     );
     await database.query(
-      "INSERT INTO authorizations (workspace_id, id, software_id, version, status, valid_from, expires_at, scope, attested_by, attested_at) VALUES ($1, $2, $3, 1, 'ACTIVE', now(), now() + interval '1 day', '{}', '{}', now())",
+      "INSERT INTO authorizations (workspace_id, id, software_id, version, status, valid_from, expires_at, scope, attested_by, attested_at) VALUES ($1, $2, $3, 1, 'ACTIVE', now(), now() + interval '1 day', '{\"reviewAt\":\"2099-01-01T00:00:00.000Z\",\"attestation\":{\"authorityConfirmed\":true,\"syntheticAccountsOnlyConfirmed\":true}}', '{\"kind\":\"HUMAN\",\"actorId\":\"fictional-officer\"}', now())",
       [workspace, authorizationA, softwareA],
     );
     await database.query(

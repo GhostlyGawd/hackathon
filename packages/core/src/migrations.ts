@@ -23,6 +23,11 @@ const migrationFiles = [
     name: "software_inventory",
     fileName: "0002_software_inventory.sql",
   },
+  {
+    version: "0003",
+    name: "test_authorization_policy",
+    fileName: "0003_test_authorization_policy.sql",
+  },
 ] as const;
 
 export async function loadCoreMigrations(): Promise<readonly CoreMigration[]> {
