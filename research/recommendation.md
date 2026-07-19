@@ -4,9 +4,9 @@ Research snapshot: 2026-07-19. This decision deliberately excludes schedule and 
 
 ## Decision
 
-Select **Pactwire**, a **district DPA behavior-regression tripwire** for the **Education** track.
+Select **Pactwire** for the **Education** track. It helps school districts detect when an app's observed data sharing conflicts with its signed student-data privacy agreement.
 
-> **When app behavior crosses the contract, approval stops.**
+> **Pactwire alerts school districts when an app's observed data sharing conflicts with its signed privacy agreement.**
 
 > For a district privacy officer responsible for a signed data-protection agreement (DPA), replay authorized synthetic student and teacher journeys after a meaningful app change. If deterministic instrumentation witnesses a newly contradictory data flow or loses required observability, change the district's app state from `APPROVED` to `HOLD` pending human review.
 
