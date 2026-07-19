@@ -14,8 +14,9 @@
     "workspace:check": "node scripts/check-workspace.mjs",
     "toolchain:check": "node scripts/check-toolchain.mjs",
     "evidence:check": "tsx scripts/check-evidence.ts",
+    "domain:evidence:check": "tsx scripts/check-domain-evidence.ts",
     "lint": "eslint . --max-warnings=0",
-    "typecheck": "pnpm -r --if-present typecheck",
+    "typecheck": "tsc -p tsconfig.json --noEmit && pnpm -r --if-present typecheck",
     "build": "pnpm -r --if-present build",
     "test:unit": "vitest run --project unit",
     "test:property": "vitest run --project property",
@@ -25,7 +26,7 @@
     "test:security": "vitest run --project security",
     "test:a11y": "vitest run --project a11y",
     "test:live-openai": "vitest run --project live-openai",
-    "verify": "pnpm workspace:check && pnpm toolchain:check && pnpm evidence:check && pnpm lint && pnpm typecheck && pnpm build && pnpm test:unit && pnpm test:property && pnpm test:integration && pnpm test:bdd && pnpm test:e2e && pnpm test:security && pnpm test:a11y"
+    "verify": "pnpm workspace:check && pnpm toolchain:check && pnpm evidence:check && pnpm domain:evidence:check && pnpm lint && pnpm typecheck && pnpm build && pnpm test:unit && pnpm test:property && pnpm test:integration && pnpm test:bdd && pnpm test:e2e && pnpm test:security && pnpm test:a11y"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

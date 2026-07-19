@@ -24,7 +24,7 @@ export interface FilesystemObjectStore {
 export async function createDatabaseTestService(): Promise<DatabaseTestService> {
   const database = new PGlite();
   await database.exec(
-    "CREATE TABLE IF NOT EXISTS pactwire_migrations (version text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())",
+    "CREATE TABLE IF NOT EXISTS pactwire_migrations (version text PRIMARY KEY, name text NOT NULL, sha256 text NOT NULL, applied_at timestamptz NOT NULL DEFAULT now())",
   );
 
   return {

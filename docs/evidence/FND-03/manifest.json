@@ -1,0 +1,209 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "FND-03",
+  "title": "Implement core domain schemas, state machines, and data boundaries",
+  "status": "IN_PROGRESS",
+  "prdSections": [6, 10, 14, 15, 23],
+  "functionalRequirements": [],
+  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "startedAt": "2026-07-19T18:24:00.000Z",
+  "artifactRoot": "artifacts/verification/FND-03/",
+  "curatedEvidenceRoot": "docs/evidence/FND-03/",
+  "environment": {
+    "os": "Windows local; clean-checkout GitHub Actions pending on Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing domain and migration modules",
+      "command": "pnpm exec vitest run --project unit tests/unit/domain-state.test.ts --project integration tests/integration/domain-migrations.test.ts",
+      "exitCode": 1,
+      "durationMs": 4300,
+      "expectedFailure": "The domain and migration modules did not exist"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Focused domain verification",
+      "command": "pnpm exec vitest run --project unit tests/unit/domain-state.test.ts tests/unit/domain-schemas.test.ts tests/unit/domain-reducers.test.ts tests/unit/domain-evidence.test.ts --project property tests/property/domain-invariants.property.test.ts --project integration tests/integration/domain-migrations.test.ts",
+      "exitCode": 0,
+      "durationMs": 11100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Deterministic repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 78400
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency audit",
+      "command": "pnpm audit --prod --json",
+      "exitCode": 0,
+      "durationMs": 1800
+    }
+  ],
+  "testSummary": {
+    "files": 12,
+    "passed": 57,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-01-no-automated-approved-entry",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-02-only-automated-approved-to-hold",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-05-clean-findings-require-complete-visible-checkpoints",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-11-append-only-provenance",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-12-workspace-isolation",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-18-frozen-retry-snapshot",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-19-terminal-run-evidence",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "domain-event-semantic-round-trip",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": false,
+    "rationale": "FND-03 defines shared state and persistence contracts but introduces no user-facing workflow.",
+    "scenarios": []
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/FND-03/state-transitions.md",
+        "kind": "diagram",
+        "capturedAt": "2026-07-19T19:03:10.320Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1200
+        },
+        "altText": "Generated approval and run state diagrams showing actor authority and terminal transitions.",
+        "caption": "Reducer-derived state tables and Mermaid diagrams; automation has only the APPROVED-to-HOLD approval path.",
+        "provenance": "generated",
+        "sourceCommitSha": "0000000000000000000000000000000000000000"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/domain-state.test.ts",
+      "description": "Impossible approval, finding, and run-state examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/domain-schemas.test.ts",
+      "description": "Valid and invalid records for every core entity schema"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/domain-reducers.test.ts",
+      "description": "Pure reducers, immutability, serialization, retry, and workspace boundaries"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/domain-evidence.test.ts",
+      "description": "Generated diagram and migration-report drift contract"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/domain-invariants.property.test.ts",
+      "description": "Seeded authority, evidence, isolation, retry, and terminal-state invariants"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/domain-migrations.test.ts",
+      "description": "PostgreSQL migrations, state guards, immutable history, and referential boundaries"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/domain.ts",
+      "description": "Shared Zod schemas, transition reducers, and workspace boundary store"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0001_initial.sql",
+      "description": "Initial PostgreSQL domain schema and invariant triggers"
+    },
+    {
+      "kind": "config",
+      "path": "packages/core/src/migrations.ts",
+      "description": "Transactional migration loader with checksum drift detection"
+    },
+    {
+      "kind": "test",
+      "path": "scripts/check-domain-evidence.ts",
+      "description": "Repository gate for generated transition and migration evidence"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/FND-03/state-transitions.md",
+      "description": "Generated state-transition tables and Mermaid diagrams"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/FND-03/migration-report.json",
+      "description": "Generated table, immutability, and migration checksum inventory"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/FND-03/README.md",
+      "description": "Curated FND-03 verification record"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-19T19:03:10.320Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "This foundation task does not implement server routes, browser execution, or user-facing screens.",
+    "The generated state diagram proves the implemented transition contract, not Pactwire product effectiveness.",
+    "Clean-checkout Ubuntu and Windows CI evidence is pending."
+  ],
+  "reviewer": "codex-agent"
+}

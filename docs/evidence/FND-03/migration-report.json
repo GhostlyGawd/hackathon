@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0.0",
+  "migrationCount": 1,
+  "totalTables": 19,
+  "migrations": [
+    {
+      "version": "0001",
+      "name": "initial",
+      "sha256": "3193f345d737c222ef29264a677a13c1880a600b8809bbc9b6ee677101df6800",
+      "tables": [
+        "workspaces",
+        "user_roles",
+        "software_records",
+        "authorizations",
+        "agreement_versions",
+        "requirement_versions",
+        "destination_records",
+        "personas",
+        "journey_versions",
+        "runs",
+        "canaries",
+        "run_events",
+        "observations",
+        "canary_matches",
+        "findings",
+        "evidence_receipts",
+        "approval_events",
+        "human_decisions",
+        "audit_events"
+      ],
+      "immutableTables": [
+        "agreement_versions",
+        "requirement_versions",
+        "journey_versions",
+        "canaries",
+        "observations",
+        "run_events",
+        "canary_matches",
+        "findings",
+        "evidence_receipts",
+        "approval_events",
+        "human_decisions",
+        "audit_events"
+      ]
+    }
+  ]
+}
