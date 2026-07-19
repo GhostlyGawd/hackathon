@@ -110,6 +110,28 @@
       "command": "rg -n -P --hidden with token-boundary patterns and generated/vendor exclusions; no matches is success",
       "exitCode": 0,
       "durationMs": 97
+    },
+    {
+      "phase": "RED",
+      "name": "Windows clean-checkout browser setup race",
+      "command": "GitHub Actions run 29705997132, Windows job 88242995881: pnpm verify",
+      "exitCode": 1,
+      "durationMs": 286291,
+      "expectedFailure": "The software POST persisted successfully with status 201, but the authorization setup step waited for a transient success banner that disappeared during the development server's first-route refresh"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Windows CI-mode browser regression after durable setup assertion",
+      "command": "CI=true pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 68942
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete local verification after Windows browser fix",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 168712
     }
   ],
   "testSummary": {

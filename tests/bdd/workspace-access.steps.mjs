@@ -491,11 +491,15 @@ Then(
 
 Given("the fictional Northstar software exists", async function () {
   await fillSoftwareForm(this, softwareFixtures.northstar, "APPROVED");
+  const creationResponse = this.page.waitForResponse((response) => {
+    const request = response.request();
+    return (
+      request.method() === "POST" &&
+      new URL(response.url()).pathname.endsWith("/software")
+    );
+  });
   await submitSoftware(this);
-  await this.page
-    .getByTestId("inventory-feedback")
-    .getByText("Software added", { exact: true })
-    .waitFor();
+  assert.equal((await creationResponse).status(), 201);
   await this.page.reload();
   await this.page.getByTestId("workspace-title").waitFor();
   await this.page.getByTestId("authorization-panel").waitFor();

@@ -10,6 +10,8 @@ A signed district user records why one exact software tenant may be tested, when
 
 The initial focused run failed because the test-authorization module and four HTTP route boundaries did not exist. The first Gherkin run left all three authorization scenarios and twenty-two steps undefined while the six prior scenarios remained green. Those failures preceded the implementation.
 
+The first source-commit CI run then found a Windows-only acceptance-test race. The software creation request had already persisted with `201`, but the setup step waited for a transient success banner that disappeared during the development server's first-route refresh. The step now waits for the exact successful `POST`, reloads, and asserts the persisted software appears in the authorization selector. A Windows CI-mode rerun passed all 9 scenarios and 92 steps before the fix was pushed.
+
 ## Current green evidence
 
 - Schema and unit examples cover human-only attestation, bounded dates, exact base paths, unlisted redirects, popup policy, prohibited actions, and effective time-derived status.
