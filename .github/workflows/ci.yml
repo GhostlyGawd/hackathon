@@ -17,9 +17,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
+        include:
+          - os: ubuntu-latest
+            playwright_command: pnpm exec playwright install --with-deps chromium
+          - os: windows-latest
+            playwright_command: pnpm exec playwright install chromium
 
     env:
       CI: "true"
@@ -40,6 +42,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Install browser runtime
+        run: ${{ matrix.playwright_command }}
 
       - name: Verify deterministic gates
         run: pnpm verify

@@ -1,0 +1,253 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "AUT-01",
+  "title": "Implement workspace roles and server-side authorization",
+  "status": "COMPLETE",
+  "prdSections": [5, 14, 15],
+  "functionalRequirements": ["FR-001"],
+  "sourceCommitSha": "7ba16b9b08f318f687aa8516079534573e7fcdcd",
+  "startedAt": "2026-07-19T19:37:45.000Z",
+  "completedAt": "2026-07-19T20:32:14.000Z",
+  "artifactRoot": "artifacts/verification/AUT-01/",
+  "curatedEvidenceRoot": "docs/evidence/AUT-01/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29702603988",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29702603988/job/88234094591",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29702603988/job/88234094596",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing workspace authorization module",
+      "command": "pnpm exec vitest run --project unit tests/unit/workspace-authorization.test.ts --project integration tests/integration/workspace-authorization.test.ts",
+      "exitCode": 1,
+      "durationMs": 2600,
+      "expectedFailure": "The workspace authorization module did not exist"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Workspace authorization unit tests",
+      "command": "pnpm exec vitest run --project unit tests/unit/workspace-authorization.test.ts",
+      "exitCode": 0,
+      "durationMs": 4700
+    },
+    {
+      "phase": "GREEN",
+      "name": "Workspace authorization properties",
+      "command": "pnpm exec vitest run --project property tests/property/workspace-authorization.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 5800
+    },
+    {
+      "phase": "GREEN",
+      "name": "PostgreSQL and HTTP authorization integration",
+      "command": "pnpm exec vitest run --project integration tests/integration/workspace-authorization.test.ts apps/web/tests/integration/workspace-routes.test.ts",
+      "exitCode": 0,
+      "durationMs": 7500
+    },
+    {
+      "phase": "GREEN",
+      "name": "Production browser acceptance and visual verification",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_BDD_PRODUCTION=1 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 14800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Deterministic repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 104000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency audit",
+      "command": "pnpm audit --prod --json",
+      "exitCode": 0,
+      "durationMs": 1700
+    }
+  ],
+  "testSummary": {
+    "files": 16,
+    "passed": 69,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-11-append-only-provenance",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-12-workspace-isolation",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "workspace-access.feature",
+        "scenario": "A privacy officer assigns a reviewer role",
+        "passed": true
+      },
+      {
+        "feature": "workspace-access.feature",
+        "scenario": "A test operator cannot assign workspace roles",
+        "passed": true
+      },
+      {
+        "feature": "workspace-access.feature",
+        "scenario": "A workspace outside the active tenant is indistinguishable from unavailable",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/AUT-01/allowed-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-19T20:16:00.761Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Privacy officer success state showing a reviewer role assignment and append-only authority events.",
+        "caption": "A server-authorized ROLE_ASSIGN request succeeds for a fictional privacy officer and is recorded in the active workspace audit.",
+        "provenance": "captured",
+        "sourceCommitSha": "7ba16b9b08f318f687aa8516079534573e7fcdcd"
+      },
+      {
+        "path": "docs/evidence/AUT-01/denied-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-19T20:16:01.977Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Test operator denial state showing that role assignment is blocked and recorded.",
+        "caption": "The same ROLE_ASSIGN request is denied for a fictional test operator; audit content remains unavailable to that role.",
+        "provenance": "captured",
+        "sourceCommitSha": "7ba16b9b08f318f687aa8516079534573e7fcdcd"
+      },
+      {
+        "path": "docs/evidence/AUT-01/denied-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-19T20:16:02.278Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow-screen test operator denial state with readable controls and locked audit details.",
+        "caption": "The denied authorization journey remains usable and legible at a 390-pixel viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "7ba16b9b08f318f687aa8516079534573e7fcdcd"
+      },
+      {
+        "path": "docs/evidence/AUT-01/denial-audit-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-19T20:16:03.010Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Privacy officer audit view showing the test operator role-assignment denial and its reason.",
+        "caption": "After switching to a review-capable role, the caller workspace shows the recorded ROLE_MISSING denial with human actor provenance.",
+        "provenance": "captured",
+        "sourceCommitSha": "7ba16b9b08f318f687aa8516079534573e7fcdcd"
+      },
+      {
+        "path": "docs/evidence/AUT-01/cross-workspace-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-19T20:16:04.458Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Generic workspace-unavailable response with a denial recorded in the caller's active workspace.",
+        "caption": "A known ID from another fictional tenant reveals no target name or user and returns the same generic unavailable response.",
+        "provenance": "captured",
+        "sourceCommitSha": "7ba16b9b08f318f687aa8516079534573e7fcdcd"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/workspace-authorization.test.ts",
+      "description": "Workspace creation, permission matrix, role denial, and forged-principal audit isolation"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/workspace-authorization.property.test.ts",
+      "description": "Seeded append-only provenance and workspace-isolation properties"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/workspace-authorization.test.ts",
+      "description": "PostgreSQL cross-workspace read and export isolation"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/workspace-routes.test.ts",
+      "description": "Signed-session and server authorization checks for every AUT-01 HTTP route category"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/workspace-access.feature",
+      "description": "Gherkin allowed, denied, and cross-workspace user journeys"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/workspace-access.steps.mjs",
+      "description": "Playwright step definitions, exact expected-denial checks, console gate, and visual capture"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/authorization.ts",
+      "description": "Explicit permission matrix, authorization service, and in-memory/PostgreSQL repositories"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/lib/session.ts",
+      "description": "HMAC-signed HTTP-only fixture session containing identity but no role claims"
+    },
+    {
+      "kind": "config",
+      "path": "scripts/run-bdd.mjs",
+      "description": "Cross-platform Next.js and Cucumber browser acceptance runner"
+    },
+    {
+      "kind": "config",
+      "path": ".github/workflows/ci.yml",
+      "description": "Ubuntu and Windows Chromium installation before deterministic verification"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/AUT-01/README.md",
+      "description": "Curated AUT-01 verification record and bounded limitations"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-19T20:16:28.953Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "The web surface is an explicitly labelled local fixture with signed fictional sessions and is not yet connected to an external identity provider.",
+    "The authorization service has a PostgreSQL repository and integration coverage, while the deterministic browser fixture intentionally uses an in-memory repository.",
+    "The evidence verifies the implemented access-control contract; it is not a third-party security certification."
+  ],
+  "reviewer": "codex-agent"
+}
