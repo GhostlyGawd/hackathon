@@ -4,7 +4,8 @@
 | --- | --- |
 | Task | FND-03 — Implement core domain schemas, state machines, and data boundaries |
 | PRD sections | 6, 10, 14, 15, and 23 |
-| Status | IN PROGRESS — focused and full local acceptance are green; clean-checkout CI is pending |
+| Status | COMPLETE |
+| Verified source commit | `e29509f8b451e6751745c584fcb13082f6efd73d` |
 | Local verification date | 2026-07-19 |
 | Visual evidence | [Generated state-transition tables and diagrams](state-transitions.md) |
 | Migration evidence | [Generated migration report](migration-report.json) |
@@ -81,6 +82,15 @@ Skipped tests: 0
 Production dependency audit: 0 advisories
 ~~~
 
+## Clean-checkout CI and raw artifacts
+
+Pull request [#9](https://github.com/GhostlyGawd/hackathon/pull/9) installed from the frozen lockfile and passed the complete `pnpm verify` gate on both required operating systems:
+
+- [Verify on ubuntu-latest](https://github.com/GhostlyGawd/hackathon/actions/runs/29700576530/job/88228839287) — passed in 1m23s; [verification artifact](https://github.com/GhostlyGawd/hackathon/actions/runs/29700576530/artifacts/8446328899) uploaded.
+- [Verify on windows-latest](https://github.com/GhostlyGawd/hackathon/actions/runs/29700576530/job/88228839281) — passed in 2m54s; [verification artifact](https://github.com/GhostlyGawd/hackathon/actions/runs/29700576530/artifacts/8446342002) uploaded.
+
+Both jobs verified source commit `e29509f8b451e6751745c584fcb13082f6efd73d`. Neither reported a failure, retry, or skipped test. Raw artifacts expire after the configured 14-day retention period; this sanitized record and the machine-readable manifest remain durable.
+
 ## BDD and visual applicability
 
 BDD is not applicable to this foundation task because it introduces no user-facing workflow. The state vocabulary is exercised through real browser BDD scenarios in the later authorization, run, finding, and restoration tasks.
@@ -93,4 +103,4 @@ All examples use reserved `.invalid` domains, fictional names, synthetic hashes,
 
 - This task establishes domain and persistence invariants; it does not implement server routes, a browser runner, or a product screen.
 - The generated state diagram proves the implemented transition contract, not Pactwire's real-world effectiveness.
-- COMPLETE remains blocked on clean-checkout Ubuntu and Windows CI for the task commit.
+- Raw CI artifacts are retained for 14 days; the sanitized manifest and evidence record remain committed.

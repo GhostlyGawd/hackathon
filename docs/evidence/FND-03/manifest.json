@@ -2,17 +2,34 @@
   "schemaVersion": "1.0.0",
   "taskId": "FND-03",
   "title": "Implement core domain schemas, state machines, and data boundaries",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [6, 10, 14, 15, 23],
   "functionalRequirements": [],
-  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "sourceCommitSha": "e29509f8b451e6751745c584fcb13082f6efd73d",
   "startedAt": "2026-07-19T18:24:00.000Z",
+  "completedAt": "2026-07-19T19:29:10.500Z",
   "artifactRoot": "artifacts/verification/FND-03/",
   "curatedEvidenceRoot": "docs/evidence/FND-03/",
   "environment": {
-    "os": "Windows local; clean-checkout GitHub Actions pending on Ubuntu and Windows",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29700576530",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29700576530/job/88228839287",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29700576530/job/88228839281",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -124,7 +141,7 @@
         "altText": "Generated approval and run state diagrams showing actor authority and terminal transitions.",
         "caption": "Reducer-derived state tables and Mermaid diagrams; automation has only the APPROVED-to-HOLD approval path.",
         "provenance": "generated",
-        "sourceCommitSha": "0000000000000000000000000000000000000000"
+        "sourceCommitSha": "e29509f8b451e6751745c584fcb13082f6efd73d"
       }
     ]
   },
@@ -203,7 +220,7 @@
   "knownLimitations": [
     "This foundation task does not implement server routes, browser execution, or user-facing screens.",
     "The generated state diagram proves the implemented transition contract, not Pactwire product effectiveness.",
-    "Clean-checkout Ubuntu and Windows CI evidence is pending."
+    "Raw CI artifacts expire after 14 days; the sanitized manifest and evidence record remain committed."
   ],
   "reviewer": "codex-agent"
 }
