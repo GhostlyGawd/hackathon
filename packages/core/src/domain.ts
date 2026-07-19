@@ -220,23 +220,28 @@ export const workspaceSchema = z
     createdBy: z.union([humanActorSchema, importedSystemActorSchema]),
   })
   .strict();
+export type Workspace = z.infer<typeof workspaceSchema>;
+
+export const workspaceRoleSchema = z.enum([
+  "PRIVACY_OFFICER",
+  "TEST_OPERATOR",
+  "REVIEWER",
+  "APPLICATION_APPROVER",
+  "SECURITY_REVIEWER",
+]);
+export type WorkspaceRole = z.infer<typeof workspaceRoleSchema>;
 
 export const userRoleSchema = z
   .object({
     id: uuid,
     workspaceId: uuid,
     userId: nonEmpty,
-    role: z.enum([
-      "PRIVACY_OFFICER",
-      "TEST_OPERATOR",
-      "REVIEWER",
-      "APPLICATION_APPROVER",
-      "SECURITY_REVIEWER",
-    ]),
+    role: workspaceRoleSchema,
     assignedAt: timestamp,
     assignedBy: humanActorSchema,
   })
   .strict();
+export type UserRole = z.infer<typeof userRoleSchema>;
 
 export const softwareRecordSchema = z
   .object({
@@ -1029,6 +1034,7 @@ export const auditEventSchema = z
     details: z.record(z.string(), z.unknown()),
   })
   .strict();
+export type AuditEvent = z.infer<typeof auditEventSchema>;
 
 export function applyApprovalEvent(
   current: unknown,
