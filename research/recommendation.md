@@ -4,9 +4,9 @@ Research snapshot: 2026-07-19. This decision deliberately excludes schedule and 
 
 ## Decision
 
-Select **Pactwire** for the **Education** track. It helps school districts detect when an app's observed data sharing conflicts with its signed student-data privacy agreement.
+Select **Pactwire** for the **Education** track. It gives school districts a repeatable way to check whether school websites and software collect more student information than the district allowed or send it to unapproved companies.
 
-> **Pactwire alerts school districts when an app's observed data sharing conflicts with its signed privacy agreement.**
+> **Pactwire checks whether school websites and software collect more student information than the district allowed or send it to unapproved companies.**
 
 > For a district privacy officer responsible for a signed data-protection agreement (DPA), replay authorized synthetic student and teacher journeys after a meaningful app change. If deterministic instrumentation witnesses a newly contradictory data flow or loses required observability, change the district's app state from `APPROVED` to `HOLD` pending human review.
 

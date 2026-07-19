@@ -1,18 +1,24 @@
 # Pactwire
 
-> **Pactwire alerts school districts when an app's observed data sharing conflicts with its signed privacy agreement.**
+> **Pactwire checks whether school websites and software collect more student information than the district allowed or send it to unapproved companies.**
 
 This repository currently contains the evidence and decision record for an OpenAI Build Week submission. It does **not** yet claim a working product.
 
 ## Problem
 
-School districts approve education apps based on signed student-data privacy agreements, but an app's data-sharing behavior can change after approval. District privacy staff need a repeatable way to detect observable conflicts without testing with real student data.
+Students and teachers use websites and software for lessons, homework, tests, grading, and school administration. These products may handle student names, email addresses, classwork, grades, or device information.
 
-## Product
+Before a district approves a product, the vendor signs a privacy agreement describing what student information the product may collect, why it needs that information, and which other companies may receive it. The software can change after approval while the agreement stays the same. District staff need a practical way to check whether the product still behaves as promised.
 
-Pactwire replays authorized synthetic student and teacher journeys after an app changes. It records where synthetic data is sent and compares that evidence with human-confirmed terms in the district's agreement. If Pactwire witnesses a new conflict or can no longer observe a required journey, it moves the app from `APPROVED` to `HOLD` for human review.
+## How Pactwire would work
 
-Pactwire may report a witnessed conflict. It may never declare legal compliance, infer that unobserved behavior is safe, or restore approval automatically.
+1. District staff create test student and teacher accounts containing made-up names, email addresses, assignments, and other unique test information. No real student records are used.
+2. Pactwire uses the website or software the way a student or teacher would—for example, assigning a lesson, submitting work, or editing a profile.
+3. A separate recorder captures what test information the product collects and where it sends that information.
+4. Pactwire compares those recorded facts with requirements that a district privacy officer has confirmed from the signed agreement.
+5. If the evidence does not match the agreement, or Pactwire can no longer inspect a required test, the product alerts district staff and changes the software's status from `APPROVED` to `HOLD` for human review.
+
+Pactwire can report only what happened during the specific tests it ran. It cannot prove that a product is safe or legally compliant, cannot treat untested activity as safe, and cannot restore approval without a person making that decision.
 
 Read the [authoritative recommendation](research/recommendation.md) and the [final adversarial decision](research/reviews/final-second-pass-decision.md).
 
