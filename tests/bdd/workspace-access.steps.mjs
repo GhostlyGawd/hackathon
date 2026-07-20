@@ -123,6 +123,8 @@ After(async function ({ result, pickle }) {
           ? "AUT-03"
           : pickle.tags.some((tag) => tag.name === "@AUT-04")
             ? "AUT-04"
+            : pickle.tags.some((tag) => tag.name === "@JRN-01")
+              ? "JRN-01"
             : "AUT-01";
       await this.page.screenshot({
         fullPage: true,
@@ -918,5 +920,299 @@ Then(
   "I capture the {string} narrow secret evidence",
   async function (evidenceName) {
     await captureSecretEvidence(this, evidenceName, true);
+  },
+);
+
+When(
+  "I enter a routable student email and numeric district identifier",
+  async function () {
+    this.submittedLikelyRealEmail = "taylor@real-school.edu";
+    this.submittedLikelyRealIdentifier = "123456789";
+    await this.page.getByTestId("synthetic-data-panel").waitFor();
+    await this.page.getByTestId("persona-role").selectOption("STUDENT");
+    await this.page
+      .getByTestId("persona-display-name")
+      .fill("Taylor Morgan");
+    await this.page
+      .getByTestId("persona-email")
+      .fill(this.submittedLikelyRealEmail);
+    await this.page
+      .getByTestId("persona-activity-field")
+      .selectOption("studentId");
+    await this.page
+      .getByTestId("persona-activity-value")
+      .fill(this.submittedLikelyRealIdentifier);
+  },
+);
+
+When(
+  "I confirm the persona is fictional and try to save it",
+  async function () {
+    await this.page.getByTestId("persona-confirmation").check();
+    const scanResponse = this.page.waitForResponse((response) => {
+      const url = new URL(response.url());
+      return (
+        response.request().method() === "POST" &&
+        url.pathname.endsWith("/personas/scan")
+      );
+    });
+    await this.page.getByTestId("save-fictional-persona").click();
+    const response = await scanResponse;
+    this.personaScanResponse = await response.text();
+    assert.equal(response.status(), 200);
+  },
+);
+
+Then(
+  "Pactwire blocks the likely real data without echoing it",
+  async function () {
+    const notice = this.page.getByTestId("synthetic-notice");
+    await notice.getByText("Likely real data blocked", { exact: true }).waitFor();
+    await notice
+      .getByText("Nothing was saved.", { exact: false })
+      .waitFor();
+    const pageText = await this.page.getByTestId("synthetic-data-panel").innerText();
+    assert.equal(pageText.includes(this.submittedLikelyRealEmail), false);
+    assert.equal(pageText.includes(this.submittedLikelyRealIdentifier), false);
+    assert.equal(this.personaScanResponse.includes(this.submittedLikelyRealEmail), false);
+    assert.equal(
+      this.personaScanResponse.includes(this.submittedLikelyRealIdentifier),
+      false,
+    );
+    assert.equal(await this.page.getByTestId("persona-email").inputValue(), "");
+    assert.equal(
+      await this.page.getByTestId("persona-activity-value").inputValue(),
+      "",
+    );
+  },
+);
+
+Then("no fictional persona is saved", async function () {
+  await this.page
+    .getByTestId("persona-list")
+    .getByText("No fictional personas saved.", { exact: true })
+    .waitFor();
+  assert.equal(
+    await this.page.getByTestId("persona-list").locator("article").count(),
+    0,
+  );
+});
+
+async function saveFictionalPersona(world, role) {
+  const panel = world.page.getByTestId("synthetic-data-panel");
+  await panel.waitFor();
+  await world.page.getByTestId("persona-role").selectOption(role);
+  await world.page.getByTestId("persona-confirmation").check();
+  const createdResponse = world.page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return (
+      response.request().method() === "POST" &&
+      /\/api\/workspaces\/[^/]+\/personas$/u.test(url.pathname)
+    );
+  });
+  await world.page.getByTestId("save-fictional-persona").click();
+  const response = await createdResponse;
+  assert.equal(response.status(), 201);
+  const body = JSON.parse(await response.text());
+  world.savedPersonaIds ??= [];
+  world.savedPersonaIds.push(body.persona.id);
+  await panel.getByText(body.persona.displayName, { exact: true }).waitFor();
+}
+
+When("I save an obviously fictional teacher persona", async function () {
+  await saveFictionalPersona(this, "TEACHER");
+});
+
+When("I save an obviously fictional student persona", async function () {
+  await saveFictionalPersona(this, "STUDENT");
+});
+
+async function selectPreparedRun(world, label) {
+  const select = world.page.getByTestId("prepared-run-select");
+  const option = select.locator("option", { hasText: label });
+  const value = await option.getAttribute("value");
+  assert.ok(value, `Prepared run ${label} has a value`);
+  const responsePromise = world.page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return (
+      response.request().method() === "GET" &&
+      url.pathname.endsWith(`/runs/${value}/canaries`)
+    );
+  });
+  await select.selectOption(value);
+  const response = await responsePromise;
+  assert.equal(response.status(), 200);
+  world.selectedPreparedRunId = value;
+}
+
+async function assertDefaultSourcesSelected(world) {
+  for (const personaId of world.savedPersonaIds ?? []) {
+    const persona = world.page.locator(`[data-persona-id="${personaId}"]`).first();
+    const checkboxes = persona.locator("input[type='checkbox']");
+    assert.equal(await checkboxes.count(), 2);
+    for (let index = 0; index < 2; index += 1) {
+      if (!(await checkboxes.nth(index).isChecked())) {
+        await checkboxes.nth(index).check();
+      }
+    }
+  }
+}
+
+When(
+  "I select their email and activity fields for {string}",
+  async function (label) {
+    await selectPreparedRun(this, label);
+    await assertDefaultSourcesSelected(this);
+  },
+);
+
+When(
+  "I select its email and activity fields for {string}",
+  async function (label) {
+    await selectPreparedRun(this, label);
+    await assertDefaultSourcesSelected(this);
+  },
+);
+
+async function currentCanaryValues(world) {
+  return world.page
+    .getByTestId("canary-mappings")
+    .locator("[data-canary-value]")
+    .evaluateAll((rows) =>
+      rows.map((row) => row.getAttribute("data-canary-value") ?? ""),
+    );
+}
+
+async function generatePreparedCanaries(world) {
+  const responsePromise = world.page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return (
+      response.request().method() === "POST" &&
+      url.pathname.endsWith(`/runs/${world.selectedPreparedRunId}/canaries`)
+    );
+  });
+  await world.page.getByTestId("generate-run-canaries").click();
+  const response = await responsePromise;
+  assert.equal(response.status(), 201);
+  await world.page
+    .getByTestId("synthetic-notice")
+    .getByText("Run canaries ready", { exact: true })
+    .waitFor();
+  const values = await currentCanaryValues(world);
+  world.canaryValuesByRun ??= {};
+  world.canaryValuesByRun[world.selectedPreparedRunId] = values;
+}
+
+When("I generate canaries for the prepared run", async function () {
+  await generatePreparedCanaries(this);
+});
+
+Then(
+  "every selected field maps to one persona and one non-reused value",
+  async function () {
+    const rows = this.page
+      .getByTestId("canary-mappings")
+      .locator("[data-canary-value]");
+    assert.equal(await rows.count(), 4);
+    const mappings = await rows.evaluateAll((items) =>
+      items.map((item) => ({
+        personaId: item.getAttribute("data-persona-id"),
+        sourceField: item.getAttribute("data-source-field"),
+        value: item.getAttribute("data-canary-value"),
+      })),
+    );
+    assert.equal(new Set(mappings.map((mapping) => mapping.value)).size, 4);
+    assert.equal(
+      mappings.every(
+        (mapping) =>
+          Boolean(mapping.personaId) &&
+          Boolean(mapping.sourceField) &&
+          Boolean(mapping.value),
+      ),
+      true,
+    );
+    for (const personaId of this.savedPersonaIds) {
+      assert.equal(
+        mappings.filter((mapping) => mapping.personaId === personaId).length,
+        2,
+      );
+    }
+  },
+);
+
+Then(
+  "every generated email address uses a reserved non-deliverable domain",
+  async function () {
+    const rows = this.page
+      .getByTestId("canary-mappings")
+      .locator('[data-source-field="email"]');
+    assert.equal(await rows.count(), 2);
+    const values = await rows.evaluateAll((items) =>
+      items.map((item) => item.getAttribute("data-canary-value") ?? ""),
+    );
+    assert.equal(values.every((value) => value.endsWith(".invalid")), true);
+  },
+);
+
+When(
+  "I switch to {string} and generate the same selected fields",
+  async function (label) {
+    await selectPreparedRun(this, label);
+    await assertDefaultSourcesSelected(this);
+    await generatePreparedCanaries(this);
+  },
+);
+
+Then("the two prepared runs have disjoint canary values", function () {
+  const valueSets = Object.values(this.canaryValuesByRun ?? {}).filter(
+    (values) => values.length > 0,
+  );
+  assert.equal(valueSets.length, 2);
+  const [first, second] = valueSets;
+  assert.equal(first.some((value) => second.includes(value)), false);
+});
+
+Then("an unrelated prepared run has no canaries", async function () {
+  const priorValues = Object.values(this.canaryValuesByRun).flat();
+  await selectPreparedRun(this, "Unrelated prepared run");
+  await this.page.getByTestId("canary-empty").waitFor();
+  assert.equal(await currentCanaryValues(this).then((values) => values.length), 0);
+  const panelText = await this.page.getByTestId("canary-mappings").innerText();
+  assert.equal(priorValues.some((value) => panelText.includes(value)), false);
+});
+
+async function captureSyntheticDataEvidence(world, name, narrow) {
+  if (narrow) await world.page.setViewportSize({ width: 390, height: 844 });
+  const panel = world.page.getByTestId("synthetic-data-panel");
+  await panel.scrollIntoViewIfNeeded();
+  const capture = async (root) => {
+    await panel.screenshot({ path: path.join(root, `${name}.png`) });
+  };
+  await capture(
+    path.join(
+      process.cwd(),
+      "artifacts",
+      "verification",
+      "JRN-01",
+      "screenshots",
+    ),
+  );
+  if (shouldCaptureCurated("JRN-01")) {
+    await capture(path.join(process.cwd(), "docs", "evidence", "JRN-01"));
+  }
+  if (narrow) await world.page.setViewportSize({ width: 1440, height: 1100 });
+}
+
+Then(
+  "I capture the {string} synthetic-data evidence",
+  async function (evidenceName) {
+    await captureSyntheticDataEvidence(this, evidenceName, false);
+  },
+);
+
+Then(
+  "I capture the {string} narrow synthetic-data evidence",
+  async function (evidenceName) {
+    await captureSyntheticDataEvidence(this, evidenceName, true);
   },
 );

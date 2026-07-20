@@ -1,5 +1,9 @@
 import {
   AuthenticationRequiredError,
+  CanaryGenerationExhaustedError,
+  CanarySourceUnavailableError,
+  LikelyRealDataError,
+  PersonaUnavailableError,
   PolicyDeniedError,
   PermissionDeniedError,
   RawSecretAccessDeniedError,
@@ -9,6 +13,19 @@ import {
 import { NextResponse } from "next/server";
 
 export function authorizationErrorResponse(error: unknown): NextResponse {
+  if (error instanceof LikelyRealDataError) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: error.publicMessage,
+          auditRecorded: error.auditRecorded,
+          findings: error.findings,
+        },
+      },
+      { status: error.status },
+    );
+  }
   if (error instanceof RawSecretAccessDeniedError) {
     return NextResponse.json(
       {
@@ -37,7 +54,10 @@ export function authorizationErrorResponse(error: unknown): NextResponse {
   }
   if (
     error instanceof AuthenticationRequiredError ||
+    error instanceof CanaryGenerationExhaustedError ||
+    error instanceof CanarySourceUnavailableError ||
     error instanceof PermissionDeniedError ||
+    error instanceof PersonaUnavailableError ||
     error instanceof SecretUnavailableError ||
     error instanceof WorkspaceUnavailableError
   ) {
@@ -46,7 +66,10 @@ export function authorizationErrorResponse(error: unknown): NextResponse {
         error: {
           code: error.code,
           message: error.publicMessage,
-          auditRecorded: !(error instanceof AuthenticationRequiredError),
+          auditRecorded:
+            error instanceof PermissionDeniedError ||
+            error instanceof SecretUnavailableError ||
+            error instanceof WorkspaceUnavailableError,
         },
       },
       { status: error.status },

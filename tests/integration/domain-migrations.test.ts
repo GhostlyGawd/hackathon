@@ -30,6 +30,7 @@ describe("core domain migrations", () => {
       "0002",
       "0003",
       "0004",
+      "0005",
     ]);
   });
 
@@ -42,6 +43,7 @@ describe("core domain migrations", () => {
       "0002",
       "0003",
       "0004",
+      "0005",
     ]);
     await expect(applyCoreMigrations(service.database)).resolves.toEqual([]);
     const tables = await service.database.query<{ table_name: string }>(
@@ -409,11 +411,32 @@ describe("core domain migrations", () => {
         ],
       );
     }
+    const persona = "61616161-6161-4161-8161-616161616161";
     const canary = "62626262-6262-4262-8262-626262626262";
     const observation = "63636363-6363-4363-8363-636363636363";
     await database.query(
-      "INSERT INTO canaries (workspace_id, id, run_id, source_field, value, generated_at) VALUES ($1, $2, $3, 'student.email', 'canary@pactwire.invalid', now())",
-      [workspace, canary, runA],
+      "INSERT INTO personas (workspace_id, id, role, fictional, display_name, email, fields, fictional_confirmation, scan_result, created_at, created_by) VALUES ($1, $2, 'STUDENT', true, 'Migration Student (Fictional)', 'migration@student.pactwire.invalid', '{}', $3, $4, now(), $5)",
+      [
+        workspace,
+        persona,
+        {
+          statementVersion: "fictional-only-v1",
+          confirmedAt: "2026-07-20T00:30:00.000Z",
+          confirmedBy: { kind: "HUMAN", actorId: "migration-fixture" },
+        },
+        { scannerVersion: "likely-real-v1", outcome: "CLEAR", findings: [] },
+        { kind: "HUMAN", actorId: "migration-fixture" },
+      ],
+    );
+    await database.query(
+      "INSERT INTO canaries (workspace_id, id, run_id, persona_id, source_field, value, generated_at) VALUES ($1, $2, $3, $4, 'email', $5, now())",
+      [
+        workspace,
+        canary,
+        runA,
+        persona,
+        `pw-${"c".repeat(32)}@canary.pactwire.invalid`,
+      ],
     );
     await expect(
       database.query(

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { SecretIsolationPanel } from "./secret-isolation-panel";
 import { SoftwareInventory } from "./software-inventory";
+import { SyntheticDataPanel } from "./synthetic-data-panel";
 import { TestAuthorizationPanel } from "./test-authorization-panel";
 
 type WorkspaceRole =
@@ -146,6 +147,9 @@ function formatAction(action: string): string {
     "test_authorization.policy_allowed": "Policy attempt allowed",
     "test_authorization.policy_denied": "Policy attempt blocked",
     "test_authorization.revoked": "Test authorization revoked",
+    "persona.likely_real_data_blocked": "Likely real data blocked",
+    "persona.created": "Fictional user created",
+    "canaries.generated": "Run canaries generated",
   };
   return labels[action] ?? action;
 }
@@ -200,7 +204,7 @@ export function AccessConsole() {
       const result = await api<{ readonly auditEvents: readonly AuditEvent[] }>(
         `/api/workspaces/${currentPrincipal.activeWorkspaceId}/audit`,
       );
-      setAudits(result.auditEvents.slice(-8).reverse());
+      setAudits(result.auditEvents.slice(-24).reverse());
     },
     [],
   );
@@ -374,7 +378,8 @@ export function AccessConsole() {
             Inventory
           </a>
           <a href="#authorization">Authorization</a>
-          <a href="#credentials" aria-current="page">Credentials</a>
+          <a href="#credentials">Credentials</a>
+          <a href="#synthetic-data" aria-current="page">Test data</a>
         </nav>
         <span className="environment-badge">
           <span aria-hidden="true" /> Controlled fixture
@@ -384,13 +389,12 @@ export function AccessConsole() {
       <main id="main">
         <section className="hero" id="overview">
           <div className="hero-copy">
-            <p className="eyebrow">Credential isolation / AUT-04</p>
-            <h1>Use test credentials without exposing them to the page or model.</h1>
+            <p className="eyebrow">Fictional users and canaries / JRN-01</p>
+            <h1>Create fictional test users without entering real student data.</h1>
             <p className="lede">
-              Pactwire stores fictional passwords, tokens, and cookies as
-              encrypted values. It releases a value only inside one authorized
-              browser harness context, then removes it from prompts, logs,
-              screenshots, and exports.
+              Pactwire blocks likely real identifiers, requires a fictional-data
+              confirmation, and gives each selected field a different traceable
+              value for one prepared run.
             </p>
             <div className="principle-row">
               <span>
@@ -406,24 +410,24 @@ export function AccessConsole() {
             <div className="flow-step">
               <span className="step-index">01</span>
               <div>
-                <strong>Encrypted storage</strong>
-                <span>Pages receive a label and status, never the saved value</span>
+                <strong>Block likely real data</strong>
+                <span>Routable addresses and identifier patterns never persist</span>
               </div>
             </div>
             <ArrowIcon />
             <div className="flow-step">
               <span className="step-index">02</span>
               <div>
-                <strong>One harness context</strong>
-                <span>A short-lived, single-use lease binds each injection</span>
+                <strong>Confirm fictional users</strong>
+                <span>Teacher and student profiles use reserved .invalid addresses</span>
               </div>
             </div>
             <ArrowIcon />
             <div className="flow-step emphasized">
               <span className="step-index">03</span>
               <div>
-                <strong>Redact and record</strong>
-                <span>Raw and encoded forms are removed from every normal output</span>
+                <strong>Trace one run</strong>
+                <span>Every selected field maps to one immutable, non-reused canary</span>
               </div>
             </div>
           </div>
@@ -533,6 +537,11 @@ export function AccessConsole() {
               />
               <SecretIsolationPanel
                 key={`${principal.activeWorkspaceId}:${principal.userId}`}
+                workspaceId={principal.activeWorkspaceId}
+                principalUserId={principal.userId}
+              />
+              <SyntheticDataPanel
+                key={`synthetic:${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
                 principalUserId={principal.userId}
               />
