@@ -2,18 +2,24 @@ import { randomBytes, randomUUID } from "node:crypto";
 import {
   Aes256GcmSecretCipher,
   AgreementIntakeService,
+  DeterministicRequirementProposalAdapter,
+  FetchOpenAIResponsesTransport,
   InMemoryAgreementIntakeRepository,
   InMemoryAgreementObjectStore,
+  InMemoryRequirementProposalRepository,
   InMemorySecretIsolationRepository,
   InMemorySyntheticDataRepository,
   InMemoryWorkspaceAuthorizationRepository,
   InMemorySoftwareInventoryRepository,
   InMemoryTestAuthorizationRepository,
+  OpenAIResponsesRequirementProposalAdapter,
   SecretIsolationService,
+  RequirementProposalService,
   SyntheticDataService,
   SoftwareInventoryService,
   TestAuthorizationService,
   WorkspaceAuthorizationService,
+  type RequirementProposalModelAdapter,
   type WorkspacePrincipal,
 } from "@pactwire/core";
 
@@ -65,6 +71,8 @@ export interface AccessRuntime {
   readonly agreementRepository: InMemoryAgreementIntakeRepository;
   readonly agreementObjectStore: InMemoryAgreementObjectStore;
   readonly agreementService: AgreementIntakeService;
+  readonly requirementProposalRepository: InMemoryRequirementProposalRepository;
+  readonly requirementProposalService: RequirementProposalService;
   readonly testAuthorizationRepository: InMemoryTestAuthorizationRepository;
   readonly testAuthorizationService: TestAuthorizationService;
   readonly secretIsolationRepository: InMemorySecretIsolationRepository;
@@ -80,6 +88,34 @@ export function isFixtureMode(): boolean {
   return (
     process.env.NODE_ENV !== "production" &&
     process.env.PACTWIRE_FIXTURE_MODE !== "0"
+  );
+}
+
+type RequirementProposalEnvironment = Readonly<
+  Record<string, string | undefined>
+>;
+
+export function createRequirementProposalAdapterFromEnvironment(
+  environment: RequirementProposalEnvironment = process.env,
+): RequirementProposalModelAdapter {
+  const mode = environment.PACTWIRE_REQUIREMENT_PROPOSAL_ADAPTER ?? "fixture";
+  if (mode === "fixture") {
+    return new DeterministicRequirementProposalAdapter();
+  }
+  if (mode === "openai") {
+    const apiKey = environment.OPENAI_API_KEY;
+    if (!apiKey?.trim()) {
+      throw new Error(
+        "OPENAI_API_KEY is required when PACTWIRE_REQUIREMENT_PROPOSAL_ADAPTER=openai",
+      );
+    }
+    return new OpenAIResponsesRequirementProposalAdapter(
+      new FetchOpenAIResponsesTransport(apiKey),
+      { model: "gpt-5.6-sol" },
+    );
+  }
+  throw new Error(
+    "PACTWIRE_REQUIREMENT_PROPOSAL_ADAPTER must be fixture or openai",
   );
 }
 
@@ -160,6 +196,15 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     inventoryRepository,
     { idFactory, now },
   );
+  const requirementProposalRepository =
+    new InMemoryRequirementProposalRepository(repository);
+  const requirementProposalService = new RequirementProposalService(
+    requirementProposalRepository,
+    agreementService,
+    service,
+    createRequirementProposalAdapterFromEnvironment(),
+    { idFactory, now, maxAttempts: 2 },
+  );
   const testAuthorizationRepository = new InMemoryTestAuthorizationRepository(
     repository,
   );
@@ -201,6 +246,8 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     agreementRepository,
     agreementObjectStore,
     agreementService,
+    requirementProposalRepository,
+    requirementProposalService,
     testAuthorizationRepository,
     testAuthorizationService,
     secretIsolationRepository,

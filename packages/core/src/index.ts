@@ -8,6 +8,7 @@ export * from "./domain.js";
 export * from "./authorization.js";
 export * from "./inventory.js";
 export * from "./agreement-intake.js";
+export * from "./requirement-proposals.js";
 export * from "./test-authorization.js";
 export * from "./secret-isolation.js";
 export * from "./synthetic-data.js";

@@ -516,7 +516,7 @@ export const agreementVersionSchema = z
   });
 export type AgreementVersion = z.infer<typeof agreementVersionSchema>;
 
-const agreementCitationSchema = z
+export const agreementCitationSchema = z
   .object({
     page: z.number().int().positive().optional(),
     startOffset: z.number().int().nonnegative(),
@@ -528,22 +528,70 @@ const agreementCitationSchema = z
     path: ["endOffset"],
     message: "endOffset must be greater than startOffset",
   });
+export type AgreementCitation = z.infer<typeof agreementCitationSchema>;
 
-const proposedRequirementSchema = z
+export const requirementProposalDetailsSchema = z
+  .object({
+    plainLanguage: nonEmpty.max(2_000),
+    sourceText: z.string().min(1).max(20_000),
+    pageNumber: z.number().int().positive().nullable(),
+    section: nonEmpty.max(500).nullable(),
+    dataField: nonEmpty.max(1_000),
+    action: nonEmpty.max(1_000),
+    recipientRestriction: nonEmpty.max(2_000),
+    purposeRestriction: nonEmpty.max(2_000).nullable(),
+    ambiguity: z.enum(["CLEAR", "AMBIGUOUS"]),
+    ambiguityReason: nonEmpty.max(2_000).nullable(),
+    suggestedObservableTest: nonEmpty.max(4_000),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (value.pageNumber === null && value.section === null) {
+      context.addIssue({
+        code: "custom",
+        path: ["pageNumber"],
+        message: "A proposal citation needs a page number or section",
+      });
+    }
+    if (value.ambiguity === "AMBIGUOUS" && value.ambiguityReason === null) {
+      context.addIssue({
+        code: "custom",
+        path: ["ambiguityReason"],
+        message: "An ambiguous proposal needs a reason",
+      });
+    }
+    if (value.ambiguity === "CLEAR" && value.ambiguityReason !== null) {
+      context.addIssue({
+        code: "custom",
+        path: ["ambiguityReason"],
+        message: "A clear proposal cannot carry an ambiguity reason",
+      });
+    }
+  });
+export type RequirementProposalDetails = z.infer<
+  typeof requirementProposalDetailsSchema
+>;
+
+export const proposedRequirementSchema = z
   .object({
     id: uuid,
     workspaceId: uuid,
     agreementVersionId: uuid,
     requirementKey: nonEmpty,
     version: z.number().int().positive(),
+    modelRunId: uuid,
     status: z.literal("PROPOSED"),
     executable: z.literal(false),
     plainLanguage: nonEmpty,
+    details: requirementProposalDetailsSchema,
     citation: agreementCitationSchema,
     proposedBy: actorSchema,
     createdAt: timestamp,
   })
   .strict();
+export type ProposedRequirementVersion = z.infer<
+  typeof proposedRequirementSchema
+>;
 
 const confirmedRequirementSchema = z
   .object({
@@ -595,6 +643,7 @@ export const requirementVersionSchema = z.union([
   confirmedRequirementSchema,
   reviewedRequirementSchema,
 ]);
+export type RequirementVersion = z.infer<typeof requirementVersionSchema>;
 
 export const destinationRecordSchema = z
   .object({

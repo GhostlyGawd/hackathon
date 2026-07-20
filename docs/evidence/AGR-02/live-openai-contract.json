@@ -1,0 +1,36 @@
+{
+  "taskId": "AGR-02",
+  "fixture": "controlled-fictional-dpa-pdf",
+  "sourceSha256": "1d319c24aca244e964990b18f974990ff66c91f3a92aedf04c3cc4c5aaf05be6",
+  "requestedModel": "gpt-5.6-sol",
+  "returnedModel": "gpt-5.6-sol",
+  "responseIdSha256": "cab413c9ab498e1731ce6a53eb138e7ed2be3cf33f57347f5f33c33aa2944d01",
+  "usage": {
+    "inputTokens": 413,
+    "cachedInputTokens": 0,
+    "outputTokens": 580,
+    "reasoningTokens": 239,
+    "totalTokens": 993,
+    "estimatedCostMicroUsd": 19465,
+    "pricingSnapshot": "openai-gpt-5.6-sol-standard-2026-07-19"
+  },
+  "latencyMs": 14162,
+  "proposalCount": 2,
+  "citations": [
+    {
+      "page": 1,
+      "startOffset": 0,
+      "endOffset": 64,
+      "quotedTextSha256": "bafd7017bdc7c5f679e224d65db753879ba4c92f400e71c1bbe77ba416f45926"
+    },
+    {
+      "page": 2,
+      "startOffset": 67,
+      "endOffset": 118,
+      "quotedTextSha256": "31aae23e8a0e4840cbddafb28fc57056b2fe5573013c5e0cd1f1c39f32dfb2ee"
+    }
+  ],
+  "sourceTextIncluded": false,
+  "apiKeyIncluded": false,
+  "passed": true
+}

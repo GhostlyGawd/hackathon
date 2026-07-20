@@ -1,0 +1,420 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "AGR-02",
+  "title": "Integrate GPT-5.6 structured requirement proposals",
+  "status": "COMPLETE",
+  "prdSections": [3, 15, 17],
+  "functionalRequirements": ["FR-011"],
+  "sourceCommitSha": "694060df2ea0f6b24a3a67df88ee3172ae4c81a1",
+  "startedAt": "2026-07-20T04:45:00.000Z",
+  "completedAt": "2026-07-20T19:05:59.000Z",
+  "artifactRoot": "artifacts/verification/AGR-02/",
+  "curatedEvidenceRoot": "docs/evidence/AGR-02/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29767561235",
+      "jobs": [
+        {
+          "name": "Ubuntu",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29767561235/job/88437372236",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Windows",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29767561235/job/88437372350",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing requirement proposal primitives",
+      "command": "pnpm exec vitest run --project unit tests/unit/requirement-proposals.test.ts --project property tests/property/requirement-proposals.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 3100,
+      "expectedFailure": "Both suites failed to import the not-yet-created requirement-proposals module and zero tests ran"
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined requirement proposal browser stories",
+      "command": "PACTWIRE_BDD_TAGS=@AGR-02 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 28700,
+      "expectedFailure": "Shared signed-session, software, and agreement setup passed while twelve AGR-02 workflow steps remained undefined"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing proposal repository and service boundary",
+      "command": "pnpm exec vitest run --project integration tests/integration/requirement-proposals.test.ts",
+      "exitCode": 1,
+      "durationMs": 14200,
+      "expectedFailure": "All five scenarios reached the not-yet-implemented in-memory or PostgreSQL proposal repository constructor"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing signed proposal routes",
+      "command": "pnpm --filter @pactwire/core build; pnpm exec vitest run --project integration apps/web/tests/integration/requirement-proposal-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 8500,
+      "expectedFailure": "The route suite could not import the not-yet-created agreement proposal endpoint"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Structured response, citation, pricing, and unsupported-output contracts",
+      "command": "pnpm exec vitest run --project unit tests/unit/requirement-proposals.test.ts --project property tests/property/requirement-proposals.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 3300
+    },
+    {
+      "phase": "GREEN",
+      "name": "Immutable proposal service and PostgreSQL persistence",
+      "command": "pnpm exec vitest run --project integration tests/integration/requirement-proposals.test.ts",
+      "exitCode": 0,
+      "durationMs": 9500
+    },
+    {
+      "phase": "GREEN",
+      "name": "Signed proposal HTTP boundary",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/requirement-proposal-routes.test.ts",
+      "exitCode": 0,
+      "durationMs": 4800
+    },
+    {
+      "phase": "RED",
+      "name": "Missing explicit web runtime adapter selector",
+      "command": "pnpm exec vitest run --project unit apps/web/tests/unit/requirement-proposal-runtime.test.ts",
+      "exitCode": 1,
+      "durationMs": 3600,
+      "expectedFailure": "All three cases reached the not-yet-exported runtime adapter selector"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Fail-closed deterministic and live web runtime selection",
+      "command": "pnpm exec vitest run --project unit apps/web/tests/unit/requirement-proposal-runtime.test.ts",
+      "exitCode": 0,
+      "durationMs": 3100
+    },
+    {
+      "phase": "RED",
+      "name": "Missing encrypted-secret live workflow",
+      "command": "pnpm exec vitest run --project unit tests/unit/live-openai-workflow.test.ts",
+      "exitCode": 1,
+      "durationMs": 2100,
+      "expectedFailure": "The contract could not read the not-yet-created live-openai workflow"
+    },
+    {
+      "phase": "RED",
+      "name": "Live workflow could not run before merge",
+      "command": "pnpm exec vitest run --project unit tests/unit/live-openai-workflow.test.ts",
+      "exitCode": 1,
+      "durationMs": 2000,
+      "expectedFailure": "The manual trigger alone could not execute a workflow absent from the default branch, so the contract required one isolated pre-merge trigger branch"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Encrypted-secret isolated live workflow contract",
+      "command": "pnpm exec vitest run --project unit tests/unit/live-openai-workflow.test.ts",
+      "exitCode": 0,
+      "durationMs": 2000
+    },
+    {
+      "phase": "RED",
+      "name": "Ubuntu CI rejected ambiguous regex indentation",
+      "command": "GitHub Actions run 29720782899, Verify on ubuntu-latest: pnpm verify",
+      "exitCode": 1,
+      "durationMs": 62000,
+      "expectedFailure": "ESLint no-regex-spaces rejected three literal YAML-indentation runs in the workflow contract before tests executed"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Explicit regex indentation and focused workflow verification",
+      "command": "pnpm exec eslint tests/unit/live-openai-workflow.test.ts --max-warnings=0; pnpm exec vitest run --project unit tests/unit/live-openai-workflow.test.ts --project integration tests/integration/evidence-harness.test.ts; pnpm evidence:check",
+      "exitCode": 0,
+      "durationMs": 8800
+    },
+    {
+      "phase": "GREEN",
+      "name": "Successful proposal and refusal browser stories",
+      "command": "PACTWIRE_BDD_TAGS=@AGR-02 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 69000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete deterministic repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 262300
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production browser capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=AGR-02 PACTWIRE_BDD_PRODUCTION=1 PACTWIRE_BDD_TAGS=@AGR-02 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 16000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows at the live-contract source commit",
+      "command": "GitHub Actions run 29767561235: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 319000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency vulnerability audit",
+      "command": "pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 1500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Tracked credential-pattern scan",
+      "command": "git grep -l -P with token-boundary secret-key and private-key patterns; no matches is success",
+      "exitCode": 0,
+      "durationMs": 500
+    },
+    {
+      "phase": "RED",
+      "name": "Required live contract unavailable before encrypted credentials",
+      "command": "pnpm test:live-openai",
+      "exitCode": 1,
+      "durationMs": 3500,
+      "expectedFailure": "The opt-in contract failed explicitly because OPENAI_API_KEY was absent; it was never skipped or replaced by the deterministic adapter"
+    },
+    {
+      "phase": "RED",
+      "name": "Rejected provider request lacked bounded diagnostics",
+      "command": "pnpm exec vitest run --project unit tests/unit/requirement-proposals.test.ts",
+      "exitCode": 1,
+      "durationMs": 3200,
+      "expectedFailure": "The focused assertion failed because the transport exposed no typed, sanitized HTTP status/code diagnostic"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Bounded provider diagnostics without upstream messages",
+      "command": "pnpm exec vitest run --project unit tests/unit/requirement-proposals.test.ts",
+      "exitCode": 0,
+      "durationMs": 2500
+    },
+    {
+      "phase": "RED",
+      "name": "Live provider quota failure remained non-executable",
+      "command": "GitHub Actions run 29767561187 attempt 1: pnpm test:live-openai",
+      "exitCode": 1,
+      "durationMs": 28000,
+      "expectedFailure": "OpenAI returned HTTP 429 insufficient_quota; the adapter produced PROVIDER_ERROR, zero accepted proposals, and no artifact"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Required live GPT-5.6 Sol fictional PDF contract",
+      "command": "GitHub Actions run 29767561187 attempt 2: pnpm test:live-openai",
+      "exitCode": 0,
+      "durationMs": 14359,
+      "outputPath": "artifacts/verification/AGR-02/live-openai-contract.json"
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence index rejected a stale exact proof count",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 100800,
+      "expectedFailure": "The evidence-harness regression expected 98 proof files after the reviewed live manifest became the 99th durable proof"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Evidence index includes the reviewed live manifest",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 0,
+      "durationMs": 7500
+    },
+    {
+      "phase": "RED",
+      "name": "Complete verification exposed the unrelated PROP-20 test-shell timeout",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 129200,
+      "expectedFailure": "The seeded 250-case asynchronous property produced no counterexample but exceeded Vitest's 5000 ms default test timeout under full-suite load; focused runs remained green"
+    },
+    {
+      "phase": "RED",
+      "name": "Complete verification exposed inconsistent local and CI BDD server modes",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 512600,
+      "expectedFailure": "All unit, property, and integration gates passed before the local development BDD server recompiled during form interaction, causing Failed to find Server Action and 20 cascading browser-story failures; FND-02 regression PR 18 pins canonical verification to the production build"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete combined verification after merged harness regressions",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 339500
+    }
+  ],
+  "testSummary": {
+    "files": 8,
+    "passed": 32,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-AGR-02-failure-outcomes-never-materialize",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-AGR-02-absent-quotes-never-materialize",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-AGR-02-required-structured-fields",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "agreement-intake.feature",
+        "scenario": "A structured proposal is tied to exact source text and stays non-executable",
+        "passed": true
+      },
+      {
+        "feature": "agreement-intake.feature",
+        "scenario": "A model refusal creates a visible error and no proposal",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/AGR-02/requirement-proposal-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-20T05:45:54.000Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop requirement proposal panel showing one accepted non-executable fictional draft, an exact agreement quote with page and offsets, all structured fields, deterministic-adapter disclosure, token count, and estimated cost.",
+        "caption": "A deterministic fixture run proves the review interface and exact-citation gate without presenting the fixture as live GPT-5.6 evidence.",
+        "provenance": "captured",
+        "sourceCommitSha": "3ba9250afaeeed2a33dddadbb00d6f8e13cd95b8"
+      },
+      {
+        "path": "docs/evidence/AGR-02/requirement-proposal-refusal-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-20T05:45:57.000Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow requirement proposal panel showing a visible model-refusal error, deterministic-adapter disclosure, zero stored proposals, and a manual source-review recovery message.",
+        "caption": "A refusal remains a failed, audited, non-executable run and leaves the stored agreement available for manual review.",
+        "provenance": "captured",
+        "sourceCommitSha": "3ba9250afaeeed2a33dddadbb00d6f8e13cd95b8"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/requirement-proposals.test.ts",
+      "description": "Exact citation, strict Responses request, response classes, model identity, cost, and safe transport examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/requirement-proposals.property.test.ts",
+      "description": "Seeded invalid, incomplete, uncited, refused, unrelated, and missing-field non-materialization properties"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/requirement-proposals.test.ts",
+      "description": "Authorization, retry, cost aggregation, safe failure, immutable in-memory, and PostgreSQL proposal proof"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/requirement-proposal-routes.test.ts",
+      "description": "Signed generation, listing, refusal, non-executable response, and reviewer authorization HTTP proof"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/unit/requirement-proposal-runtime.test.ts",
+      "description": "Explicit live adapter selection, deterministic default, required server-side key, and unknown-mode rejection proof"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/live-openai-workflow.test.ts",
+      "description": "Encrypted-secret, isolated-trigger, least-privilege, and sanitized-artifact workflow contract"
+    },
+    {
+      "kind": "test",
+      "path": "tests/live-openai/requirement-proposals.live.test.ts",
+      "description": "Required opt-in real GPT-5.6 Sol fictional PDF structured-output and exact-citation contract"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/AGR-02/live-openai-contract.json",
+      "description": "Sanitized durable copy of the successful live GPT-5.6 Sol contract manifest from GitHub Actions run 29767561187 attempt 2"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/agreement-intake.feature",
+      "description": "Exact structured proposal and visible safe-refusal workflows"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/requirement-proposals.ts",
+      "description": "Strict model boundary, exact locator, Responses transport, cost metadata, repositories, retry policy, and service"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0007_requirement_proposals.sql",
+      "description": "Immutable model-run ledger and successful-run-only requirement proposal guard"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/agreement-intake-panel.tsx",
+      "description": "Direct-language proposal, authority-boundary, exact-source, cost, and safe-failure interface"
+    },
+    {
+      "kind": "config",
+      "path": ".github/workflows/live-openai.yml",
+      "description": "Opt-in encrypted-secret live contract restricted to the dedicated pre-merge trigger branch or later manual dispatch"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/AGR-02/README.md",
+      "description": "Completed red/green record, live-run provenance, bounded claims, and reviewed artifact hashes"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-20T19:08:00.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "The successful live contract covers one controlled two-page fictional PDF and two exact citations; it does not establish extraction accuracy across real agreements, legal meaning, product safety, or compliance.",
+    "The browser proof uses the explicitly labelled deterministic fixture adapter; it proves interface and recovery behavior, not live GPT-5.6 proposal quality.",
+    "Displayed cost is an estimate from reported tokens and the dated standard-tier price snapshot; the provider invoice remains authoritative and cache-write premiums are not separately identifiable from the response usage fields."
+  ],
+  "reviewer": "codex-agent"
+}
