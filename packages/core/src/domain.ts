@@ -431,19 +431,90 @@ export const authorizationSchema = z
     }
   });
 
+export const agreementPageMapEntrySchema = z
+  .object({
+    pageNumber: z.number().int().positive(),
+    startOffset: z.number().int().nonnegative(),
+    endOffset: z.number().int().nonnegative(),
+    text: z.string().max(2_000_000),
+    textSha256: sha256,
+  })
+  .strict()
+  .refine((value) => value.endOffset - value.startOffset === value.text.length, {
+    message: "Agreement page offsets must span the stored page text",
+  });
+
+const agreementDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/u);
+
 export const agreementVersionSchema = z
   .object({
     id: uuid,
     workspaceId: uuid,
     softwareId: uuid,
     version: z.number().int().positive(),
-    sourceObjectKey: nonEmpty,
+    sourceObjectKey: z
+      .string()
+      .regex(/^agreements\/sha256\/[a-f0-9]{64}\.(?:pdf|txt)$/u),
     sourceSha256: sha256,
-    sourceMimeType: nonEmpty,
+    sourceMimeType: z.enum(["application/pdf", "text/plain"]),
+    sourceFileName: z
+      .string()
+      .trim()
+      .min(1)
+      .max(255)
+      .refine((value) => !/[\\/]/u.test(value), {
+        message: "Agreement file name must not contain a path",
+      }),
+    sourceByteLength: z.number().int().positive().max(10 * 1024 * 1024),
+    effectiveFrom: agreementDate.optional(),
+    effectiveUntil: agreementDate.optional(),
+    normalizedText: z.string().min(1).max(2_000_000),
+    pageMap: z.array(agreementPageMapEntrySchema).min(1).max(500),
     createdAt: timestamp,
     createdBy: humanActorSchema,
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    const expectedExtension =
+      value.sourceMimeType === "application/pdf" ? "pdf" : "txt";
+    if (!value.sourceObjectKey.endsWith(`${value.sourceSha256}.${expectedExtension}`)) {
+      context.addIssue({
+        code: "custom",
+        path: ["sourceObjectKey"],
+        message: "Agreement object key must be derived from its source hash",
+      });
+    }
+    if (
+      value.effectiveFrom &&
+      value.effectiveUntil &&
+      value.effectiveUntil < value.effectiveFrom
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["effectiveUntil"],
+        message: "Agreement end date cannot precede its start date",
+      });
+    }
+    value.pageMap.forEach((page, index) => {
+      if (page.pageNumber !== index + 1) {
+        context.addIssue({
+          code: "custom",
+          path: ["pageMap", index, "pageNumber"],
+          message: "Agreement pages must be sequential",
+        });
+      }
+      if (
+        value.normalizedText.slice(page.startOffset, page.endOffset) !== page.text
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["pageMap", index],
+          message: "Agreement page map must resolve into normalized source text",
+        });
+      }
+    });
+  });
+export type AgreementVersion = z.infer<typeof agreementVersionSchema>;
 
 const agreementCitationSchema = z
   .object({

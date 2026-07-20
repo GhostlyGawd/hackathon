@@ -132,7 +132,7 @@ async function fixture() {
   const agreementId = "71717171-7171-4171-8171-717171717171";
   const journeyVersionId = "72727272-7272-4272-8272-727272727272";
   await database.database.query(
-    "INSERT INTO agreement_versions (workspace_id, id, software_id, version, source_object_key, source_sha256, source_mime_type, created_at, created_by) VALUES ($1, $2, $3, 1, 'synthetic/persona-fixture.pdf', $4, 'application/pdf', now(), $5)",
+    "INSERT INTO agreement_versions (workspace_id, id, software_id, version, source_object_key, source_sha256, source_mime_type, source_file_name, source_byte_length, normalized_text, page_map, created_at, created_by) VALUES ($1, $2, $3, 1, ('agreements/sha256/' || $4 || '.pdf'), $4, 'application/pdf', 'Persona Fixture.pdf', 1, 'Fixture', jsonb_build_array(jsonb_build_object('pageNumber', 1, 'startOffset', 0, 'endOffset', 7, 'text', 'Fixture', 'textSha256', repeat('b', 64))), now(), $5)",
     [
       created.workspace.id,
       agreementId,

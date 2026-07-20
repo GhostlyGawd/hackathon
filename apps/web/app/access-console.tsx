@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { SecretIsolationPanel } from "./secret-isolation-panel";
+import { AgreementIntakePanel } from "./agreement-intake-panel";
 import { SoftwareInventory } from "./software-inventory";
 import { SyntheticDataPanel } from "./synthetic-data-panel";
 import { TestAuthorizationPanel } from "./test-authorization-panel";
@@ -528,6 +529,11 @@ export function AccessConsole() {
           ) : (
             <>
               <SoftwareInventory
+                workspaceId={principal.activeWorkspaceId}
+                principalUserId={principal.userId}
+              />
+              <AgreementIntakePanel
+                key={`agreement:${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
                 principalUserId={principal.userId}
               />

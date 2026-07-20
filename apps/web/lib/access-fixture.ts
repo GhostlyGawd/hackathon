@@ -1,6 +1,9 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import {
   Aes256GcmSecretCipher,
+  AgreementIntakeService,
+  InMemoryAgreementIntakeRepository,
+  InMemoryAgreementObjectStore,
   InMemorySecretIsolationRepository,
   InMemorySyntheticDataRepository,
   InMemoryWorkspaceAuthorizationRepository,
@@ -59,6 +62,9 @@ export interface AccessRuntime {
   readonly service: WorkspaceAuthorizationService;
   readonly inventoryRepository: InMemorySoftwareInventoryRepository;
   readonly inventoryService: SoftwareInventoryService;
+  readonly agreementRepository: InMemoryAgreementIntakeRepository;
+  readonly agreementObjectStore: InMemoryAgreementObjectStore;
+  readonly agreementService: AgreementIntakeService;
   readonly testAuthorizationRepository: InMemoryTestAuthorizationRepository;
   readonly testAuthorizationService: TestAuthorizationService;
   readonly secretIsolationRepository: InMemorySecretIsolationRepository;
@@ -145,6 +151,15 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     service,
     { idFactory, now },
   );
+  const agreementRepository = new InMemoryAgreementIntakeRepository(repository);
+  const agreementObjectStore = new InMemoryAgreementObjectStore();
+  const agreementService = new AgreementIntakeService(
+    agreementRepository,
+    agreementObjectStore,
+    service,
+    inventoryRepository,
+    { idFactory, now },
+  );
   const testAuthorizationRepository = new InMemoryTestAuthorizationRepository(
     repository,
   );
@@ -183,6 +198,9 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     service,
     inventoryRepository,
     inventoryService,
+    agreementRepository,
+    agreementObjectStore,
+    agreementService,
     testAuthorizationRepository,
     testAuthorizationService,
     secretIsolationRepository,

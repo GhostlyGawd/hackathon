@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import {
@@ -50,6 +51,9 @@ function isExpectedAuthorizationFailure(response) {
     (method === "GET" &&
       pathname.endsWith("/secrets") &&
       response.status() === 403) ||
+    (method === "POST" &&
+      pathname.endsWith("/agreements") &&
+      response.status() === 422) ||
     (method === "GET" &&
       pathname ===
         "/api/workspaces/22222222-2222-4222-8222-222222222222" &&
@@ -125,6 +129,8 @@ After(async function ({ result, pickle }) {
             ? "AUT-04"
             : pickle.tags.some((tag) => tag.name === "@JRN-01")
               ? "JRN-01"
+              : pickle.tags.some((tag) => tag.name === "@AGR-01")
+                ? "AGR-01"
             : "AUT-01";
       await this.page.screenshot({
         fullPage: true,
@@ -1214,5 +1220,257 @@ Then(
   "I capture the {string} narrow synthetic-data evidence",
   async function (evidenceName) {
     await captureSyntheticDataEvidence(this, evidenceName, true);
+  },
+);
+
+const agreementFixture = Object.freeze({
+  name: "Northstar-DPA-fictional.txt",
+  mimeType: "text/plain",
+  pageOne:
+    "Fictional Cedar Ridge DPA\nPurpose: classroom instruction only.",
+  pageTwo:
+    "Fictional Cedar Ridge DPA\nRecipients: district-authorized subprocessors only.",
+});
+
+function agreementBytes(changed = false) {
+  return Buffer.from(
+    `${agreementFixture.pageOne}\f${agreementFixture.pageTwo}${changed ? "!" : ""}`,
+    "utf8",
+  );
+}
+
+function sha256(bytes) {
+  return createHash("sha256").update(bytes).digest("hex");
+}
+
+async function selectNorthstarAgreementSoftware(world) {
+  const panel = world.page.getByTestId("agreement-panel");
+  await panel.waitFor();
+  const select = world.page.getByTestId("agreement-software-select");
+  const option = select
+    .locator("option")
+    .filter({ hasText: "Northstar Classroom (Fictional)" });
+  await option.waitFor({ state: "attached" });
+  const softwareId = await option.getAttribute("value");
+  assert.ok(softwareId, "Northstar software has a selectable identifier");
+  await select.selectOption(softwareId);
+}
+
+async function uploadAgreementFixture(world, bytes, expectedStatus, file = {}) {
+  await selectNorthstarAgreementSoftware(world);
+  await world.page.getByTestId("agreement-file").setInputFiles({
+    name: file.name ?? agreementFixture.name,
+    mimeType: file.mimeType ?? agreementFixture.mimeType,
+    buffer: bytes,
+  });
+  const responsePromise = world.page.waitForResponse((response) => {
+    const request = response.request();
+    return (
+      request.method() === "POST" &&
+      new URL(response.url()).pathname.endsWith("/agreements")
+    );
+  });
+  await world.page.getByTestId("submit-agreement").click();
+  const response = await responsePromise;
+  assert.equal(response.status(), expectedStatus);
+  return response;
+}
+
+When(
+  "I upload the fictional two-page text agreement with effective dates",
+  async function () {
+    this.agreementVersionOneBytes = agreementBytes();
+    this.agreementVersionOneHash = sha256(this.agreementVersionOneBytes);
+    await selectNorthstarAgreementSoftware(this);
+    await this.page
+      .getByTestId("agreement-effective-from")
+      .fill("2026-07-01");
+    await this.page
+      .getByTestId("agreement-effective-until")
+      .fill("2027-06-30");
+    await uploadAgreementFixture(this, this.agreementVersionOneBytes, 201);
+    await this.page.getByTestId("agreement-current-version").waitFor();
+  },
+);
+
+Then(
+  "agreement version 1 shows its file name, byte count, hash, uploader, and effective dates",
+  async function () {
+    const record = this.page.getByTestId("agreement-current-version");
+    await record
+      .getByText(agreementFixture.name, { exact: true })
+      .waitFor();
+    const expectedBytes = new Intl.NumberFormat("en-US").format(
+      this.agreementVersionOneBytes.length,
+    );
+    await record.getByText(`${expectedBytes} bytes`, { exact: true }).waitFor();
+    await record
+      .getByText("fictional-officer-a", { exact: true })
+      .waitFor();
+    await record
+      .getByText("2026-07-01 → 2027-06-30", { exact: true })
+      .waitFor();
+    assert.equal(
+      await this.page.getByTestId("agreement-source-hash-1").innerText(),
+      this.agreementVersionOneHash,
+    );
+  },
+);
+
+Then(
+  "the source viewer reproduces both fictional pages with verified page hashes",
+  async function () {
+    const viewer = this.page.getByTestId("agreement-source-viewer");
+    await viewer.waitFor();
+    for (const [index, text] of [
+      agreementFixture.pageOne,
+      agreementFixture.pageTwo,
+    ].entries()) {
+      const page = this.page.getByTestId(`agreement-page-${index + 1}`);
+      await page.getByText(text, { exact: true }).waitFor();
+      await page
+        .getByText(sha256(Buffer.from(text, "utf8")), { exact: true })
+        .waitFor();
+    }
+  },
+);
+
+Then(
+  "downloading the original agreement reproduces the displayed source hash",
+  async function () {
+    const [download] = await Promise.all([
+      this.page.waitForEvent("download"),
+      this.page.getByTestId("download-agreement-source").click(),
+    ]);
+    const downloadedPath = await download.path();
+    assert.ok(downloadedPath, "The original agreement download completed");
+    assert.equal(sha256(await readFile(downloadedPath)), this.agreementVersionOneHash);
+    assert.equal(download.suggestedFilename(), agreementFixture.name);
+  },
+);
+
+When("I upload the exact same agreement again", async function () {
+  await uploadAgreementFixture(this, this.agreementVersionOneBytes, 200);
+});
+
+Then(
+  "Pactwire reports that the existing immutable version was reused",
+  async function () {
+    const notice = this.page.getByTestId("agreement-notice");
+    await notice.getByText("Existing version reused", { exact: true }).waitFor();
+    await notice
+      .getByText(
+        "These exact bytes already exist, so Pactwire reused the existing immutable version.",
+        { exact: true },
+      )
+      .waitFor();
+    assert.equal(
+      await this.page.getByTestId("agreement-version-list").locator("button[data-testid^='agreement-version-']").count(),
+      1,
+    );
+  },
+);
+
+When("I upload a one-byte-changed agreement", async function () {
+  this.agreementVersionTwoBytes = agreementBytes(true);
+  this.agreementVersionTwoHash = sha256(this.agreementVersionTwoBytes);
+  await uploadAgreementFixture(this, this.agreementVersionTwoBytes, 201);
+  await this.page.getByTestId("agreement-version-2").waitFor();
+});
+
+Then("agreement version 2 has a different source hash", async function () {
+  assert.notEqual(this.agreementVersionTwoHash, this.agreementVersionOneHash);
+  assert.equal(
+    await this.page.getByTestId("agreement-source-hash-2").innerText(),
+    this.agreementVersionTwoHash,
+  );
+});
+
+Then(
+  "agreement version 1 still has its original source hash and pages",
+  async function () {
+    await this.page.getByTestId("agreement-version-1").click();
+    assert.equal(
+      await this.page.getByTestId("agreement-source-hash-1").innerText(),
+      this.agreementVersionOneHash,
+    );
+    await this.page
+      .getByTestId("agreement-page-1")
+      .getByText(agreementFixture.pageOne, { exact: true })
+      .waitFor();
+    await this.page
+      .getByTestId("agreement-page-2")
+      .getByText(agreementFixture.pageTwo, { exact: true })
+      .waitFor();
+  },
+);
+
+When("I try to upload a malformed fictional PDF", async function () {
+  await uploadAgreementFixture(
+    this,
+    Buffer.from("%PDF-1.7\nnot a complete fictional document", "utf8"),
+    422,
+    { name: "malformed-fictional.pdf", mimeType: "application/pdf" },
+  );
+});
+
+Then("the agreement upload is blocked as an invalid PDF", async function () {
+  const notice = this.page.getByTestId("agreement-notice");
+  await notice.getByText("Invalid PDF blocked", { exact: true }).waitFor();
+  await notice
+    .getByText(
+      "Pactwire could not read this agreement. Check the file and try again.",
+      { exact: true },
+    )
+    .waitFor();
+});
+
+Then("no agreement version is stored", async function () {
+  await this.page
+    .getByTestId("agreement-version-list")
+    .getByText("No agreement version stored.", { exact: true })
+    .waitFor();
+  assert.equal(
+    await this.page
+      .getByTestId("agreement-version-list")
+      .locator("button[data-testid^='agreement-version-']")
+      .count(),
+    0,
+  );
+});
+
+async function captureAgreementEvidence(world, name, narrow) {
+  if (narrow) await world.page.setViewportSize({ width: 390, height: 844 });
+  const panel = world.page.getByTestId("agreement-panel");
+  await panel.scrollIntoViewIfNeeded();
+  const capture = async (root) => {
+    await panel.screenshot({ path: path.join(root, `${name}.png`) });
+  };
+  await capture(
+    path.join(
+      process.cwd(),
+      "artifacts",
+      "verification",
+      "AGR-01",
+      "screenshots",
+    ),
+  );
+  if (shouldCaptureCurated("AGR-01")) {
+    await capture(path.join(process.cwd(), "docs", "evidence", "AGR-01"));
+  }
+  if (narrow) await world.page.setViewportSize({ width: 1440, height: 1100 });
+}
+
+Then(
+  "I capture the {string} agreement evidence",
+  async function (evidenceName) {
+    await captureAgreementEvidence(this, evidenceName, false);
+  },
+);
+
+Then(
+  "I capture the {string} narrow agreement evidence",
+  async function (evidenceName) {
+    await captureAgreementEvidence(this, evidenceName, true);
   },
 );

@@ -235,6 +235,7 @@ export function SoftwareInventory({
       setShowForm(false);
       clearForm();
       setItems(await fetchInventory());
+      window.dispatchEvent(new Event("pactwire:inventory-changed"));
     } catch (error) {
       const requestError =
         error instanceof InventoryApiError ? error : undefined;

@@ -1,4 +1,9 @@
 import {
+  AgreementCorruptError,
+  AgreementHashMismatchError,
+  AgreementIntegrityError,
+  AgreementTooLargeError,
+  AgreementUnavailableError,
   AuthenticationRequiredError,
   CanaryGenerationExhaustedError,
   CanarySourceUnavailableError,
@@ -8,11 +13,31 @@ import {
   PermissionDeniedError,
   RawSecretAccessDeniedError,
   SecretUnavailableError,
+  UnsupportedAgreementTypeError,
   WorkspaceUnavailableError,
 } from "@pactwire/core";
 import { NextResponse } from "next/server";
 
 export function authorizationErrorResponse(error: unknown): NextResponse {
+  if (
+    error instanceof AgreementCorruptError ||
+    error instanceof AgreementHashMismatchError ||
+    error instanceof AgreementIntegrityError ||
+    error instanceof AgreementTooLargeError ||
+    error instanceof AgreementUnavailableError ||
+    error instanceof UnsupportedAgreementTypeError
+  ) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: error.publicMessage,
+          auditRecorded: false,
+        },
+      },
+      { status: error.status },
+    );
+  }
   if (error instanceof LikelyRealDataError) {
     return NextResponse.json(
       {
