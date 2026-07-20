@@ -5,7 +5,7 @@
   "status": "COMPLETE",
   "prdSections": [19, 21, 22, 26],
   "functionalRequirements": [],
-  "sourceCommitSha": "3b7f8dfecf08fa6d54992ed38ecace6262d0393b",
+  "sourceCommitSha": "54b679f06bc7b222858bdfd67bd6982b1b43f549",
   "startedAt": "2026-07-19T17:46:40.000Z",
   "completedAt": "2026-07-19T18:18:16.000Z",
   "artifactRoot": "artifacts/verification/FND-02/",
@@ -53,6 +53,36 @@
       "command": "pnpm verify",
       "exitCode": 0,
       "durationMs": 49100
+    },
+    {
+      "phase": "RED",
+      "name": "Local verification launched a development server after production build",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 512600,
+      "expectedFailure": "Unit, property, and integration gates passed before the development BDD server recompiled during form interaction, causing Failed to find Server Action and 20 failed browser stories"
+    },
+    {
+      "phase": "RED",
+      "name": "Canonical verifier lacked an operating-system-neutral production override",
+      "command": "pnpm exec vitest run --project unit tests/unit/bdd-server-mode.test.ts",
+      "exitCode": 1,
+      "durationMs": 2190,
+      "expectedFailure": "Two focused contracts failed because the CLI ignored --production and the verify script did not request production BDD mode"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Production BDD mode is explicit in canonical verification",
+      "command": "pnpm exec vitest run --project unit tests/unit/bdd-server-mode.test.ts",
+      "exitCode": 0,
+      "durationMs": 1120
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Deterministic repository verification with the already-built browser server",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 255000
     }
   ],
   "testSummary": {
@@ -115,6 +145,11 @@
       "kind": "test",
       "path": "tests/integration/evidence-harness.test.ts",
       "description": "Schema, artifact collector, sanitization, and broken-link integration tests"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/bdd-server-mode.test.ts",
+      "description": "Canonical full verification pins BDD to the already-built production server while focused BDD keeps its explicit development default"
     },
     {
       "kind": "schema",
