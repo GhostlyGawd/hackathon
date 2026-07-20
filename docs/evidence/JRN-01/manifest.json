@@ -2,17 +2,34 @@
   "schemaVersion": "1.0.0",
   "taskId": "JRN-01",
   "title": "Implement fictional personas and run-specific canaries",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [6, 9, 16],
   "functionalRequirements": ["FR-020", "FR-021"],
-  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "sourceCommitSha": "2cf5269e29f70951768650f478e2972b7c63cf96",
   "startedAt": "2026-07-20T00:18:00.000Z",
+  "completedAt": "2026-07-20T01:18:32.284Z",
   "artifactRoot": "artifacts/verification/JRN-01/",
   "curatedEvidenceRoot": "docs/evidence/JRN-01/",
   "environment": {
-    "os": "Windows local; GitHub Actions pending on Ubuntu and Windows",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29710552721",
+      "jobs": [
+        {
+          "name": "Ubuntu",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29710552721/job/88253711766",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Windows",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29710552721/job/88253711745",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -141,6 +158,34 @@
       "command": "pnpm verify",
       "exitCode": 0,
       "durationMs": 219800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production browser capture",
+      "command": "pnpm --filter @pactwire/web build && PACTWIRE_BDD_PRODUCTION=1 PACTWIRE_BDD_TAGS=@JRN-01 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 44800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows",
+      "command": "GitHub Actions run 29710552721: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 428000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency vulnerability audit",
+      "command": "pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 1500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Repository credential-pattern scan",
+      "command": "rg -l -P --hidden with token-boundary patterns and generated, dependency, lockfile, artifact, and image exclusions; no matches is success",
+      "exitCode": 0,
+      "durationMs": 1000
     }
   ],
   "testSummary": {
@@ -182,9 +227,35 @@
     ]
   },
   "visualEvidence": {
-    "applicable": false,
-    "rationale": "Production screenshots will be captured and source-bound after the implementation commit exists.",
-    "assets": []
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/JRN-01/likely-real-data-blocked-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-20T01:11:51Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow fictional-user panel with all submitted fields cleared, no saved personas, and a likely-real-data warning listing the blocked field categories.",
+        "caption": "The server rejects likely real-looking input before persistence, and the interface clears the submitted name, address, and identifier before displaying the bounded findings.",
+        "provenance": "captured",
+        "sourceCommitSha": "2cf5269e29f70951768650f478e2972b7c63cf96"
+      },
+      {
+        "path": "docs/evidence/JRN-01/fictional-personas-canaries-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-20T01:11:56Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop fictional-user panel showing confirmed fictional teacher and student personas with reserved addresses and four source-to-canary mappings for one prepared run.",
+        "caption": "Every selected teacher or student source field maps to one visible value for the prepared run; all identity addresses use the non-deliverable .invalid domain.",
+        "provenance": "captured",
+        "sourceCommitSha": "2cf5269e29f70951768650f478e2972b7c63cf96"
+      }
+    ]
   },
   "proofs": [
     {
@@ -205,7 +276,7 @@
     {
       "kind": "test",
       "path": "apps/web/tests/integration/synthetic-data-routes.test.ts",
-      "description": "Signed operator, bounded rejection, no-echo, idempotent generation, forged role, and cross-workspace HTTP proof"
+      "description": "Signed operator, bounded rejection, no-echo, idempotent generation, forged role and envelope, and cross-workspace HTTP proof"
     },
     {
       "kind": "scenario",
@@ -249,11 +320,9 @@
     }
   ],
   "sanitization": {
-    "reviewed": false,
-    "reviewedAt": "2026-07-20T00:44:00.000Z",
-    "findings": [
-      "Final production visual sanitization review is pending source-bound capture."
-    ]
+    "reviewed": true,
+    "reviewedAt": "2026-07-20T01:13:00.000Z",
+    "findings": []
   },
   "knownLimitations": [
     "The bounded scanner reduces obvious mistakes but cannot prove that an arbitrary value is fictional; production use still requires a synthetic tenant and manual privacy review.",

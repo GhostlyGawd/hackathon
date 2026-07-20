@@ -1,6 +1,6 @@
 # JRN-01 verification evidence
 
-This record is in progress. The implementation and focused local checks exist, but no source commit, clean-checkout CI result, or source-bound production screenshot is claimed yet.
+This record is complete. It binds the red-first scanner, persona, canary, authorization, database, and browser contracts; the seeded cross-run and cross-workspace property; clean-checkout CI; and reviewed production visuals to source commit `2cf5269e29f70951768650f478e2972b7c63cf96`.
 
 ## Behavior under test
 
@@ -29,12 +29,22 @@ The first repository-wide regression run found one additional integration failur
 - Unit examples cover routable addresses, numeric identifiers, phone patterns, unmarked names, safe `.invalid` inputs, confirmation, idempotent source mappings, and canary formatting.
 - PROP-16 runs 250 generated field sets and run pairs across two isolated workspaces with seed `20260719`. It requires one mapping per source, exact replay, globally disjoint cross-run and cross-workspace values, and reserved domains for address canaries.
 - PostgreSQL tests prove confirmation and scan evidence persist, rejected bytes do not enter audits, source mappings are complete, values are globally unique, unrelated runs are empty, and canaries are immutable.
-- Signed HTTP tests prove an operator can configure test data, a likely-real submission returns a bounded `422` without echoing values, a forged role cannot grant permission, and cross-workspace access remains target-neutral.
-- Three JRN-01 browser scenarios and all 30 steps pass with no unexpected HTTP, console, page, popup, or framework-overlay error.
+- Signed HTTP tests prove an operator can configure test data, a likely-real submission returns a bounded `422` without echoing values, neither a forged role nor a forged trusted envelope can grant permission, and cross-workspace access remains target-neutral.
+- The final local gate passes 33 test files with 127 checks plus all 15 browser scenarios and 150 steps in 219.8 seconds. The three focused JRN-01 production scenarios and all 30 steps pass with no unexpected HTTP, console, page, popup, or framework-overlay error.
+- The production dependency audit reports no known vulnerabilities, and the bounded repository credential-pattern scan reports no token, access-key, or private-key matches.
+
+## Clean-checkout CI
+
+The [JRN-01 pull request](https://github.com/GhostlyGawd/hackathon/pull/14) verified source commit `2cf5269e29f70951768650f478e2972b7c63cf96` on both required runners:
+
+- The [Ubuntu job](https://github.com/GhostlyGawd/hackathon/actions/runs/29710552721/job/88253711766) completed successfully in 4 minutes 47 seconds. Its [raw verification artifact](https://github.com/GhostlyGawd/hackathon/actions/runs/29710552721/artifacts/8448900877) contains the generated reports.
+- The [Windows job](https://github.com/GhostlyGawd/hackathon/actions/runs/29710552721/job/88253711745) completed successfully in 7 minutes 8 seconds. Its [raw verification artifact](https://github.com/GhostlyGawd/hackathon/actions/runs/29710552721/artifacts/8448908741) contains the generated reports.
 
 ## Visual evidence
 
-The production captures will be added after a source commit exists. The planned proof is a desktop success state with fictional teacher/student mappings and a narrow blocked-input state after the submitted values have been cleared from the page.
+The [narrow blocked-input capture](likely-real-data-blocked-narrow.png) shows all submitted fields cleared, no saved persona, and bounded finding categories after the server rejects likely real-looking data. The [desktop mapping capture](fictional-personas-canaries-desktop.png) shows confirmed fictional teacher and student personas, reserved `.invalid` addresses, selected source fields, and four distinct mappings for one prepared run.
+
+Both images were captured from the optimized production build at source commit `2cf5269e29f70951768650f478e2972b7c63cf96` and reviewed at original resolution. The blocked capture contains none of the submitted test email or identifier bytes; the success capture contains only explicitly fictional fixture data and generated canary values.
 
 ## Current limitations
 
