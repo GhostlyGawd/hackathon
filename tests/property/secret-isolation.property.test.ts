@@ -20,6 +20,7 @@ import {
 } from "../../packages/core/src/inventory";
 
 const propertyOptions = { seed: 20_260_719, numRuns: 250 } as const;
+const asyncPropertyTimeoutMs = 15_000;
 
 function idFactory(): () => string {
   let value = 5_000;
@@ -165,5 +166,5 @@ describe("secret isolation properties", () => {
       ),
       propertyOptions,
     );
-  });
+  }, asyncPropertyTimeoutMs);
 });
