@@ -21,6 +21,7 @@ Refusal, incomplete response, invalid JSON or schema, unrelated input, returned-
 - Browser BDD covers a complete exact-citation draft and a safe refusal recovery. The UI labels its deterministic CI adapter as “not a live GPT-5.6 result.”
 - Optimized-production desktop success and narrow refusal captures were made from source commit `3ba9250afaeeed2a33dddadbb00d6f8e13cd95b8` and reviewed for fictional-only data. Their SHA-256 values are `64cdd2ffc893769d845b7d3c47301762ad37f92d5617bb24264e4c0ba8071090` and `2f858db63416d6befaf357f08fecffd41f58b970962dec9719f1da0a35390a81`.
 - Clean-checkout CI at source commit `694060df2ea0f6b24a3a67df88ee3172ae4c81a1` passed the complete repository verification suite on [Ubuntu](https://github.com/GhostlyGawd/hackathon/actions/runs/29767561235/job/88437372236) and [Windows](https://github.com/GhostlyGawd/hackathon/actions/runs/29767561235/job/88437372350).
+- After the required PROP-20 timeout and canonical BDD-server regressions were isolated and merged in [PR #17](https://github.com/GhostlyGawd/hackathon/pull/17) and [PR #18](https://github.com/GhostlyGawd/hackathon/pull/18), the combined head passed `pnpm verify` locally in 339.5 seconds: 78 unit, 26 property, 68 integration, 20 BDD scenarios / 203 steps, and 2 E2E tests, with zero failures, skips, or retries.
 
 ## Live GPT-5.6 Sol contract
 

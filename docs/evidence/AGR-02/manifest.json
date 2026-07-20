@@ -241,6 +241,21 @@
       "exitCode": 1,
       "durationMs": 129200,
       "expectedFailure": "The seeded 250-case asynchronous property produced no counterexample but exceeded Vitest's 5000 ms default test timeout under full-suite load; focused runs remained green"
+    },
+    {
+      "phase": "RED",
+      "name": "Complete verification exposed inconsistent local and CI BDD server modes",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 512600,
+      "expectedFailure": "All unit, property, and integration gates passed before the local development BDD server recompiled during form interaction, causing Failed to find Server Action and 20 cascading browser-story failures; FND-02 regression PR 18 pins canonical verification to the production build"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete combined verification after merged harness regressions",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 339500
     }
   ],
   "testSummary": {
