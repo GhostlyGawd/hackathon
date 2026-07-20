@@ -193,7 +193,9 @@ const cucumberBinary = path.join(
   "cucumber.js",
 );
 const nextCommand =
-  resolveBddServerMode(process.env) === "production" ? "start" : "dev";
+  resolveBddServerMode(process.env, process.argv.slice(2)) === "production"
+    ? "start"
+    : "dev";
 const ownsServer = !process.env.PACTWIRE_BDD_BASE_URL;
 const server = ownsServer
   ? spawn(

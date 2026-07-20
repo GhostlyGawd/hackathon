@@ -5,8 +5,8 @@
 | Task | FND-02 — Build the verification and evidence harness |
 | PRD sections | 19, 21, 22, and 26 |
 | Status | COMPLETE |
-| Verified source commit | `3b7f8dfecf08fa6d54992ed38ecace6262d0393b` |
-| Local verification date | 2026-07-19 |
+| Verified source commit | `54b679f06bc7b222858bdfd67bd6982b1b43f549` |
+| Local verification date | 2026-07-20 |
 | Visual evidence | Not applicable; this task changes repository verification infrastructure, not a user-facing screen |
 
 ## Red
@@ -49,6 +49,23 @@ Failures: 0
 Retries: 0
 Skipped tests: 0
 ~~~
+
+## Canonical browser-mode regression
+
+A later local `pnpm verify` run passed 76 unit, 26 property, and 68 integration tests, then exposed a verification-only race: the canonical command had built the optimized app but silently launched a development BDD server. Under load, that server recompiled while scenarios interacted with forms, producing `Failed to find Server Action`, unexpected 404 responses, and 20 failed browser stories.
+
+Two focused tests failed first because the command-line production override did not exist and `pnpm verify` did not request it. The verifier now passes `--production` to the BDD runner, so both local and CI verification use the already-built application. Focused `pnpm test:bdd` remains development-mode by default for iteration.
+
+~~~text
+Focused red: 2 failed, 3 passed
+Focused green: 5 passed, 0 failed
+pnpm verify: exit 0 in 255.0 seconds
+BDD: 18 scenarios and 180 steps passed
+Skipped tests: 0
+Retries: 0
+~~~
+
+This is harness evidence only. It changes neither product behavior nor the authority boundary, so visual evidence remains not applicable.
 
 ## Clean-checkout CI and raw artifacts
 
