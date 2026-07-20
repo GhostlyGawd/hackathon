@@ -5,7 +5,7 @@
   "status": "IN_PROGRESS",
   "prdSections": [3, 15, 17],
   "functionalRequirements": ["FR-011"],
-  "sourceCommitSha": "c6f165d7b6ac33bb42044212ca0ce0d4160b91d7",
+  "sourceCommitSha": "3ba9250afaeeed2a33dddadbb00d6f8e13cd95b8",
   "startedAt": "2026-07-20T04:45:00.000Z",
   "artifactRoot": "artifacts/verification/AGR-02/",
   "curatedEvidenceRoot": "docs/evidence/AGR-02/",
@@ -99,6 +99,13 @@
     },
     {
       "phase": "REGRESSION",
+      "name": "Source-bound optimized-production browser capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=AGR-02 PACTWIRE_BDD_PRODUCTION=1 PACTWIRE_BDD_TAGS=@AGR-02 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 16000
+    },
+    {
+      "phase": "REGRESSION",
       "name": "Required live GPT-5.6 Sol fictional PDF contract",
       "command": "pnpm test:live-openai",
       "exitCode": 1,
@@ -151,9 +158,35 @@
     ]
   },
   "visualEvidence": {
-    "applicable": false,
-    "rationale": "Source-commit-bound optimized-production captures are pending before completion.",
-    "assets": []
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/AGR-02/requirement-proposal-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-20T05:45:54.000Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop requirement proposal panel showing one accepted non-executable fictional draft, an exact agreement quote with page and offsets, all structured fields, deterministic-adapter disclosure, token count, and estimated cost.",
+        "caption": "A deterministic fixture run proves the review interface and exact-citation gate without presenting the fixture as live GPT-5.6 evidence.",
+        "provenance": "captured",
+        "sourceCommitSha": "3ba9250afaeeed2a33dddadbb00d6f8e13cd95b8"
+      },
+      {
+        "path": "docs/evidence/AGR-02/requirement-proposal-refusal-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-20T05:45:57.000Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow requirement proposal panel showing a visible model-refusal error, deterministic-adapter disclosure, zero stored proposals, and a manual source-review recovery message.",
+        "caption": "A refusal remains a failed, audited, non-executable run and leaves the stored agreement available for manual review.",
+        "provenance": "captured",
+        "sourceCommitSha": "3ba9250afaeeed2a33dddadbb00d6f8e13cd95b8"
+      }
+    ]
   },
   "proofs": [
     {
@@ -213,15 +246,14 @@
     }
   ],
   "sanitization": {
-    "reviewed": false,
-    "reviewedAt": "2026-07-20T05:21:06.187Z",
+    "reviewed": true,
+    "reviewedAt": "2026-07-20T05:46:41.945Z",
     "findings": []
   },
   "knownLimitations": [
     "OPENAI_API_KEY is absent, so the required live GPT-5.6 Sol contract has not run and AGR-02 remains IN_PROGRESS.",
     "The browser proof uses the explicitly labelled deterministic fixture adapter; it is not evidence of GPT-5.6 proposal quality.",
-    "Displayed cost is an estimate from reported tokens and the dated standard-tier price snapshot; the provider invoice remains authoritative and cache-write premiums are not separately identifiable from the response usage fields.",
-    "The source commit currently identifies the merged AGR-01 parent; a dedicated AGR-02 source commit and source-bound production captures are still pending."
+    "Displayed cost is an estimate from reported tokens and the dated standard-tier price snapshot; the provider invoice remains authoritative and cache-write premiums are not separately identifiable from the response usage fields."
   ],
   "reviewer": "codex-agent"
 }
