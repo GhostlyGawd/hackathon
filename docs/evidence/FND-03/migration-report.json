@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 3,
-  "totalTables": 22,
+  "migrationCount": 4,
+  "totalTables": 24,
   "migrations": [
     {
       "version": "0001",
@@ -64,6 +64,19 @@
       ],
       "immutableTables": [
         "authorization_policy_decisions"
+      ]
+    },
+    {
+      "version": "0004",
+      "name": "secret_isolation",
+      "sha256": "b7fb45fb5e2e51489a78fe7e3e69fa72ae94a33224c4ce6ec3469bc584dbbe94",
+      "tables": [
+        "secret_records",
+        "secret_access_leases"
+      ],
+      "immutableTables": [
+        "secret_records",
+        "secret_access_leases"
       ]
     }
   ]

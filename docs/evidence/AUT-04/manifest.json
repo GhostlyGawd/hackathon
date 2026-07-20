@@ -1,0 +1,316 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "AUT-04",
+  "title": "Implement secret isolation and evidence redaction",
+  "status": "COMPLETE",
+  "prdSections": [16, 17],
+  "functionalRequirements": ["FR-005", "FR-032"],
+  "sourceCommitSha": "8ea84c338f3d4caf62c47475c3e119101aa5fd9d",
+  "startedAt": "2026-07-19T22:53:06.000Z",
+  "completedAt": "2026-07-20T00:07:53.681Z",
+  "artifactRoot": "artifacts/verification/AUT-04/",
+  "curatedEvidenceRoot": "docs/evidence/AUT-04/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29708777641",
+      "jobs": [
+        {
+          "name": "Ubuntu",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29708777641/job/88249829573",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Windows",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29708777641/job/88249829566",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing secret isolation and redaction modules",
+      "command": "pnpm exec vitest run --project unit tests/unit/secret-isolation.test.ts --project property tests/property/secret-isolation.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 2268,
+      "expectedFailure": "Both suites failed to import the not-yet-implemented secret isolation module and zero tests ran"
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined secret-disclosure acceptance steps",
+      "command": "pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 81671,
+      "expectedFailure": "The nine prior scenarios and 102 steps passed while two AUT-04 scenarios and ten steps were undefined"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing PostgreSQL repository and HTTP routes",
+      "command": "pnpm exec vitest run --project integration tests/integration/secret-isolation.test.ts apps/web/tests/integration/secret-isolation-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 19004,
+      "expectedFailure": "The PostgreSQL suite could not construct a secret repository and the route suite failed to import missing endpoints"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Seeded redaction and context-bound lease properties",
+      "command": "pnpm exec vitest run --project unit tests/unit/secret-isolation.test.ts --project property tests/property/secret-isolation.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 1940
+    },
+    {
+      "phase": "GREEN",
+      "name": "Typed, linted, and adversarial secret-isolation slice",
+      "command": "pnpm lint && pnpm exec vitest run --project unit tests/unit/secret-isolation.test.ts --project property tests/property/secret-isolation.property.test.ts --project integration tests/integration/secret-isolation.test.ts apps/web/tests/integration/secret-isolation-routes.test.ts --project security tests/security/secret-isolation-corpus.test.ts",
+      "exitCode": 0,
+      "durationMs": 39000
+    },
+    {
+      "phase": "RED",
+      "name": "Browser journey exposed nested inventory response handling",
+      "command": "pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 136100,
+      "expectedFailure": "The new panel read software inventory items as flat values, producing undefined list keys, a framework overlay, and no selectable Northstar record"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Focused secret-disclosure and redaction browser journeys",
+      "command": "PACTWIRE_BDD_TAGS=@AUT-04 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 50800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "All product browser journeys",
+      "command": "pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 101100
+    },
+    {
+      "phase": "RED",
+      "name": "Focused durable proof exposed metadata-view count and stale compiled export",
+      "command": "pnpm domain:evidence:check && pnpm exec vitest run --project unit tests/unit/domain-evidence.test.ts tests/unit/secret-isolation.test.ts --project property tests/property/secret-isolation.property.test.ts --project integration tests/integration/domain-migrations.test.ts tests/integration/secret-isolation.test.ts apps/web/tests/integration/secret-isolation-routes.test.ts --project security tests/security/secret-isolation-corpus.test.ts",
+      "exitCode": 1,
+      "durationMs": 27800,
+      "expectedFailure": "The schema inventory omitted the new safe metadata view and the route suite loaded the previous compiled package before its rebuild"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Migration, redaction, lease, API, and browser-context proof",
+      "command": "pnpm --filter @pactwire/core build && pnpm exec vitest run --project unit tests/unit/domain-evidence.test.ts tests/unit/secret-isolation.test.ts --project property tests/property/secret-isolation.property.test.ts --project integration tests/integration/domain-migrations.test.ts tests/integration/secret-isolation.test.ts apps/web/tests/integration/secret-isolation-routes.test.ts --project security tests/security/secret-isolation-corpus.test.ts",
+      "exitCode": 0,
+      "durationMs": 22800
+    },
+    {
+      "phase": "RED",
+      "name": "Full gate exposed cold-route timeout and outer shell cap",
+      "command": "pnpm verify",
+      "exitCode": 124,
+      "durationMs": 304000,
+      "expectedFailure": "A cold development route exceeded Cucumber's 30-second step ceiling; the five-minute outer shell then terminated the formatter, producing downstream broken-pipe errors"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete local verification gate before production harness correction",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 233800
+    },
+    {
+      "phase": "RED",
+      "name": "Production capture exposed secure-cookie harness mismatch",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=AUT-04 PACTWIRE_BDD_PRODUCTION=1 PACTWIRE_BDD_TAGS=@AUT-04 pnpm --filter @pactwire/web build && pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 64000,
+      "expectedFailure": "The browser journey passed credential management and redaction but Playwright's out-of-page HTTP client omitted the production Secure session cookie from a local HTTP export request, returning 401; the step was moved to the same-origin browser path without weakening cookie security"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Production build and source-bound secret-isolation capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=AUT-04 PACTWIRE_BDD_PRODUCTION=1 PACTWIRE_BDD_TAGS=@AUT-04 pnpm --filter @pactwire/web build && pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 39800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete local verification after production browser export fix",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 277100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency vulnerability audit",
+      "command": "pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 1600
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Repository credential-pattern scan",
+      "command": "rg -n -P --hidden with token-boundary patterns and generated, dependency, lockfile, artifact, and image exclusions; no matches is success",
+      "exitCode": 0,
+      "durationMs": 800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows",
+      "command": "GitHub Actions run 29708777641: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 369000
+    }
+  ],
+  "testSummary": {
+    "files": 29,
+    "passed": 117,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-15-all-configured-representations-redacted-idempotently",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-20-lease-is-single-use-and-browser-context-bound",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "prompt-injection.feature",
+        "scenario": "Untrusted page content cannot request a saved credential",
+        "passed": true
+      },
+      {
+        "feature": "prompt-injection.feature",
+        "scenario": "Normal evidence and exports redact configured credential variants",
+        "passed": true
+      },
+      {
+        "feature": "prompt-injection.feature",
+        "scenario": "Switching users clears metadata before the new permission check",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/AUT-04/secret-access-denied-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-19T23:59:08.000Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow credential-isolation panel showing a masked fictional value, metadata-only credential card, and a recorded raw-access denial.",
+        "caption": "The management page keeps the value masked, exposes only metadata, and gives a direct audited denial when a person asks for raw access.",
+        "provenance": "captured",
+        "sourceCommitSha": "8ea84c338f3d4caf62c47475c3e119101aa5fd9d"
+      },
+      {
+        "path": "docs/evidence/AUT-04/secret-redaction-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-19T23:59:12.000Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop credential-isolation panel showing the masked fictional value and a safe preview in which eight raw and encoded appearances were replaced.",
+        "caption": "The before side reports configured forms without returning their bytes; the after side shows the prompt, log, structured evidence, and export fields replaced with the fixed redaction marker.",
+        "provenance": "captured",
+        "sourceCommitSha": "8ea84c338f3d4caf62c47475c3e119101aa5fd9d"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/secret-isolation.test.ts",
+      "description": "Exact representation, structured-field, authenticated-encryption, and screenshot-mask examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/secret-isolation.property.test.ts",
+      "description": "Seeded redaction idempotence and single-context, single-use harness lease properties"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/secret-isolation.test.ts",
+      "description": "PostgreSQL ciphertext, output-channel redaction, lease expiry/isolation, raw denial, export, audit, and immutable-byte checks"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/secret-isolation-routes.test.ts",
+      "description": "Signed identity, metadata-only responses, forged-role denial, validation, raw denial, redaction, export, revocation, and cross-workspace checks"
+    },
+    {
+      "kind": "test",
+      "path": "tests/security/secret-isolation-corpus.test.ts",
+      "description": "Forty-eight generated credential corpora and a real two-context Chromium isolation and masking check"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/prompt-injection.feature",
+      "description": "Attempted untrusted-page disclosure plus normal evidence and export redaction journeys"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/workspace-access.steps.mjs",
+      "description": "Dynamic credentials, representation leak assertions, strict browser gate, masked screenshots, and export verification"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/redaction.ts",
+      "description": "Configured representations, structured sensitive-field replacement, idempotence, and screenshot mask selectors"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/secret-isolation.ts",
+      "description": "AES-256-GCM service, metadata-only repository contract, short-lived harness leases, output redaction, and access audits"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0004_secret_isolation.sql",
+      "description": "Workspace-bound encrypted records, lease hashes, metadata view, and database-enforced immutable bindings"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/secret-isolation-panel.tsx",
+      "description": "Responsive direct-language credential management, denied access, and safe redaction preview interface"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/api/workspaces/[workspaceId]/export/route.ts",
+      "description": "Defensive final export redaction across all workspace credential records"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/AUT-04/README.md",
+      "description": "Curated AUT-04 red/green record, threat-boundary explanation, and explicit limitations"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-20T00:00:15.450Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "AUT-04 isolates saved credentials and their context-bound leases; complete runner isolation for cookies, storage, downloads, and clipboard remains RUN-01.",
+    "The controlled browser fixture uses in-memory state while PostgreSQL encryption, immutability, and access audit behavior are verified independently.",
+    "The demo accepts only generated fictional values; it is not a credential vault for real production accounts."
+  ],
+  "reviewer": "codex-agent"
+}

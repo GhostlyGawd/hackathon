@@ -1,8 +1,11 @@
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import {
+  Aes256GcmSecretCipher,
+  InMemorySecretIsolationRepository,
   InMemoryWorkspaceAuthorizationRepository,
   InMemorySoftwareInventoryRepository,
   InMemoryTestAuthorizationRepository,
+  SecretIsolationService,
   SoftwareInventoryService,
   TestAuthorizationService,
   WorkspaceAuthorizationService,
@@ -56,6 +59,8 @@ export interface AccessRuntime {
   readonly inventoryService: SoftwareInventoryService;
   readonly testAuthorizationRepository: InMemoryTestAuthorizationRepository;
   readonly testAuthorizationService: TestAuthorizationService;
+  readonly secretIsolationRepository: InMemorySecretIsolationRepository;
+  readonly secretIsolationService: SecretIsolationService;
 }
 
 export function isFixtureMode(): boolean {
@@ -145,6 +150,16 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     inventoryRepository,
     { idFactory, now },
   );
+  const secretIsolationRepository = new InMemorySecretIsolationRepository(
+    repository,
+  );
+  const secretIsolationService = new SecretIsolationService(
+    secretIsolationRepository,
+    service,
+    inventoryRepository,
+    new Aes256GcmSecretCipher(randomBytes(32), "fixture-ephemeral-v1"),
+    { idFactory, now },
+  );
   return Object.freeze({
     repository,
     service,
@@ -152,6 +167,8 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     inventoryService,
     testAuthorizationRepository,
     testAuthorizationService,
+    secretIsolationRepository,
+    secretIsolationService,
   });
 }
 

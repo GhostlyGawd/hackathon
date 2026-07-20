@@ -29,6 +29,7 @@ describe("core domain migrations", () => {
       "0001",
       "0002",
       "0003",
+      "0004",
     ]);
   });
 
@@ -40,6 +41,7 @@ describe("core domain migrations", () => {
       "0001",
       "0002",
       "0003",
+      "0004",
     ]);
     await expect(applyCoreMigrations(service.database)).resolves.toEqual([]);
     const tables = await service.database.query<{ table_name: string }>(
@@ -53,6 +55,8 @@ describe("core domain migrations", () => {
         "software_inventory_details",
         "software_approval_origins",
         "authorization_policy_decisions",
+        "secret_records",
+        "secret_access_leases",
         "agreement_versions",
         "requirement_versions",
         "runs",
@@ -64,7 +68,7 @@ describe("core domain migrations", () => {
         "audit_events",
       ]),
     );
-    expect(tables.rows).toHaveLength(23);
+    expect(tables.rows).toHaveLength(26);
   });
 
   it("rejects a cross-workspace foreign-key reference", async () => {

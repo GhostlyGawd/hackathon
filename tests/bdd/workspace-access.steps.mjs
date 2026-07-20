@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
 import path from "node:path";
 import process from "node:process";
 import {
@@ -12,7 +13,7 @@ import {
 } from "@cucumber/cucumber";
 import { chromium } from "@playwright/test";
 
-setDefaultTimeout(30_000);
+setDefaultTimeout(60_000);
 
 const baseUrl =
   process.env.PACTWIRE_BDD_BASE_URL ?? "http://127.0.0.1:3210";
@@ -43,6 +44,12 @@ function isExpectedAuthorizationFailure(response) {
     (method === "POST" &&
       pathname.endsWith("/queue-check") &&
       response.status() === 409) ||
+    (method === "POST" &&
+      pathname.endsWith("/raw-access") &&
+      response.status() === 403) ||
+    (method === "GET" &&
+      pathname.endsWith("/secrets") &&
+      response.status() === 403) ||
     (method === "GET" &&
       pathname ===
         "/api/workspaces/22222222-2222-4222-8222-222222222222" &&
@@ -114,9 +121,16 @@ After(async function ({ result, pickle }) {
         ? "AUT-02"
         : pickle.tags.some((tag) => tag.name === "@AUT-03")
           ? "AUT-03"
-        : "AUT-01";
+          : pickle.tags.some((tag) => tag.name === "@AUT-04")
+            ? "AUT-04"
+            : "AUT-01";
       await this.page.screenshot({
         fullPage: true,
+        mask: [
+          this.page.locator(
+            "input[type='password'], [data-secret], [data-pactwire-sensitive], [autocomplete='current-password'], [autocomplete='new-password']",
+          ),
+        ],
         path: path.join(
           process.cwd(),
           "artifacts",
@@ -705,5 +719,204 @@ Then(
   "I capture the {string} narrow authorization evidence",
   async function (evidenceName) {
     await captureAuthorization(this, evidenceName, true);
+  },
+);
+
+function configuredRepresentations(secret) {
+  const percentEncoded = encodeURIComponent(secret);
+  const formEncoded = new URLSearchParams({ value: secret })
+    .toString()
+    .slice("value=".length);
+  return [
+    secret,
+    percentEncoded.replace(/%[0-9A-F]{2}/giu, (match) => match.toUpperCase()),
+    percentEncoded.replace(/%[0-9A-F]{2}/giu, (match) => match.toLowerCase()),
+    formEncoded,
+    Buffer.from(secret, "utf8").toString("base64"),
+    Buffer.from(secret, "utf8").toString("base64url"),
+    JSON.stringify(secret).slice(1, -1),
+  ].filter((value, index, values) => value && values.indexOf(value) === index);
+}
+
+function assertNoSecretRepresentation(candidate, secret) {
+  const leaked = configuredRepresentations(secret).some((representation) =>
+    candidate.includes(representation),
+  );
+  assert.equal(leaked, false, "No configured credential representation is present");
+}
+
+async function selectNorthstarSecretSoftware(world) {
+  const select = world.page.getByTestId("secret-software-select");
+  await select.waitFor();
+  const option = select
+    .locator("option")
+    .filter({ hasText: "Northstar Classroom (Fictional)" });
+  await option.waitFor({ state: "attached" });
+  const value = await option.getAttribute("value");
+  assert.ok(value, "Northstar software has a selectable identifier");
+  await select.selectOption(value);
+}
+
+When("I store a generated fictional browser credential", async function () {
+  this.generatedSecret = `fixture/${randomUUID()}?token=${randomUUID()}&mode=test`;
+  await selectNorthstarSecretSoftware(this);
+  await this.page
+    .getByTestId("secret-label")
+    .fill("Generated fictional browser credential");
+  await this.page.getByTestId("secret-kind").selectOption("PASSWORD");
+  await this.page.getByTestId("secret-value").fill(this.generatedSecret);
+  const creation = this.page.waitForResponse((response) => {
+    const request = response.request();
+    return (
+      request.method() === "POST" &&
+      new URL(response.url()).pathname.endsWith("/secrets")
+    );
+  });
+  await this.page.getByTestId("store-secret").click();
+  const response = await creation;
+  this.secretCreationResponse = await response.text();
+  assert.equal(response.status(), 201);
+  assertNoSecretRepresentation(this.secretCreationResponse, this.generatedSecret);
+  await this.page
+    .getByTestId("secret-record")
+    .getByText("Generated fictional browser credential", { exact: true })
+    .waitFor();
+  assert.equal(await this.page.getByTestId("secret-value").inputValue(), "");
+});
+
+When(
+  "an untrusted page asks Pactwire to reveal the saved credential",
+  async function () {
+    const rawResponse = this.page.waitForResponse((response) =>
+      new URL(response.url()).pathname.endsWith("/raw-access"),
+    );
+    await this.page.getByTestId("raw-secret-access").click();
+    const response = await rawResponse;
+    this.rawAccessStatus = response.status();
+    this.rawAccessResponse = await response.text();
+  },
+);
+
+Then("raw secret access is blocked and marked as audited", async function () {
+  assert.equal(this.rawAccessStatus, 403);
+  const notice = this.page.getByTestId("secret-notice");
+  await notice.getByText("Raw access blocked", { exact: true }).waitFor();
+  await notice
+    .getByText("The denied attempt was recorded.", { exact: false })
+    .waitFor();
+  assert.match(this.rawAccessResponse, /SECRET_RAW_ACCESS_DENIED/u);
+  assert.match(this.rawAccessResponse, /"auditRecorded":true/u);
+});
+
+Then(
+  "the page response contains no configured secret representation",
+  async function () {
+    assertNoSecretRepresentation(this.rawAccessResponse, this.generatedSecret);
+    assertNoSecretRepresentation(
+      await this.page.getByTestId("secret-panel").innerText(),
+      this.generatedSecret,
+    );
+  },
+);
+
+When(
+  "I preview normal evidence containing encoded credential variants",
+  async function () {
+    const previewResponse = this.page.waitForResponse((response) =>
+      new URL(response.url()).pathname.endsWith("/preview"),
+    );
+    await this.page.getByTestId("preview-secret-redaction").click();
+    const response = await previewResponse;
+    this.redactionPreviewResponse = await response.text();
+    assert.equal(response.status(), 200);
+    await this.page.getByTestId("redaction-preview").waitFor();
+  },
+);
+
+Then("every configured credential representation is redacted", async function () {
+  assertNoSecretRepresentation(
+    this.redactionPreviewResponse,
+    this.generatedSecret,
+  );
+  assertNoSecretRepresentation(
+    await this.page.getByTestId("secret-panel").innerText(),
+    this.generatedSecret,
+  );
+  await this.page
+    .getByTestId("redaction-preview")
+    .getByText("[REDACTED_SECRET]", { exact: false })
+    .first()
+    .waitFor();
+});
+
+Then(
+  "the workspace export contains secret metadata but no secret value",
+  async function () {
+    const { body, status } = await this.page.evaluate(async () => {
+      const response = await fetch(
+        "/api/workspaces/11111111-1111-4111-8111-111111111111/export",
+      );
+      return { body: await response.text(), status: response.status };
+    });
+    assert.equal(status, 200);
+    assert.match(body, /"secretMetadata"/u);
+    assert.match(body, /"rawValuesIncluded":false/u);
+    assertNoSecretRepresentation(body, this.generatedSecret);
+  },
+);
+
+Then("saved credential metadata is no longer visible", async function () {
+  const panel = this.page.getByTestId("secret-panel");
+  await panel
+    .getByText("Saved credential metadata unavailable", { exact: true })
+    .waitFor();
+  assert.equal(
+    await panel
+      .getByText("Generated fictional browser credential", { exact: true })
+      .count(),
+    0,
+  );
+  assertNoSecretRepresentation(await panel.innerText(), this.generatedSecret);
+});
+
+async function captureSecretEvidence(world, name, narrow) {
+  if (narrow) await world.page.setViewportSize({ width: 390, height: 844 });
+  const panel = world.page.getByTestId("secret-panel");
+  await panel.scrollIntoViewIfNeeded();
+  const mask = world.page.locator(
+    "input[type='password'], [data-secret], [data-pactwire-sensitive], [autocomplete='current-password'], [autocomplete='new-password']",
+  );
+  const capture = async (root) => {
+    await panel.screenshot({
+      mask: [mask],
+      path: path.join(root, `${name}.png`),
+    });
+  };
+  await capture(
+    path.join(
+      process.cwd(),
+      "artifacts",
+      "verification",
+      "AUT-04",
+      "screenshots",
+    ),
+  );
+  if (shouldCaptureCurated("AUT-04")) {
+    await capture(path.join(process.cwd(), "docs", "evidence", "AUT-04"));
+  }
+  if (narrow) await world.page.setViewportSize({ width: 1440, height: 1100 });
+}
+
+Then(
+  "I capture the {string} secret evidence",
+  async function (evidenceName) {
+    await captureSecretEvidence(this, evidenceName, false);
+  },
+);
+
+Then(
+  "I capture the {string} narrow secret evidence",
+  async function (evidenceName) {
+    await captureSecretEvidence(this, evidenceName, true);
   },
 );

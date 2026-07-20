@@ -2,11 +2,25 @@ import {
   AuthenticationRequiredError,
   PolicyDeniedError,
   PermissionDeniedError,
+  RawSecretAccessDeniedError,
+  SecretUnavailableError,
   WorkspaceUnavailableError,
 } from "@pactwire/core";
 import { NextResponse } from "next/server";
 
 export function authorizationErrorResponse(error: unknown): NextResponse {
+  if (error instanceof RawSecretAccessDeniedError) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: error.publicMessage,
+          auditRecorded: error.auditRecorded,
+        },
+      },
+      { status: error.status },
+    );
+  }
   if (error instanceof PolicyDeniedError) {
     return NextResponse.json(
       {
@@ -24,6 +38,7 @@ export function authorizationErrorResponse(error: unknown): NextResponse {
   if (
     error instanceof AuthenticationRequiredError ||
     error instanceof PermissionDeniedError ||
+    error instanceof SecretUnavailableError ||
     error instanceof WorkspaceUnavailableError
   ) {
     return NextResponse.json(
