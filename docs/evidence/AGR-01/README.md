@@ -16,6 +16,8 @@ Implementation exposed two additional integrity counterexamples. First, an objec
 
 The first shared non-browser regression also correctly rejected the new tests as orphaned until this task manifest bound them to AGR-01.
 
+The first source-commit CI run then exposed a cross-platform harness counterexample. `pnpm verify` built the optimized application and subsequently launched `next dev` from the same `.next` tree. Ubuntu reported a canceled original-file download followed by stale 404 responses and DOM timeouts, while Windows passed. A red-first mode-selection test now fixes the contract: CI uses the already-built production server, local runs retain development mode, and either mode can be explicitly selected. The complete `CI=true pnpm verify` matrix passes locally after this change; clean-checkout confirmation is pending on the updated commit.
+
 ## Current green evidence
 
 - Unit examples cover exact-byte hashing, text page offsets and page hashes, unsupported and malformed input, and content-address enforcement.

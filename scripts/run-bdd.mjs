@@ -3,6 +3,7 @@ import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { createRequire } from "node:module";
+import { resolveBddServerMode } from "./bdd-server-mode.mjs";
 
 const repositoryRoot = process.cwd();
 const baseUrl = process.env.PACTWIRE_BDD_BASE_URL ?? "http://127.0.0.1:3210";
@@ -172,7 +173,7 @@ const cucumberBinary = path.join(
   "cucumber.js",
 );
 const nextCommand =
-  process.env.PACTWIRE_BDD_PRODUCTION === "1" ? "start" : "dev";
+  resolveBddServerMode(process.env) === "production" ? "start" : "dev";
 const ownsServer = !process.env.PACTWIRE_BDD_BASE_URL;
 const server = ownsServer
   ? spawn(

@@ -105,11 +105,56 @@
       "exitCode": 1,
       "durationMs": 56200,
       "expectedFailure": "All product tests passed, while the evidence harness identified the five new AGR-01 test and scenario files as orphaned before this manifest existed"
+    },
+    {
+      "phase": "RED",
+      "name": "Ubuntu CI exposed mixed production-build and development-server state",
+      "command": "GitHub Actions run 29715960381, Verify on ubuntu-latest",
+      "exitCode": 1,
+      "durationMs": 431300,
+      "expectedFailure": "After pnpm build, the BDD harness launched next dev from the same .next tree; Ubuntu reported a canceled agreement download followed by stale 404 responses and DOM timeouts while Windows passed"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing CI-safe BDD server-mode contract",
+      "command": "pnpm exec vitest run --project unit tests/unit/bdd-server-mode.test.ts",
+      "exitCode": 1,
+      "durationMs": 2700,
+      "expectedFailure": "All three mode-selection examples failed because the not-yet-implemented resolver script was absent"
+    },
+    {
+      "phase": "GREEN",
+      "name": "CI-safe BDD server-mode contract",
+      "command": "pnpm exec vitest run --project unit tests/unit/bdd-server-mode.test.ts",
+      "exitCode": 0,
+      "durationMs": 2500
+    },
+    {
+      "phase": "GREEN",
+      "name": "Full CI-mode production browser reproduction",
+      "command": "pnpm --filter @pactwire/web build; CI=true pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 105800
+    },
+    {
+      "phase": "RED",
+      "name": "Completion gate rejected an over-specific test environment type",
+      "command": "CI=true pnpm verify",
+      "exitCode": 1,
+      "durationMs": 39100,
+      "expectedFailure": "TypeScript rejected partial environment overrides typed as NodeJS.ProcessEnv because this Next.js type environment requires NODE_ENV"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete CI-mode repository verification matrix",
+      "command": "CI=true pnpm verify",
+      "exitCode": 0,
+      "durationMs": 206300
     }
   ],
   "testSummary": {
-    "files": 4,
-    "passed": 13,
+    "files": 5,
+    "passed": 16,
     "failed": 0,
     "skipped": 0,
     "retries": 0
@@ -158,6 +203,11 @@
     },
     {
       "kind": "test",
+      "path": "tests/unit/bdd-server-mode.test.ts",
+      "description": "CI production-server default, local development default, and explicit override regression"
+    },
+    {
+      "kind": "test",
       "path": "tests/property/agreement-intake.property.test.ts",
       "description": "Seeded exact-replay and arbitrary-position one-byte mutation property"
     },
@@ -195,6 +245,11 @@
       "kind": "config",
       "path": "apps/web/app/agreement-intake-panel.tsx",
       "description": "Direct-language upload, immutable version metadata, original download, and page source viewer"
+    },
+    {
+      "kind": "config",
+      "path": "scripts/bdd-server-mode.mjs",
+      "description": "Deterministic CI production-server selection that prevents mixed Next.js build and development state"
     },
     {
       "kind": "evidence",
