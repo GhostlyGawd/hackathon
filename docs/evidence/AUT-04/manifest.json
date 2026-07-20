@@ -2,17 +2,34 @@
   "schemaVersion": "1.0.0",
   "taskId": "AUT-04",
   "title": "Implement secret isolation and evidence redaction",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [16, 17],
   "functionalRequirements": ["FR-005", "FR-032"],
-  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "sourceCommitSha": "8ea84c338f3d4caf62c47475c3e119101aa5fd9d",
   "startedAt": "2026-07-19T22:53:06.000Z",
+  "completedAt": "2026-07-20T00:07:53.681Z",
   "artifactRoot": "artifacts/verification/AUT-04/",
   "curatedEvidenceRoot": "docs/evidence/AUT-04/",
   "environment": {
-    "os": "Windows local; GitHub Actions pending on Ubuntu and Windows",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29708777641",
+      "jobs": [
+        {
+          "name": "Ubuntu",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29708777641/job/88249829573",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Windows",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29708777641/job/88249829566",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -100,7 +117,7 @@
     },
     {
       "phase": "REGRESSION",
-      "name": "Complete local verification gate on final source",
+      "name": "Complete local verification gate before production harness correction",
       "command": "pnpm verify",
       "exitCode": 0,
       "durationMs": 233800
@@ -112,6 +129,41 @@
       "exitCode": 1,
       "durationMs": 64000,
       "expectedFailure": "The browser journey passed credential management and redaction but Playwright's out-of-page HTTP client omitted the production Secure session cookie from a local HTTP export request, returning 401; the step was moved to the same-origin browser path without weakening cookie security"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Production build and source-bound secret-isolation capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=AUT-04 PACTWIRE_BDD_PRODUCTION=1 PACTWIRE_BDD_TAGS=@AUT-04 pnpm --filter @pactwire/web build && pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 39800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete local verification after production browser export fix",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 277100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency vulnerability audit",
+      "command": "pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 1600
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Repository credential-pattern scan",
+      "command": "rg -n -P --hidden with token-boundary patterns and generated, dependency, lockfile, artifact, and image exclusions; no matches is success",
+      "exitCode": 0,
+      "durationMs": 800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows",
+      "command": "GitHub Actions run 29708777641: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 369000
     }
   ],
   "testSummary": {
@@ -159,9 +211,29 @@
     ]
   },
   "visualEvidence": {
-    "applicable": false,
-    "rationale": "Production screenshots will be captured and source-bound after the implementation commit exists.",
-    "assets": []
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/AUT-04/secret-access-denied-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-19T23:59:08.000Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow credential-isolation panel showing a masked fictional value, metadata-only credential card, and a recorded raw-access denial.",
+        "caption": "The management page keeps the value masked, exposes only metadata, and gives a direct audited denial when a person asks for raw access.",
+        "provenance": "captured",
+        "sourceCommitSha": "8ea84c338f3d4caf62c47475c3e119101aa5fd9d"
+      },
+      {
+        "path": "docs/evidence/AUT-04/secret-redaction-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-19T23:59:12.000Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop credential-isolation panel showing the masked fictional value and a safe preview in which eight raw and encoded appearances were replaced.",
+        "caption": "The before side reports configured forms without returning their bytes; the after side shows the prompt, log, structured evidence, and export fields replaced with the fixed redaction marker.",
+        "provenance": "captured",
+        "sourceCommitSha": "8ea84c338f3d4caf62c47475c3e119101aa5fd9d"
+      }
+    ]
   },
   "proofs": [
     {
@@ -231,11 +303,9 @@
     }
   ],
   "sanitization": {
-    "reviewed": false,
-    "reviewedAt": "2026-07-19T23:28:42.000Z",
-    "findings": [
-      "Final production visual sanitization review is pending source-bound capture."
-    ]
+    "reviewed": true,
+    "reviewedAt": "2026-07-20T00:00:15.450Z",
+    "findings": []
   },
   "knownLimitations": [
     "AUT-04 isolates saved credentials and their context-bound leases; complete runner isolation for cookies, storage, downloads, and clipboard remains RUN-01.",
