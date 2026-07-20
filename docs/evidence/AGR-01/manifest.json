@@ -2,17 +2,34 @@
   "schemaVersion": "1.0.0",
   "taskId": "AGR-01",
   "title": "Store, hash, and version agreement inputs",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [9, 14],
   "functionalRequirements": ["FR-010"],
-  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "sourceCommitSha": "225d3ca64c0f684fb92b5cc5c5222c428f9c60f2",
   "startedAt": "2026-07-20T01:35:00.000Z",
+  "completedAt": "2026-07-20T04:36:32.107Z",
   "artifactRoot": "artifacts/verification/AGR-01/",
   "curatedEvidenceRoot": "docs/evidence/AGR-01/",
   "environment": {
-    "os": "Windows local; GitHub Actions pending on Ubuntu and Windows",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29716705752",
+      "jobs": [
+        {
+          "name": "Ubuntu",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29716705752/job/88271302738",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Windows",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29716705752/job/88271302762",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -150,11 +167,46 @@
       "command": "CI=true pnpm verify",
       "exitCode": 0,
       "durationMs": 206300
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows",
+      "command": "GitHub Actions run 29716705752: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 394000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production browser capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=AGR-01 PACTWIRE_BDD_PRODUCTION=1 PACTWIRE_BDD_TAGS=@AGR-01 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 21400
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency vulnerability audit",
+      "command": "pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 1500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Repository credential-pattern scan",
+      "command": "rg -l -P --hidden with token-boundary patterns and generated, dependency, lockfile, artifact, and image exclusions; no matches is success",
+      "exitCode": 0,
+      "durationMs": 1100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Final evidence-head complete verification",
+      "command": "CI=true pnpm verify",
+      "exitCode": 0,
+      "durationMs": 240600
     }
   ],
   "testSummary": {
-    "files": 5,
-    "passed": 16,
+    "files": 38,
+    "passed": 143,
     "failed": 0,
     "skipped": 0,
     "retries": 0
@@ -191,9 +243,35 @@
     ]
   },
   "visualEvidence": {
-    "applicable": false,
-    "rationale": "Production screenshots will be captured and source-bound after the implementation commit exists.",
-    "assets": []
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/AGR-01/agreement-source-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-20T04:28:55.787Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop agreement source panel showing a stored immutable version with original SHA-256, uploader, dates, download action, and two extracted fictional pages with independent hashes.",
+        "caption": "The successful intake keeps the exact source metadata beside its two-page citation map so a reviewer can download and independently verify the same fictional agreement.",
+        "provenance": "captured",
+        "sourceCommitSha": "225d3ca64c0f684fb92b5cc5c5222c428f9c60f2"
+      },
+      {
+        "path": "docs/evidence/AGR-01/agreement-invalid-pdf-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-20T04:29:04.196Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow agreement intake panel showing an invalid fictional PDF blocked and zero immutable versions stored.",
+        "caption": "A malformed PDF produces a direct error and leaves the selected software with zero stored versions.",
+        "provenance": "captured",
+        "sourceCommitSha": "225d3ca64c0f684fb92b5cc5c5222c428f9c60f2"
+      }
+    ]
   },
   "proofs": [
     {
@@ -258,11 +336,9 @@
     }
   ],
   "sanitization": {
-    "reviewed": false,
-    "reviewedAt": "2026-07-20T02:10:00.000Z",
-    "findings": [
-      "Final production visual sanitization review is pending source-bound capture."
-    ]
+    "reviewed": true,
+    "reviewedAt": "2026-07-20T04:30:02.756Z",
+    "findings": []
   },
   "knownLimitations": [
     "Page extraction reads embedded PDF text; image-only scanned PDFs are rejected because OCR is not part of AGR-01.",
