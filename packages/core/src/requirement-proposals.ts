@@ -652,6 +652,50 @@ export interface OpenAIResponsesTransport {
   ): Promise<unknown>;
 }
 
+const openAIProviderDiagnosticSchema = z
+  .string()
+  .min(1)
+  .max(200)
+  .regex(/^[A-Za-z0-9_.\-[\]]+$/u);
+
+function openAIProviderDiagnostic(candidate: unknown): string | undefined {
+  const parsed = openAIProviderDiagnosticSchema.safeParse(candidate);
+  return parsed.success ? parsed.data : undefined;
+}
+
+const openAIErrorEnvelopeSchema = z
+  .object({
+    error: z
+      .object({
+        type: z.unknown().optional(),
+        code: z.unknown().optional(),
+        param: z.unknown().optional(),
+      })
+      .passthrough(),
+  })
+  .passthrough();
+
+export class OpenAIResponsesHttpError extends Error {
+  readonly status: number;
+  readonly providerType?: string;
+  readonly providerCode?: string;
+  readonly providerParam?: string;
+
+  constructor(status: number, body: unknown) {
+    super("OpenAI Responses request failed");
+    this.name = "OpenAIResponsesHttpError";
+    this.status = status;
+    const parsed = openAIErrorEnvelopeSchema.safeParse(body);
+    if (!parsed.success) return;
+    const providerType = openAIProviderDiagnostic(parsed.data.error.type);
+    const providerCode = openAIProviderDiagnostic(parsed.data.error.code);
+    const providerParam = openAIProviderDiagnostic(parsed.data.error.param);
+    if (providerType) this.providerType = providerType;
+    if (providerCode) this.providerCode = providerCode;
+    if (providerParam) this.providerParam = providerParam;
+  }
+}
+
 export class FetchOpenAIResponsesTransport implements OpenAIResponsesTransport {
   readonly #apiKey: string;
   readonly #fetch: typeof fetch;
@@ -683,7 +727,10 @@ export class FetchOpenAIResponsesTransport implements OpenAIResponsesTransport {
       body: JSON.stringify(request),
       signal: options.signal,
     });
-    if (!response.ok) throw new Error("OpenAI Responses request failed");
+    if (!response.ok) {
+      const body = (await response.json().catch(() => undefined)) as unknown;
+      throw new OpenAIResponsesHttpError(response.status, body);
+    }
     return response.json();
   }
 }

@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import {
+  FetchOpenAIResponsesTransport,
+  OpenAIResponsesHttpError,
   OpenAIResponsesRequirementProposalAdapter,
   RequirementCitationError,
   buildOpenAIRequirementProposalRequest,
@@ -93,6 +95,51 @@ describe("exact requirement citation location", () => {
 });
 
 describe("OpenAI Responses requirement proposal contract", () => {
+  it("reports only bounded HTTP diagnostics for a rejected provider request", async () => {
+    const providerMessage = "secret upstream detail that must not escape";
+    const fetchStub = (() =>
+      Promise.resolve(new Response(
+        JSON.stringify({
+          error: {
+            message: providerMessage,
+            type: "invalid_request_error",
+            code: "invalid_json_schema",
+            param: "text.format.schema",
+          },
+        }),
+        {
+          status: 400,
+          headers: { "content-type": "application/json" },
+        },
+      ))) as typeof fetch;
+    const transport = new FetchOpenAIResponsesTransport("fictional-api-key", {
+      fetch: fetchStub,
+    });
+    const request = buildOpenAIRequirementProposalRequest({
+      agreement: makeProposalAgreement(),
+      bytes: new TextEncoder().encode("fictional"),
+    });
+
+    let failure: unknown;
+    try {
+      await transport.create(request, { signal: new AbortController().signal });
+    } catch (error) {
+      failure = error;
+    }
+
+    expect(failure).toBeInstanceOf(OpenAIResponsesHttpError);
+    expect(failure).toMatchObject({
+      name: "OpenAIResponsesHttpError",
+      message: "OpenAI Responses request failed",
+      status: 400,
+      providerType: "invalid_request_error",
+      providerCode: "invalid_json_schema",
+      providerParam: "text.format.schema",
+    });
+    expect(JSON.stringify(failure)).not.toContain(providerMessage);
+    expect(String(failure)).not.toContain(providerMessage);
+  });
+
   it("sends the exact original PDF plus authoritative page text in a strict GPT-5.6 request", () => {
     const agreement = {
       ...makeProposalAgreement(),

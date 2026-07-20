@@ -9,6 +9,7 @@ import {
 } from "../../packages/core/src/agreement-intake";
 import {
   FetchOpenAIResponsesTransport,
+  OpenAIResponsesHttpError,
   OpenAIResponsesRequirementProposalAdapter,
   validateRequirementProposalAttempt,
 } from "../../packages/core/src/requirement-proposals";
@@ -60,15 +61,49 @@ describe("AGR-02 live GPT-5.6 Sol requirement proposal contract", () => {
         actorId: "fictional-live-contract-officer",
       },
     };
+    const baseTransport = new FetchOpenAIResponsesTransport(apiKey);
+    let providerDiagnostic:
+      | {
+          status: number;
+          providerType?: string;
+          providerCode?: string;
+          providerParam?: string;
+        }
+      | undefined;
     const adapter = new OpenAIResponsesRequirementProposalAdapter(
-      new FetchOpenAIResponsesTransport(apiKey),
+      {
+        async create(request, options) {
+          try {
+            return await baseTransport.create(request, options);
+          } catch (error) {
+            if (error instanceof OpenAIResponsesHttpError) {
+              providerDiagnostic = {
+                status: error.status,
+                ...(error.providerType
+                  ? { providerType: error.providerType }
+                  : {}),
+                ...(error.providerCode
+                  ? { providerCode: error.providerCode }
+                  : {}),
+                ...(error.providerParam
+                  ? { providerParam: error.providerParam }
+                  : {}),
+              };
+            }
+            throw error;
+          }
+        },
+      },
       { model: "gpt-5.6-sol", timeoutMs: 120_000 },
     );
 
     const attempt = await adapter.propose({ agreement, bytes });
     const validation = validateRequirementProposalAttempt(agreement, attempt);
 
-    expect(attempt).toMatchObject({
+    expect(
+      attempt,
+      `Sanitized provider diagnostic: ${JSON.stringify(providerDiagnostic ?? null)}`,
+    ).toMatchObject({
       provider: "OPENAI",
       outcome: "COMPLETED",
       requestedModel: "gpt-5.6-sol",
