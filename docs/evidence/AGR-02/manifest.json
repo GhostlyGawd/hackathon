@@ -123,6 +123,21 @@
       "durationMs": 2000
     },
     {
+      "phase": "RED",
+      "name": "Ubuntu CI rejected ambiguous regex indentation",
+      "command": "GitHub Actions run 29720782899, Verify on ubuntu-latest: pnpm verify",
+      "exitCode": 1,
+      "durationMs": 62000,
+      "expectedFailure": "ESLint no-regex-spaces rejected three literal YAML-indentation runs in the workflow contract before tests executed"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Explicit regex indentation and focused workflow verification",
+      "command": "pnpm exec eslint tests/unit/live-openai-workflow.test.ts --max-warnings=0; pnpm exec vitest run --project unit tests/unit/live-openai-workflow.test.ts --project integration tests/integration/evidence-harness.test.ts; pnpm evidence:check",
+      "exitCode": 0,
+      "durationMs": 8800
+    },
+    {
       "phase": "GREEN",
       "name": "Successful proposal and refusal browser stories",
       "command": "PACTWIRE_BDD_TAGS=@AGR-02 pnpm test:bdd",

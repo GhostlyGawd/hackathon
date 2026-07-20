@@ -11,11 +11,11 @@ describe("live OpenAI workflow", () => {
 
     expect(workflow).toMatch(/^name: Live OpenAI contract$/mu);
     expect(workflow).toMatch(
-      /^on:\n  workflow_dispatch:\n  push:\n    branches:\n      - live\/agr-02-contract$/mu,
+      /^on:\n {2}workflow_dispatch:\n {2}push:\n {4}branches:\n {6}- live\/agr-02-contract$/mu,
     );
-    expect(workflow).not.toMatch(/^  pull_request:/mu);
+    expect(workflow).not.toMatch(/^ {2}pull_request:/mu);
     expect(workflow).not.toContain("- main");
-    expect(workflow).toMatch(/^permissions:\n  contents: read$/mu);
+    expect(workflow).toMatch(/^permissions:\n {2}contents: read$/mu);
     expect(workflow).toContain(
       "OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}",
     );
