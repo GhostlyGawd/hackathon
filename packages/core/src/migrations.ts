@@ -38,6 +38,11 @@ const migrationFiles = [
     name: "synthetic_personas_canaries",
     fileName: "0005_synthetic_personas_canaries.sql",
   },
+  {
+    version: "0006",
+    name: "agreement_intake",
+    fileName: "0006_agreement_intake.sql",
+  },
 ] as const;
 
 export async function loadCoreMigrations(): Promise<readonly CoreMigration[]> {

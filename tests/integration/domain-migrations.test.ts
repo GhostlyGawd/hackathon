@@ -31,6 +31,7 @@ describe("core domain migrations", () => {
       "0003",
       "0004",
       "0005",
+      "0006",
     ]);
   });
 
@@ -44,6 +45,7 @@ describe("core domain migrations", () => {
       "0003",
       "0004",
       "0005",
+      "0006",
     ]);
     await expect(applyCoreMigrations(service.database)).resolves.toEqual([]);
     const tables = await service.database.query<{ table_name: string }>(
@@ -88,7 +90,7 @@ describe("core domain migrations", () => {
       [workspaceA, softwareA],
     );
     await database.query(
-      "INSERT INTO agreement_versions (workspace_id, id, software_id, version, source_object_key, source_sha256, source_mime_type, created_at, created_by) VALUES ($1, $2, $3, 1, 'synthetic/agreement.pdf', $4, 'application/pdf', now(), '{}')",
+      "INSERT INTO agreement_versions (workspace_id, id, software_id, version, source_object_key, source_sha256, source_mime_type, source_file_name, source_byte_length, normalized_text, page_map, created_at, created_by) VALUES ($1, $2, $3, 1, ('agreements/sha256/' || $4 || '.pdf'), $4, 'application/pdf', 'Fictional Agreement.pdf', 1, 'Fixture', jsonb_build_array(jsonb_build_object('pageNumber', 1, 'startOffset', 0, 'endOffset', 7, 'text', 'Fixture', 'textSha256', repeat('b', 64))), now(), jsonb_build_object('kind', 'HUMAN', 'actorId', 'fixture-officer'))",
       [workspaceA, agreementA, softwareA, "a".repeat(64)],
     );
 
@@ -214,7 +216,7 @@ describe("core domain migrations", () => {
       [workspace, authorization, software],
     );
     await database.query(
-      "INSERT INTO agreement_versions (workspace_id, id, software_id, version, source_object_key, source_sha256, source_mime_type, created_at, created_by) VALUES ($1, $2, $3, 1, 'synthetic/agreement.pdf', $4, 'application/pdf', now(), '{}')",
+      "INSERT INTO agreement_versions (workspace_id, id, software_id, version, source_object_key, source_sha256, source_mime_type, source_file_name, source_byte_length, normalized_text, page_map, created_at, created_by) VALUES ($1, $2, $3, 1, ('agreements/sha256/' || $4 || '.pdf'), $4, 'application/pdf', 'Fictional Agreement.pdf', 1, 'Fixture', jsonb_build_array(jsonb_build_object('pageNumber', 1, 'startOffset', 0, 'endOffset', 7, 'text', 'Fixture', 'textSha256', repeat('b', 64))), now(), jsonb_build_object('kind', 'HUMAN', 'actorId', 'fixture-officer'))",
       [workspace, agreement, software, "a".repeat(64)],
     );
     await database.query(
@@ -364,7 +366,7 @@ describe("core domain migrations", () => {
       [workspace, authorizationA, softwareA],
     );
     await database.query(
-      "INSERT INTO agreement_versions (workspace_id, id, software_id, version, source_object_key, source_sha256, source_mime_type, created_at, created_by) VALUES ($1, $2, $3, 1, 'synthetic/a.pdf', $5, 'application/pdf', now(), '{}'), ($1, $4, $6, 1, 'synthetic/b.pdf', $5, 'application/pdf', now(), '{}')",
+      "INSERT INTO agreement_versions (workspace_id, id, software_id, version, source_object_key, source_sha256, source_mime_type, source_file_name, source_byte_length, normalized_text, page_map, created_at, created_by) VALUES ($1, $2, $3, 1, ('agreements/sha256/' || $5 || '.pdf'), $5, 'application/pdf', 'Fictional A.pdf', 1, 'Fixture', jsonb_build_array(jsonb_build_object('pageNumber', 1, 'startOffset', 0, 'endOffset', 7, 'text', 'Fixture', 'textSha256', repeat('b', 64))), now(), jsonb_build_object('kind', 'HUMAN', 'actorId', 'fixture-officer')), ($1, $4, $6, 1, ('agreements/sha256/' || $5 || '.pdf'), $5, 'application/pdf', 'Fictional B.pdf', 1, 'Fixture', jsonb_build_array(jsonb_build_object('pageNumber', 1, 'startOffset', 0, 'endOffset', 7, 'text', 'Fixture', 'textSha256', repeat('b', 64))), now(), jsonb_build_object('kind', 'HUMAN', 'actorId', 'fixture-officer'))",
       [
         workspace,
         agreementA,

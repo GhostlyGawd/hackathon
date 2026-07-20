@@ -1,0 +1,350 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "AGR-01",
+  "title": "Store, hash, and version agreement inputs",
+  "status": "COMPLETE",
+  "prdSections": [9, 14],
+  "functionalRequirements": ["FR-010"],
+  "sourceCommitSha": "225d3ca64c0f684fb92b5cc5c5222c428f9c60f2",
+  "startedAt": "2026-07-20T01:35:00.000Z",
+  "completedAt": "2026-07-20T04:36:32.107Z",
+  "artifactRoot": "artifacts/verification/AGR-01/",
+  "curatedEvidenceRoot": "docs/evidence/AGR-01/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29716705752",
+      "jobs": [
+        {
+          "name": "Ubuntu",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29716705752/job/88271302738",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Windows",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29716705752/job/88271302762",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing agreement source primitives",
+      "command": "pnpm exec vitest run --project unit tests/unit/agreement-intake.test.ts --project property tests/property/agreement-intake.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 3000,
+      "expectedFailure": "Both suites failed to import the not-yet-implemented agreement-intake module and zero tests ran"
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined immutable agreement browser behavior",
+      "command": "PACTWIRE_BDD_TAGS=@AGR-01 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 33500,
+      "expectedFailure": "All shared setup steps passed while three AGR-01 scenarios and fifteen agreement behavior steps were undefined"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing agreement authorization permission",
+      "command": "pnpm exec vitest run --project integration tests/integration/agreement-intake.test.ts",
+      "exitCode": 1,
+      "durationMs": 10000,
+      "expectedFailure": "All four service scenarios reached a Zod permission failure because AGREEMENT_UPLOAD was absent from the server authorization matrix"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing signed multipart routes",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/agreement-intake-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 3100,
+      "expectedFailure": "The route suite could not import the not-yet-created agreement upload and source endpoints"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Exact-byte examples and mutation property",
+      "command": "pnpm exec vitest run --project unit tests/unit/agreement-intake.test.ts --project property tests/property/agreement-intake.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 3600
+    },
+    {
+      "phase": "GREEN",
+      "name": "PostgreSQL, PDF, permissions, and immutable storage proof",
+      "command": "pnpm exec vitest run --project integration tests/integration/agreement-intake.test.ts",
+      "exitCode": 0,
+      "durationMs": 13800
+    },
+    {
+      "phase": "GREEN",
+      "name": "Signed multipart upload, list, and exact source routes",
+      "command": "pnpm --filter @pactwire/core build && pnpm exec vitest run --project integration apps/web/tests/integration/agreement-intake-routes.test.ts",
+      "exitCode": 0,
+      "durationMs": 7200
+    },
+    {
+      "phase": "GREEN",
+      "name": "Focused immutable agreement browser journeys",
+      "command": "PACTWIRE_BDD_TAGS=@AGR-01 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 43800
+    },
+    {
+      "phase": "RED",
+      "name": "Object store accepted a mismatched content address",
+      "command": "pnpm exec vitest run --project unit tests/unit/agreement-intake.test.ts",
+      "exitCode": 1,
+      "durationMs": 3400,
+      "expectedFailure": "The in-memory object store resolved a write whose key named a different SHA instead of rejecting the bytes"
+    },
+    {
+      "phase": "RED",
+      "name": "Filesystem read returned tampered at-rest bytes",
+      "command": "pnpm exec vitest run --project integration tests/integration/agreement-intake.test.ts",
+      "exitCode": 1,
+      "durationMs": 13900,
+      "expectedFailure": "The filesystem adapter returned deliberately overwritten bytes instead of rejecting the key-to-content mismatch"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Shared schema, migration, and prior fixture reconciliation",
+      "command": "pnpm exec vitest run --project integration tests/integration/domain-migrations.test.ts tests/integration/synthetic-data.test.ts tests/integration/test-authorization.test.ts --project unit tests/unit/domain-schemas.test.ts",
+      "exitCode": 0,
+      "durationMs": 25600
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence harness rejected unbound new tests",
+      "command": "pnpm test:unit && pnpm test:property && pnpm test:integration",
+      "exitCode": 1,
+      "durationMs": 56200,
+      "expectedFailure": "All product tests passed, while the evidence harness identified the five new AGR-01 test and scenario files as orphaned before this manifest existed"
+    },
+    {
+      "phase": "RED",
+      "name": "Ubuntu CI exposed mixed production-build and development-server state",
+      "command": "GitHub Actions run 29715960381, Verify on ubuntu-latest",
+      "exitCode": 1,
+      "durationMs": 431300,
+      "expectedFailure": "After pnpm build, the BDD harness launched next dev from the same .next tree; Ubuntu reported a canceled agreement download followed by stale 404 responses and DOM timeouts while Windows passed"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing CI-safe BDD server-mode contract",
+      "command": "pnpm exec vitest run --project unit tests/unit/bdd-server-mode.test.ts",
+      "exitCode": 1,
+      "durationMs": 2700,
+      "expectedFailure": "All three mode-selection examples failed because the not-yet-implemented resolver script was absent"
+    },
+    {
+      "phase": "GREEN",
+      "name": "CI-safe BDD server-mode contract",
+      "command": "pnpm exec vitest run --project unit tests/unit/bdd-server-mode.test.ts",
+      "exitCode": 0,
+      "durationMs": 2500
+    },
+    {
+      "phase": "GREEN",
+      "name": "Full CI-mode production browser reproduction",
+      "command": "pnpm --filter @pactwire/web build; CI=true pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 105800
+    },
+    {
+      "phase": "RED",
+      "name": "Completion gate rejected an over-specific test environment type",
+      "command": "CI=true pnpm verify",
+      "exitCode": 1,
+      "durationMs": 39100,
+      "expectedFailure": "TypeScript rejected partial environment overrides typed as NodeJS.ProcessEnv because this Next.js type environment requires NODE_ENV"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete CI-mode repository verification matrix",
+      "command": "CI=true pnpm verify",
+      "exitCode": 0,
+      "durationMs": 206300
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows",
+      "command": "GitHub Actions run 29716705752: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 394000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production browser capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=AGR-01 PACTWIRE_BDD_PRODUCTION=1 PACTWIRE_BDD_TAGS=@AGR-01 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 21400
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency vulnerability audit",
+      "command": "pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 1500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Repository credential-pattern scan",
+      "command": "rg -l -P --hidden with token-boundary patterns and generated, dependency, lockfile, artifact, and image exclusions; no matches is success",
+      "exitCode": 0,
+      "durationMs": 1100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Final evidence-head complete verification",
+      "command": "CI=true pnpm verify",
+      "exitCode": 0,
+      "durationMs": 240600
+    }
+  ],
+  "testSummary": {
+    "files": 38,
+    "passed": 143,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-AGR-01-exact-replay-and-one-byte-mutation",
+        "seed": 20260720,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "agreement-intake.feature",
+        "scenario": "A two-page text agreement becomes a verifiable immutable version",
+        "passed": true
+      },
+      {
+        "feature": "agreement-intake.feature",
+        "scenario": "Duplicate bytes are reused and changed bytes create a new version",
+        "passed": true
+      },
+      {
+        "feature": "agreement-intake.feature",
+        "scenario": "A malformed PDF is rejected before any version or object is stored",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/AGR-01/agreement-source-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-20T04:28:55.787Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop agreement source panel showing a stored immutable version with original SHA-256, uploader, dates, download action, and two extracted fictional pages with independent hashes.",
+        "caption": "The successful intake keeps the exact source metadata beside its two-page citation map so a reviewer can download and independently verify the same fictional agreement.",
+        "provenance": "captured",
+        "sourceCommitSha": "225d3ca64c0f684fb92b5cc5c5222c428f9c60f2"
+      },
+      {
+        "path": "docs/evidence/AGR-01/agreement-invalid-pdf-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-20T04:29:04.196Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow agreement intake panel showing an invalid fictional PDF blocked and zero immutable versions stored.",
+        "caption": "A malformed PDF produces a direct error and leaves the selected software with zero stored versions.",
+        "provenance": "captured",
+        "sourceCommitSha": "225d3ca64c0f684fb92b5cc5c5222c428f9c60f2"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/agreement-intake.test.ts",
+      "description": "Exact-byte hash, page map, malformed input, and content-address examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/bdd-server-mode.test.ts",
+      "description": "CI production-server default, local development default, and explicit override regression"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/agreement-intake.property.test.ts",
+      "description": "Seeded exact-replay and arbitrary-position one-byte mutation property"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/agreement-intake.test.ts",
+      "description": "PostgreSQL, filesystem, text, PDF, duplicate, immutable, corruption, audit, and permission proof"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/agreement-intake-routes.test.ts",
+      "description": "Signed multipart upload, forged actor, malformed source, list, and exact download HTTP proof"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/agreement-intake.feature",
+      "description": "Verifiable source, duplicate and changed bytes, and blocked malformed PDF journeys"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/workspace-access.steps.mjs",
+      "description": "Playwright metadata, page-hash, download-hash, immutability, error, and visual assertions"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/agreement-intake.ts",
+      "description": "Bounded extraction, storage adapters, repositories, authorization, versioning, and read verification"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0006_agreement_intake.sql",
+      "description": "Content-address, source metadata, page map, uploader, unique hash, and immutable version constraints"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/agreement-intake-panel.tsx",
+      "description": "Direct-language upload, immutable version metadata, original download, and page source viewer"
+    },
+    {
+      "kind": "config",
+      "path": "scripts/bdd-server-mode.mjs",
+      "description": "Deterministic CI production-server selection that prevents mixed Next.js build and development state"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/AGR-01/README.md",
+      "description": "Curated AGR-01 red/green record, exact-byte claim, and explicit limitations"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-20T04:30:02.756Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "Page extraction reads embedded PDF text; image-only scanned PDFs are rejected because OCR is not part of AGR-01.",
+    "Extracted page text and hashes verify source locations but do not interpret legal meaning; human confirmation belongs to AGR-03.",
+    "Input is bounded to 10 MB, 500 pages, and two million extracted characters.",
+    "The browser fixture uses ephemeral in-memory storage; production deployment wiring for the PostgreSQL and filesystem adapters remains a release task."
+  ],
+  "reviewer": "codex-agent"
+}
