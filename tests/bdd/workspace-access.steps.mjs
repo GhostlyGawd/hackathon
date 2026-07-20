@@ -54,6 +54,9 @@ function isExpectedAuthorizationFailure(response) {
     (method === "POST" &&
       pathname.endsWith("/agreements") &&
       response.status() === 422) ||
+    (method === "POST" &&
+      pathname.endsWith("/proposals") &&
+      [422, 502].includes(response.status())) ||
     (method === "GET" &&
       pathname ===
         "/api/workspaces/22222222-2222-4222-8222-222222222222" &&
@@ -129,6 +132,8 @@ After(async function ({ result, pickle }) {
             ? "AUT-04"
             : pickle.tags.some((tag) => tag.name === "@JRN-01")
               ? "JRN-01"
+              : pickle.tags.some((tag) => tag.name === "@AGR-02")
+                ? "AGR-02"
               : pickle.tags.some((tag) => tag.name === "@AGR-01")
                 ? "AGR-01"
             : "AUT-01";
@@ -1472,5 +1477,177 @@ Then(
   "I capture the {string} narrow agreement evidence",
   async function (evidenceName) {
     await captureAgreementEvidence(this, evidenceName, true);
+  },
+);
+
+When("I upload the fictional model-refusal agreement", async function () {
+  this.expectProposalRefusal = true;
+  this.agreementVersionOneBytes = agreementBytes();
+  await uploadAgreementFixture(this, this.agreementVersionOneBytes, 201, {
+    name: "model-refusal-Northstar-DPA-fictional.txt",
+    mimeType: "text/plain",
+  });
+  await this.page.getByTestId("agreement-current-version").waitFor();
+});
+
+When("I request structured requirement proposals", async function () {
+  const responsePromise = this.page.waitForResponse((response) => {
+    const request = response.request();
+    return (
+      request.method() === "POST" &&
+      new URL(response.url()).pathname.endsWith("/proposals")
+    );
+  });
+  await this.page.getByTestId("generate-requirement-proposals").click();
+  const response = await responsePromise;
+  assert.equal(response.status(), this.expectProposalRefusal ? 422 : 201);
+  this.requirementProposalResponse = JSON.parse(await response.text());
+});
+
+Then(
+  "a proposal shows the exact purpose quote on page {int}",
+  async function (pageNumber) {
+    const proposal = this.page.getByTestId("requirement-proposal").first();
+    await proposal.waitFor();
+    assert.equal(
+      (await proposal.getByTestId("proposal-source-quote").innerText()).includes(
+        "Purpose: classroom instruction only.",
+      ),
+      true,
+    );
+    await proposal
+      .getByText(`Page ${pageNumber} · offsets`, { exact: false })
+      .waitFor();
+    assert.equal(
+      this.requirementProposalResponse.proposals[0].citation.page,
+      pageNumber,
+    );
+  },
+);
+
+Then(
+  "the proposal includes every observable restriction and suggested test",
+  async function () {
+    const proposal = this.page.getByTestId("requirement-proposal").first();
+    for (const value of [
+      "Fictional student account and classroom activity data",
+      "Collect and use",
+      "District-authorized service providers only",
+      "Classroom instruction only",
+      "No ambiguity identified",
+      "Submit a unique fictional classroom value and record every request carrying it.",
+    ]) {
+      await proposal.getByText(value, { exact: true }).waitFor();
+    }
+  },
+);
+
+Then(
+  "the proposal is clearly non-executable until a person reviews it",
+  async function () {
+    const panel = this.page.getByTestId("requirement-proposal-panel");
+    await panel.getByText("Non-executable draft", { exact: true }).waitFor();
+    await panel
+      .getByText("Draft only — not an agreement rule", { exact: true })
+      .waitFor();
+    await panel
+      .getByText(
+        "A proposal cannot run a test, create a finding, or change software approval. A person must review it in the next stage.",
+        { exact: true },
+      )
+      .waitFor();
+    assert.equal(this.requirementProposalResponse.proposals[0].executable, false);
+  },
+);
+
+Then("the proposal run identifies its adapter and cost record", async function () {
+  const run = this.page.getByTestId("proposal-run");
+  await run
+    .getByText("Fixture replay — not a live GPT-5.6 result", { exact: true })
+    .waitFor();
+  assert.equal(await run.getByTestId("proposal-cost").innerText(), "$0.000000");
+  assert.equal(
+    this.requirementProposalResponse.run.provider,
+    "DETERMINISTIC_FIXTURE",
+  );
+});
+
+Then(
+  "the model refusal is shown as a non-executable intake error",
+  async function () {
+    const notice = this.page.getByTestId("proposal-notice");
+    await notice
+      .getByText("Model did not return a proposal", { exact: true })
+      .waitFor();
+    await notice
+      .getByText(
+        "The model declined to propose requirements. No proposal was created.",
+        { exact: true },
+      )
+      .waitFor();
+    await this.page
+      .getByTestId("proposal-run")
+      .getByText("No proposal accepted", { exact: true })
+      .waitFor();
+  },
+);
+
+Then("no requirement proposal is stored", async function () {
+  assert.equal(
+    await this.page.getByTestId("requirement-proposal").count(),
+    0,
+  );
+  await this.page
+    .getByTestId("requirement-proposal-list")
+    .getByText("No requirement proposal was stored from this run.", {
+      exact: false,
+    })
+    .waitFor();
+  assert.deepEqual(this.requirementProposalResponse.proposals, []);
+});
+
+Then("manual agreement review remains available", async function () {
+  await this.page.getByTestId("agreement-source-viewer").waitFor();
+  await this.page.getByTestId("download-agreement-source").waitFor();
+  await this.page
+    .getByText("The stored source remains available for manual review.", {
+      exact: false,
+    })
+    .waitFor();
+});
+
+async function captureProposalEvidence(world, name, narrow) {
+  if (narrow) await world.page.setViewportSize({ width: 390, height: 844 });
+  const panel = world.page.getByTestId("requirement-proposal-panel");
+  await panel.scrollIntoViewIfNeeded();
+  const capture = async (root) => {
+    await panel.screenshot({ path: path.join(root, `${name}.png`) });
+  };
+  await capture(
+    path.join(
+      process.cwd(),
+      "artifacts",
+      "verification",
+      "AGR-02",
+      "screenshots",
+    ),
+  );
+  if (shouldCaptureCurated("AGR-02")) {
+    await capture(path.join(process.cwd(), "docs", "evidence", "AGR-02"));
+  }
+  if (narrow) await world.page.setViewportSize({ width: 1440, height: 1100 });
+}
+
+Then(
+  "I capture the {string} proposal evidence",
+  async function (evidenceName) {
+    await captureProposalEvidence(this, evidenceName, false);
+  },
+);
+
+Then(
+  "I capture the {string} narrow proposal evidence",
+  async function (evidenceName) {
+    await captureProposalEvidence(this, evidenceName, true);
   },
 );

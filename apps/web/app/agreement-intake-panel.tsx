@@ -28,6 +28,66 @@ interface AgreementVersion {
   readonly pageMap: readonly AgreementPage[];
 }
 
+interface RequirementProposalDetails {
+  readonly plainLanguage: string;
+  readonly sourceText: string;
+  readonly pageNumber: number | null;
+  readonly section: string | null;
+  readonly dataField: string;
+  readonly action: string;
+  readonly recipientRestriction: string;
+  readonly purposeRestriction: string | null;
+  readonly ambiguity: "CLEAR" | "AMBIGUOUS";
+  readonly ambiguityReason: string | null;
+  readonly suggestedObservableTest: string;
+}
+
+interface RequirementProposal {
+  readonly id: string;
+  readonly modelRunId: string;
+  readonly version: number;
+  readonly status: "PROPOSED";
+  readonly executable: false;
+  readonly details: RequirementProposalDetails;
+  readonly citation: {
+    readonly page: number;
+    readonly startOffset: number;
+    readonly endOffset: number;
+    readonly quotedTextSha256: string;
+  };
+  readonly proposedBy:
+    | { readonly kind: "MODEL"; readonly model: string }
+    | { readonly kind: "AUTOMATION"; readonly component: string };
+}
+
+interface RequirementProposalRun {
+  readonly id: string;
+  readonly status:
+    | "SUCCEEDED"
+    | "REFUSED"
+    | "INCOMPLETE"
+    | "INVALID_OUTPUT"
+    | "UNRELATED"
+    | "MODEL_MISMATCH"
+    | "PROVIDER_ERROR"
+    | "CITATION_MISMATCH";
+  readonly provider: "OPENAI" | "DETERMINISTIC_FIXTURE";
+  readonly requestedModel: string;
+  readonly returnedModel?: string;
+  readonly attempts: readonly unknown[];
+  readonly totalInputTokens: number;
+  readonly totalOutputTokens: number;
+  readonly totalTokens: number;
+  readonly totalEstimatedCostMicroUsd: number;
+  readonly safeMessage?: string;
+  readonly createdAt: string;
+}
+
+interface RequirementProposalHistory {
+  readonly runs: readonly RequirementProposalRun[];
+  readonly proposals: readonly RequirementProposal[];
+}
+
 interface ApiErrorBody {
   readonly error?: {
     readonly code?: string;
@@ -86,6 +146,16 @@ export function AgreementIntakePanel({
   const [effectiveUntil, setEffectiveUntil] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [proposalHistory, setProposalHistory] =
+    useState<RequirementProposalHistory>({ runs: [], proposals: [] });
+  const [proposalLoading, setProposalLoading] = useState(false);
+  const [proposalSubmitting, setProposalSubmitting] = useState(false);
+  const [proposalNotice, setProposalNotice] = useState<{
+    readonly tone: "success" | "danger";
+    readonly title: string;
+    readonly message: string;
+    readonly auditRecorded: boolean;
+  }>();
   const [notice, setNotice] = useState<{
     readonly tone: "success" | "danger";
     readonly title: string;
@@ -122,6 +192,22 @@ export function AgreementIntakePanel({
     );
     return result.agreements;
   }, [softwareId, workspaceId]);
+
+  const loadProposalHistory = useCallback(
+    async (agreementVersionId: string): Promise<RequirementProposalHistory> => {
+      if (!softwareId || !agreementVersionId) {
+        const empty = { runs: [], proposals: [] } as const;
+        setProposalHistory(empty);
+        return empty;
+      }
+      const result = await jsonApi<RequirementProposalHistory>(
+        `/api/workspaces/${workspaceId}/software/${softwareId}/agreements/${agreementVersionId}/proposals`,
+      );
+      setProposalHistory(result);
+      return result;
+    },
+    [softwareId, workspaceId],
+  );
 
   useEffect(() => {
     let active = true;
@@ -179,6 +265,39 @@ export function AgreementIntakePanel({
     };
   }, [loadAgreements]);
 
+  useEffect(() => {
+    let active = true;
+    if (!selectedAgreementId) {
+      setProposalHistory({ runs: [], proposals: [] });
+      setProposalNotice(undefined);
+      return () => {
+        active = false;
+      };
+    }
+    setProposalLoading(true);
+    setProposalNotice(undefined);
+    void loadProposalHistory(selectedAgreementId)
+      .catch((error: unknown) => {
+        if (active) {
+          setProposalNotice({
+            tone: "danger",
+            title: "Proposal history unavailable",
+            message:
+              error instanceof Error
+                ? error.message
+                : "Proposal history could not be loaded.",
+            auditRecorded: false,
+          });
+        }
+      })
+      .finally(() => {
+        if (active) setProposalLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [loadProposalHistory, selectedAgreementId]);
+
   const selectedAgreement = agreements.find(
     (agreement) => agreement.id === selectedAgreementId,
   );
@@ -227,6 +346,52 @@ export function AgreementIntakePanel({
       setSubmitting(false);
     }
   }
+
+  async function generateRequirementProposals(): Promise<void> {
+    if (!selectedAgreement) return;
+    setProposalSubmitting(true);
+    setProposalNotice(undefined);
+    const path = `/api/workspaces/${workspaceId}/software/${softwareId}/agreements/${selectedAgreement.id}/proposals`;
+    try {
+      const result = await jsonApi<{
+        readonly run: RequirementProposalRun;
+        readonly proposals: readonly RequirementProposal[];
+      }>(path, { method: "POST" });
+      await loadProposalHistory(selectedAgreement.id);
+      setProposalNotice({
+        tone: "success",
+        title: `${result.proposals.length} requirement ${result.proposals.length === 1 ? "proposal" : "proposals"} ready for review`,
+        message:
+          "Every quote matched one exact stored source span. These drafts cannot run a test or change approval.",
+        auditRecorded: true,
+      });
+    } catch (error) {
+      const requestError = error instanceof AgreementApiError ? error : undefined;
+      await loadProposalHistory(selectedAgreement.id).catch(() => undefined);
+      setProposalNotice({
+        tone: "danger",
+        title:
+          requestError?.code === "REQUIREMENT_PROPOSAL_REFUSED"
+            ? "Model did not return a proposal"
+            : requestError?.status === 403
+              ? "Proposal generation denied"
+              : "No usable proposal was created",
+        message:
+          requestError?.message ??
+          "Review the stored agreement manually or try the model again.",
+        auditRecorded: requestError?.auditRecorded ?? false,
+      });
+    } finally {
+      setProposalSubmitting(false);
+    }
+  }
+
+  const latestProposalRun = proposalHistory.runs[0];
+  const currentProposals = latestProposalRun
+    ? proposalHistory.proposals.filter(
+        (proposal) => proposal.modelRunId === latestProposalRun.id,
+      )
+    : [];
 
   return (
     <section className="agreement-panel" data-testid="agreement-panel" id="agreements" aria-labelledby="agreement-heading">
@@ -328,6 +493,101 @@ export function AgreementIntakePanel({
                 <div><dt>Effective dates</dt><dd>{selectedAgreement.effectiveFrom ?? "Not provided"} → {selectedAgreement.effectiveUntil ?? "No end date"}</dd></div>
                 <div className="agreement-hash"><dt>Original SHA-256</dt><dd data-testid={`agreement-source-hash-${selectedAgreement.version}`}>{selectedAgreement.sourceSha256}</dd></div>
               </dl>
+              <section className="proposal-workbench" data-testid="requirement-proposal-panel" aria-labelledby="proposal-heading">
+                <div className="proposal-workbench-heading">
+                  <div>
+                    <p className="eyebrow">Requirement proposals / AGR-02</p>
+                    <h4 id="proposal-heading">Turn agreement terms into testable drafts</h4>
+                    <p>
+                      GPT-5.6 can suggest what data action to test and quote the agreement. Pactwire accepts a draft only when deterministic code finds that quote in one exact stored source span.
+                    </p>
+                  </div>
+                  <button
+                    className="primary-button"
+                    data-testid="generate-requirement-proposals"
+                    type="button"
+                    disabled={proposalSubmitting || proposalLoading}
+                    onClick={() => void generateRequirementProposals()}
+                  >
+                    {proposalSubmitting ? "Generating proposals…" : "Generate requirement proposals"}
+                  </button>
+                </div>
+
+                <div className="proposal-authority-boundary">
+                  <span aria-hidden="true">!</span>
+                  <div>
+                    <strong>Draft only — not an agreement rule</strong>
+                    <p>A proposal cannot run a test, create a finding, or change software approval. A person must review it in the next stage.</p>
+                  </div>
+                </div>
+
+                {proposalNotice ? (
+                  <div className={`proposal-notice ${proposalNotice.tone}`} data-testid="proposal-notice" role="status" aria-live="polite">
+                    <span aria-hidden="true">{proposalNotice.tone === "success" ? "✓" : "!"}</span>
+                    <div>
+                      <strong>{proposalNotice.title}</strong>
+                      <p>{proposalNotice.message}</p>
+                      {proposalNotice.auditRecorded ? <small>Recorded in the active workspace audit.</small> : null}
+                    </div>
+                  </div>
+                ) : null}
+
+                {latestProposalRun ? (
+                  <article className={`proposal-run ${latestProposalRun.status === "SUCCEEDED" ? "success" : "failure"}`} data-testid="proposal-run">
+                    <div className="proposal-run-heading">
+                      <div>
+                        <span className="proposal-run-status">{latestProposalRun.status === "SUCCEEDED" ? "Structured output accepted" : "No proposal accepted"}</span>
+                        <strong>{latestProposalRun.provider === "OPENAI" ? (latestProposalRun.returnedModel ?? latestProposalRun.requestedModel) : "Deterministic test adapter"}</strong>
+                      </div>
+                      <span>{dateTimeLabel(latestProposalRun.createdAt)} UTC</span>
+                    </div>
+                    <dl className="proposal-run-metrics">
+                      <div><dt>Adapter</dt><dd data-testid="proposal-adapter">{latestProposalRun.provider === "OPENAI" ? "OpenAI Responses API" : "Fixture replay — not a live GPT-5.6 result"}</dd></div>
+                      <div><dt>Attempts</dt><dd>{latestProposalRun.attempts.length}</dd></div>
+                      <div><dt>Tokens</dt><dd>{latestProposalRun.totalTokens}</dd></div>
+                      <div><dt>Estimated API cost</dt><dd data-testid="proposal-cost">${(latestProposalRun.totalEstimatedCostMicroUsd / 1_000_000).toFixed(6)}</dd></div>
+                    </dl>
+                    {latestProposalRun.safeMessage ? <p className="proposal-run-error">{latestProposalRun.safeMessage}</p> : null}
+                  </article>
+                ) : (
+                  <div className="proposal-empty" data-testid="proposal-empty">
+                    {proposalLoading ? "Loading proposal history…" : "No proposal run yet. The stored agreement remains available for manual review."}
+                  </div>
+                )}
+
+                {currentProposals.length > 0 ? (
+                  <div className="proposal-list" data-testid="requirement-proposal-list">
+                    {currentProposals.map((proposal) => (
+                      <article className="proposal-card" data-testid="requirement-proposal" key={proposal.id}>
+                        <div className="proposal-card-heading">
+                          <div>
+                            <span className="proposal-draft-badge">Non-executable draft</span>
+                            <h5>{proposal.details.plainLanguage}</h5>
+                          </div>
+                          <span>Page {proposal.citation.page} · offsets {proposal.citation.startOffset}–{proposal.citation.endOffset}</span>
+                        </div>
+                        <blockquote data-testid="proposal-source-quote">“{proposal.details.sourceText}”</blockquote>
+                        <dl className="proposal-fields">
+                          <div><dt>Data field</dt><dd>{proposal.details.dataField}</dd></div>
+                          <div><dt>Action</dt><dd>{proposal.details.action}</dd></div>
+                          <div><dt>Recipient restriction</dt><dd>{proposal.details.recipientRestriction}</dd></div>
+                          <div><dt>Purpose restriction</dt><dd>{proposal.details.purposeRestriction ?? "Not stated in this proposal"}</dd></div>
+                          <div><dt>Ambiguity</dt><dd>{proposal.details.ambiguity === "CLEAR" ? "No ambiguity identified" : proposal.details.ambiguityReason}</dd></div>
+                          <div className="proposal-test"><dt>Suggested observable test</dt><dd>{proposal.details.suggestedObservableTest}</dd></div>
+                        </dl>
+                        <footer>
+                          <span>Exact quote SHA-256</span>
+                          <code>{proposal.citation.quotedTextSha256}</code>
+                        </footer>
+                      </article>
+                    ))}
+                  </div>
+                ) : latestProposalRun ? (
+                  <div className="proposal-empty" data-testid="requirement-proposal-list">
+                    No requirement proposal was stored from this run. The stored source remains available for manual review.
+                  </div>
+                ) : null}
+              </section>
               <div className="source-viewer" data-testid="agreement-source-viewer">
                 <div className="source-viewer-heading">
                   <div><strong>Extracted source pages</strong><p>Each page hash covers the displayed page text. The original-file hash above covers the uploaded bytes.</p></div>

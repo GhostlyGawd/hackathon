@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 6,
-  "totalTables": 24,
+  "migrationCount": 7,
+  "totalTables": 25,
   "migrations": [
     {
       "version": "0001",
@@ -92,6 +92,17 @@
       "sha256": "322463b0e1556d281694a976f2036663ea56c563c6b50a2cc25186a1469593f6",
       "tables": [],
       "immutableTables": []
+    },
+    {
+      "version": "0007",
+      "name": "requirement_proposals",
+      "sha256": "594d56492bc7b7fa22708727e7510055a3201f56376dc4d20861c327fd05eeb3",
+      "tables": [
+        "requirement_proposal_runs"
+      ],
+      "immutableTables": [
+        "requirement_proposal_runs"
+      ]
     }
   ]
 }

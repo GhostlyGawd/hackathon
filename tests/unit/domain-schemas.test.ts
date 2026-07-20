@@ -135,9 +135,25 @@ describe("core domain schemas", () => {
           agreementVersionId: domainIds.agreement,
           requirementKey: "recipient-rule",
           version: 1,
+          modelRunId: "89898989-8989-4989-8989-898989898989",
           status: "PROPOSED",
           executable: false,
           plainLanguage: "Do not send the fictional email to an unapproved recipient.",
+          details: {
+            plainLanguage:
+              "Do not send the fictional email to an unapproved recipient.",
+            sourceText: "Fictional source text",
+            pageNumber: 1,
+            section: "Recipients",
+            dataField: "Fictional student email",
+            action: "Send",
+            recipientRestriction: "District-authorized recipient only",
+            purposeRestriction: null,
+            ambiguity: "CLEAR",
+            ambiguityReason: null,
+            suggestedObservableTest:
+              "Submit a fictional email and record its request destinations.",
+          },
           citation: {
             page: 1,
             startOffset: 10,
