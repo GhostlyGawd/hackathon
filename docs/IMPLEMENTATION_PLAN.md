@@ -233,7 +233,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | AUT-03 | P0 | AUT-01, FND-03 | Test authorization and action policy | COMPLETE |
 | AUT-04 | P0 | AUT-03 | Secret isolation and redaction | COMPLETE |
 | AGR-01 | P0 | AUT-01, FND-03 | Immutable agreement intake | COMPLETE |
-| AGR-02 | P0 | AGR-01, FND-02 | GPT-5.6 structured proposals | IN PROGRESS |
+| AGR-02 | P0 | AGR-01, FND-02 | GPT-5.6 structured proposals | COMPLETE |
 | AGR-03 | P0 + P1 follow-on | AGR-01, AGR-02, AUT-01 | Human review and requirement versions | NOT STARTED |
 | JRN-01 | P0 | AUT-01, AUT-04 | Fictional personas and canaries | COMPLETE |
 | JRN-02 | P0 | AGR-03, JRN-01 | Named journey editor | NOT STARTED |
@@ -400,6 +400,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### AGR-02 — Integrate GPT-5.6 structured requirement proposals
 
+- **Status:** COMPLETE — deterministic gates, source-bound browser evidence, and the real GPT-5.6 Sol fictional-PDF contract pass at source commit `694060df2ea0f6b24a3a67df88ee3172ae4c81a1`.
 - **Deliver:** OpenAI Responses adapter, PDF input handling, validated structured schema, exact citation locator, refusal/incomplete/invalid-output handling, cost and model logging, deterministic fake adapter, and opt-in live contract test.
 - **PRD:** FR-011; Sections 3, 15, and 17.
 - **Depends on:** AGR-01 and FND-02.

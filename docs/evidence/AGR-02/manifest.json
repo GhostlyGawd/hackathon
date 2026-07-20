@@ -2,11 +2,12 @@
   "schemaVersion": "1.0.0",
   "taskId": "AGR-02",
   "title": "Integrate GPT-5.6 structured requirement proposals",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [3, 15, 17],
   "functionalRequirements": ["FR-011"],
-  "sourceCommitSha": "3ba9250afaeeed2a33dddadbb00d6f8e13cd95b8",
+  "sourceCommitSha": "694060df2ea0f6b24a3a67df88ee3172ae4c81a1",
   "startedAt": "2026-07-20T04:45:00.000Z",
+  "completedAt": "2026-07-20T19:05:59.000Z",
   "artifactRoot": "artifacts/verification/AGR-02/",
   "curatedEvidenceRoot": "docs/evidence/AGR-02/",
   "environment": {
@@ -15,16 +16,16 @@
     "pnpm": "11.6.0",
     "ci": {
       "provider": "github-actions",
-      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29719987114",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29767561235",
       "jobs": [
         {
           "name": "Ubuntu",
-          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29719987114/job/88280819045",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29767561235/job/88437372236",
           "status": "SUCCESS"
         },
         {
           "name": "Windows",
-          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29719987114/job/88280819038",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29767561235/job/88437372350",
           "status": "SUCCESS"
         }
       ]
@@ -160,10 +161,10 @@
     },
     {
       "phase": "REGRESSION",
-      "name": "Clean-checkout verification on Ubuntu and Windows",
-      "command": "GitHub Actions run 29719987114: pnpm verify",
+      "name": "Clean-checkout verification on Ubuntu and Windows at the live-contract source commit",
+      "command": "GitHub Actions run 29767561235: pnpm verify",
       "exitCode": 0,
-      "durationMs": 372000
+      "durationMs": 319000
     },
     {
       "phase": "REGRESSION",
@@ -180,17 +181,72 @@
       "durationMs": 500
     },
     {
-      "phase": "REGRESSION",
-      "name": "Required live GPT-5.6 Sol fictional PDF contract",
+      "phase": "RED",
+      "name": "Required live contract unavailable before encrypted credentials",
       "command": "pnpm test:live-openai",
       "exitCode": 1,
-      "durationMs": 3500
+      "durationMs": 3500,
+      "expectedFailure": "The opt-in contract failed explicitly because OPENAI_API_KEY was absent; it was never skipped or replaced by the deterministic adapter"
+    },
+    {
+      "phase": "RED",
+      "name": "Rejected provider request lacked bounded diagnostics",
+      "command": "pnpm exec vitest run --project unit tests/unit/requirement-proposals.test.ts",
+      "exitCode": 1,
+      "durationMs": 3200,
+      "expectedFailure": "The focused assertion failed because the transport exposed no typed, sanitized HTTP status/code diagnostic"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Bounded provider diagnostics without upstream messages",
+      "command": "pnpm exec vitest run --project unit tests/unit/requirement-proposals.test.ts",
+      "exitCode": 0,
+      "durationMs": 2500
+    },
+    {
+      "phase": "RED",
+      "name": "Live provider quota failure remained non-executable",
+      "command": "GitHub Actions run 29767561187 attempt 1: pnpm test:live-openai",
+      "exitCode": 1,
+      "durationMs": 28000,
+      "expectedFailure": "OpenAI returned HTTP 429 insufficient_quota; the adapter produced PROVIDER_ERROR, zero accepted proposals, and no artifact"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Required live GPT-5.6 Sol fictional PDF contract",
+      "command": "GitHub Actions run 29767561187 attempt 2: pnpm test:live-openai",
+      "exitCode": 0,
+      "durationMs": 14359,
+      "outputPath": "artifacts/verification/AGR-02/live-openai-contract.json"
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence index rejected a stale exact proof count",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 100800,
+      "expectedFailure": "The evidence-harness regression expected 98 proof files after the reviewed live manifest became the 99th durable proof"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Evidence index includes the reviewed live manifest",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 0,
+      "durationMs": 7500
+    },
+    {
+      "phase": "RED",
+      "name": "Complete verification exposed the unrelated PROP-20 test-shell timeout",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 129200,
+      "expectedFailure": "The seeded 250-case asynchronous property produced no counterexample but exceeded Vitest's 5000 ms default test timeout under full-suite load; focused runs remained green"
     }
   ],
   "testSummary": {
     "files": 8,
-    "passed": 30,
-    "failed": 1,
+    "passed": 32,
+    "failed": 0,
     "skipped": 0,
     "retries": 0
   },
@@ -300,6 +356,11 @@
       "description": "Required opt-in real GPT-5.6 Sol fictional PDF structured-output and exact-citation contract"
     },
     {
+      "kind": "evidence",
+      "path": "docs/evidence/AGR-02/live-openai-contract.json",
+      "description": "Sanitized durable copy of the successful live GPT-5.6 Sol contract manifest from GitHub Actions run 29767561187 attempt 2"
+    },
+    {
       "kind": "scenario",
       "path": "tests/bdd/agreement-intake.feature",
       "description": "Exact structured proposal and visible safe-refusal workflows"
@@ -327,17 +388,17 @@
     {
       "kind": "evidence",
       "path": "docs/evidence/AGR-02/README.md",
-      "description": "In-progress red/green record, OpenAI contract choices, and explicit live gate"
+      "description": "Completed red/green record, live-run provenance, bounded claims, and reviewed artifact hashes"
     }
   ],
   "sanitization": {
     "reviewed": true,
-    "reviewedAt": "2026-07-20T05:46:41.945Z",
+    "reviewedAt": "2026-07-20T19:08:00.000Z",
     "findings": []
   },
   "knownLimitations": [
-    "OPENAI_API_KEY is absent locally and no encrypted repository secret exists, so the required live GPT-5.6 Sol contract has not run and AGR-02 remains IN_PROGRESS.",
-    "The browser proof uses the explicitly labelled deterministic fixture adapter; it is not evidence of GPT-5.6 proposal quality.",
+    "The successful live contract covers one controlled two-page fictional PDF and two exact citations; it does not establish extraction accuracy across real agreements, legal meaning, product safety, or compliance.",
+    "The browser proof uses the explicitly labelled deterministic fixture adapter; it proves interface and recovery behavior, not live GPT-5.6 proposal quality.",
     "Displayed cost is an estimate from reported tokens and the dated standard-tier price snapshot; the provider invoice remains authoritative and cache-write premiums are not separately identifiable from the response usage fields."
   ],
   "reviewer": "codex-agent"
