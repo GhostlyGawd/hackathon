@@ -235,7 +235,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | AGR-01 | P0 | AUT-01, FND-03 | Immutable agreement intake | NOT STARTED |
 | AGR-02 | P0 | AGR-01, FND-02 | GPT-5.6 structured proposals | NOT STARTED |
 | AGR-03 | P0 + P1 follow-on | AGR-01, AGR-02, AUT-01 | Human review and requirement versions | NOT STARTED |
-| JRN-01 | P0 | AUT-01, AUT-04 | Fictional personas and canaries | NOT STARTED |
+| JRN-01 | P0 | AUT-01, AUT-04 | Fictional personas and canaries | IN PROGRESS |
 | JRN-02 | P0 | AGR-03, JRN-01 | Named journey editor | NOT STARTED |
 | FIX-01 | P0 | FND-01, FND-03 | Controlled classroom fixture | NOT STARTED |
 | JRN-03 | P0 | JRN-02, FIX-01 | Deterministic replay baseline | NOT STARTED |

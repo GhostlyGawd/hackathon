@@ -2,10 +2,12 @@ import { randomBytes, randomUUID } from "node:crypto";
 import {
   Aes256GcmSecretCipher,
   InMemorySecretIsolationRepository,
+  InMemorySyntheticDataRepository,
   InMemoryWorkspaceAuthorizationRepository,
   InMemorySoftwareInventoryRepository,
   InMemoryTestAuthorizationRepository,
   SecretIsolationService,
+  SyntheticDataService,
   SoftwareInventoryService,
   TestAuthorizationService,
   WorkspaceAuthorizationService,
@@ -61,6 +63,8 @@ export interface AccessRuntime {
   readonly testAuthorizationService: TestAuthorizationService;
   readonly secretIsolationRepository: InMemorySecretIsolationRepository;
   readonly secretIsolationService: SecretIsolationService;
+  readonly syntheticDataRepository: InMemorySyntheticDataRepository;
+  readonly syntheticDataService: SyntheticDataService;
 }
 
 export function isFixtureMode(): boolean {
@@ -160,6 +164,20 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     new Aes256GcmSecretCipher(randomBytes(32), "fixture-ephemeral-v1"),
     { idFactory, now },
   );
+  let syntheticToken = 0n;
+  const syntheticDataRepository = new InMemorySyntheticDataRepository(
+    repository,
+  );
+  const syntheticDataService = new SyntheticDataService(
+    syntheticDataRepository,
+    service,
+    {
+      idFactory,
+      now,
+      tokenFactory: () =>
+        (++syntheticToken).toString(16).padStart(32, "0"),
+    },
+  );
   return Object.freeze({
     repository,
     service,
@@ -169,6 +187,8 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     testAuthorizationService,
     secretIsolationRepository,
     secretIsolationService,
+    syntheticDataRepository,
+    syntheticDataService,
   });
 }
 

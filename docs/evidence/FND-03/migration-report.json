@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 4,
+  "migrationCount": 5,
   "totalTables": 24,
   "migrations": [
     {
@@ -78,6 +78,13 @@
         "secret_records",
         "secret_access_leases"
       ]
+    },
+    {
+      "version": "0005",
+      "name": "synthetic_personas_canaries",
+      "sha256": "28be4bf27863c25782f1794c88c2851cd3338326a14ecd73d5e7300dbb4d847b",
+      "tables": [],
+      "immutableTables": []
     }
   ]
 }

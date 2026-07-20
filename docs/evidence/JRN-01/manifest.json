@@ -1,0 +1,265 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "JRN-01",
+  "title": "Implement fictional personas and run-specific canaries",
+  "status": "IN_PROGRESS",
+  "prdSections": [6, 9, 16],
+  "functionalRequirements": ["FR-020", "FR-021"],
+  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "startedAt": "2026-07-20T00:18:00.000Z",
+  "artifactRoot": "artifacts/verification/JRN-01/",
+  "curatedEvidenceRoot": "docs/evidence/JRN-01/",
+  "environment": {
+    "os": "Windows local; GitHub Actions pending on Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing fictional-persona and canary module",
+      "command": "pnpm exec vitest run --project unit tests/unit/synthetic-data.test.ts --project property tests/property/synthetic-data.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 2700,
+      "expectedFailure": "Both suites failed to import the not-yet-implemented synthetic-data module and zero tests ran"
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined fictional-persona browser behavior",
+      "command": "PACTWIRE_BDD_TAGS=@JRN-01 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 36300,
+      "expectedFailure": "All twelve existing background steps passed while three JRN-01 scenarios and eighteen behavior steps were undefined"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing PostgreSQL repository and signed routes",
+      "command": "pnpm exec vitest run --project integration tests/integration/synthetic-data.test.ts apps/web/tests/integration/synthetic-data-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 3200,
+      "expectedFailure": "The integration suite could not import the repository and the route suite could not import the missing endpoints"
+    },
+    {
+      "phase": "RED",
+      "name": "Strict scanner exposed trusted-envelope projection",
+      "command": "pnpm exec vitest run --project unit tests/unit/synthetic-data.test.ts --project property tests/property/synthetic-data.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 8400,
+      "expectedFailure": "PROP-16 shrank to one email field because the service passed principal, workspace, and confirmation fields into the strict persona-data scanner"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Persona examples and seeded run-isolation property",
+      "command": "pnpm exec vitest run --project unit tests/unit/synthetic-data.test.ts --project property tests/property/synthetic-data.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 4100
+    },
+    {
+      "phase": "RED",
+      "name": "PostgreSQL audit contract required actor kind",
+      "command": "pnpm exec vitest run --project integration tests/integration/synthetic-data.test.ts",
+      "exitCode": 1,
+      "durationMs": 9400,
+      "expectedFailure": "Persona and blocked-scan audit inserts omitted the database's required actor_kind column"
+    },
+    {
+      "phase": "GREEN",
+      "name": "PostgreSQL confirmation, scan, source, uniqueness, and immutability proof",
+      "command": "pnpm exec vitest run --project integration tests/integration/synthetic-data.test.ts",
+      "exitCode": 0,
+      "durationMs": 10500
+    },
+    {
+      "phase": "RED",
+      "name": "Forged-role request exposed authorization ordering",
+      "command": "pnpm --filter @pactwire/core build && pnpm --filter @pactwire/web typecheck && pnpm exec vitest run --project integration apps/web/tests/integration/synthetic-data-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 12700,
+      "expectedFailure": "A reviewer received body-validation 400 before the signed server identity produced the expected audited permission denial"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Signed HTTP and PostgreSQL synthetic-data boundaries",
+      "command": "pnpm --filter @pactwire/core build && pnpm exec vitest run --project integration apps/web/tests/integration/synthetic-data-routes.test.ts tests/integration/synthetic-data.test.ts",
+      "exitCode": 0,
+      "durationMs": 11500
+    },
+    {
+      "phase": "GREEN",
+      "name": "Focused likely-real-data and run-canary browser journeys",
+      "command": "PACTWIRE_BDD_TAGS=@JRN-01 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 36700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Shared domain schema and migration reconciliation",
+      "command": "pnpm exec vitest run --project unit tests/unit/domain-schemas.test.ts tests/unit/domain-evidence.test.ts --project integration tests/integration/domain-migrations.test.ts",
+      "exitCode": 0,
+      "durationMs": 14300
+    },
+    {
+      "phase": "RED",
+      "name": "Expanded dashboard audit volume hid a prior denial",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 314000,
+      "expectedFailure": "All 127 non-browser tests passed, but the original AUT-01 denial journey timed out because routine read audits pushed the persisted denial outside the eight-event UI window"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Focused authority regression with retained denial visibility",
+      "command": "PACTWIRE_BDD_TAGS=@AUT-01 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 31100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete repository verification matrix",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 269100
+    },
+    {
+      "phase": "RED",
+      "name": "Forged request envelope overrode signed route identity",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/synthetic-data-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 3100,
+      "expectedFailure": "A signed reviewer received 201 by placing a privacy-officer principal in the JSON body because the route spread untrusted fields after its trusted envelope"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Signed identity and URL scope override every JSON claim",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/synthetic-data-routes.test.ts",
+      "exitCode": 0,
+      "durationMs": 3100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Post-security-fix complete repository verification matrix",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 219800
+    }
+  ],
+  "testSummary": {
+    "files": 33,
+    "passed": 127,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-16-run-persona-field-unique-and-non-deliverable",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "synthetic-personas.feature",
+        "scenario": "Likely real student data is blocked before it can be saved",
+        "passed": true
+      },
+      {
+        "feature": "synthetic-personas.feature",
+        "scenario": "Fictional teacher and student fields receive traceable run canaries",
+        "passed": true
+      },
+      {
+        "feature": "synthetic-personas.feature",
+        "scenario": "A different run cannot observe or reuse prior canaries",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": false,
+    "rationale": "Production screenshots will be captured and source-bound after the implementation commit exists.",
+    "assets": []
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/synthetic-data.test.ts",
+      "description": "Likely-real scan, reserved address, confirmation, generation, source mapping, and replay examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/synthetic-data.property.test.ts",
+      "description": "Seeded PROP-16 field-set, run-pair, and cross-workspace uniqueness, mapping, replay, and non-deliverable address proof"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/synthetic-data.test.ts",
+      "description": "PostgreSQL confirmation, scanner, audit minimization, foreign-key, global uniqueness, and immutability proof"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/synthetic-data-routes.test.ts",
+      "description": "Signed operator, bounded rejection, no-echo, idempotent generation, forged role, and cross-workspace HTTP proof"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/synthetic-personas.feature",
+      "description": "Blocked likely-real input, fictional teacher/student mapping, and cross-run isolation journeys"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/workspace-access.steps.mjs",
+      "description": "Playwright server-response assertions, raw-value absence, source mapping, run isolation, and visual capture"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/synthetic-data.ts",
+      "description": "Bounded scanner, source-complete generator, permissioned service, in-memory and PostgreSQL repositories"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0005_synthetic_personas_canaries.sql",
+      "description": "Human confirmation, clear scan, persona foreign key, one-source mapping, global non-reuse, and generated-value constraints"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/synthetic-data-panel.tsx",
+      "description": "Direct-language warning, blocked-input clearing, fictional confirmation, field selection, and prepared-run mappings"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/api/workspaces/[workspaceId]/personas/route.ts",
+      "description": "Signed persona create/list boundary with server-side rescanning"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/api/workspaces/[workspaceId]/runs/[runId]/canaries/route.ts",
+      "description": "Signed run-specific generation and isolation boundary"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/JRN-01/README.md",
+      "description": "Curated JRN-01 red/green record, bounded scanner claim, and explicit limitations"
+    }
+  ],
+  "sanitization": {
+    "reviewed": false,
+    "reviewedAt": "2026-07-20T00:44:00.000Z",
+    "findings": [
+      "Final production visual sanitization review is pending source-bound capture."
+    ]
+  },
+  "knownLimitations": [
+    "The bounded scanner reduces obvious mistakes but cannot prove that an arbitrary value is fictional; production use still requires a synthetic tenant and manual privacy review.",
+    "The controlled browser fixture uses prepared in-memory run identifiers while PostgreSQL enforces real run and persona foreign keys.",
+    "Deterministic canary matching is owned by DET-02; JRN-01 generates and isolates the source values only.",
+    "Reserved .invalid addresses cannot receive mail, but Pactwire does not inspect external production account directories."
+  ],
+  "reviewer": "codex-agent"
+}

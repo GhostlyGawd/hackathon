@@ -568,21 +568,57 @@ export const destinationRecordSchema = z
     }
   });
 
+export const fictionalConfirmationSchema = z
+  .object({
+    statementVersion: z.literal("fictional-only-v1"),
+    confirmedAt: timestamp,
+    confirmedBy: humanActorSchema,
+  })
+  .strict();
+
+export const clearPersonaScanResultSchema = z
+  .object({
+    scannerVersion: z.literal("likely-real-v1"),
+    outcome: z.literal("CLEAR"),
+    findings: z.array(z.never()).max(0),
+  })
+  .strict();
+
+const personaFieldKey = z
+  .string()
+  .trim()
+  .regex(/^[a-z][A-Za-z0-9]{0,63}$/u);
+const personaFieldValue = z.string().trim().min(1).max(240);
+
 export const personaSchema = z
   .object({
     id: uuid,
     workspaceId: uuid,
     role: z.enum(["TEACHER", "STUDENT"]),
     fictional: z.literal(true),
-    displayName: nonEmpty,
-    email: z.string().email().refine((value) => value.endsWith(".invalid"), {
-      message: "Synthetic persona email must use the reserved .invalid domain",
+    displayName: nonEmpty.refine((value) => /fictional/iu.test(value), {
+      message: "Synthetic persona names must be visibly marked fictional",
     }),
-    fields: z.record(z.string(), z.string()),
+    email: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .email()
+      .refine((value) => value.endsWith(".invalid"), {
+        message: "Synthetic persona email must use the reserved .invalid domain",
+      }),
+    fields: z
+      .record(personaFieldKey, personaFieldValue)
+      .refine((value) => Object.keys(value).length <= 12, {
+        message: "Synthetic personas support at most twelve custom fields",
+      }),
+    fictionalConfirmation: fictionalConfirmationSchema,
+    scanResult: clearPersonaScanResultSchema,
     createdAt: timestamp,
     createdBy: humanActorSchema,
   })
   .strict();
+export type Persona = z.infer<typeof personaSchema>;
 
 const checkpointSchema = z
   .object({
@@ -871,11 +907,26 @@ export const canarySchema = z
     id: uuid,
     workspaceId: uuid,
     runId: uuid,
+    personaId: uuid,
     sourceField: nonEmpty,
     value: nonEmpty,
     generatedAt: timestamp,
   })
-  .strict();
+  .strict()
+  .superRefine((candidate, context) => {
+    const valid =
+      candidate.sourceField === "email"
+        ? /^pw-[a-f0-9]{32}@canary\.pactwire\.invalid$/u.test(candidate.value)
+        : /^PACTWIRE-FICTIONAL-[A-F0-9]{32}$/u.test(candidate.value);
+    if (!valid) {
+      context.addIssue({
+        code: "custom",
+        path: ["value"],
+        message: "Canary value does not match its generated source-field format",
+      });
+    }
+  });
+export type Canary = z.infer<typeof canarySchema>;
 
 export const observationSchema = z
   .object({

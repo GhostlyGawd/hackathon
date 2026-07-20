@@ -33,6 +33,11 @@ const migrationFiles = [
     name: "secret_isolation",
     fileName: "0004_secret_isolation.sql",
   },
+  {
+    version: "0005",
+    name: "synthetic_personas_canaries",
+    fileName: "0005_synthetic_personas_canaries.sql",
+  },
 ] as const;
 
 export async function loadCoreMigrations(): Promise<readonly CoreMigration[]> {

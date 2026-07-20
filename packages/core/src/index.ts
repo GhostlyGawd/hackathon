@@ -9,5 +9,6 @@ export * from "./authorization.js";
 export * from "./inventory.js";
 export * from "./test-authorization.js";
 export * from "./secret-isolation.js";
+export * from "./synthetic-data.js";
 export * from "./evidence.js";
 export * from "./migrations.js";

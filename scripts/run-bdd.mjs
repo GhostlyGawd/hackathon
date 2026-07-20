@@ -18,6 +18,27 @@ await mkdir(
     repositoryRoot,
     "artifacts",
     "verification",
+    "JRN-01",
+    "reports",
+  ),
+  { recursive: true },
+);
+await mkdir(
+  path.join(
+    repositoryRoot,
+    "artifacts",
+    "verification",
+    "JRN-01",
+    "screenshots",
+  ),
+  { recursive: true },
+);
+
+await mkdir(
+  path.join(
+    repositoryRoot,
+    "artifacts",
+    "verification",
     "AUT-04",
     "reports",
   ),
