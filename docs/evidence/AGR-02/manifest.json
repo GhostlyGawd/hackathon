@@ -100,6 +100,29 @@
       "durationMs": 3100
     },
     {
+      "phase": "RED",
+      "name": "Missing encrypted-secret live workflow",
+      "command": "pnpm exec vitest run --project unit tests/unit/live-openai-workflow.test.ts",
+      "exitCode": 1,
+      "durationMs": 2100,
+      "expectedFailure": "The contract could not read the not-yet-created live-openai workflow"
+    },
+    {
+      "phase": "RED",
+      "name": "Live workflow could not run before merge",
+      "command": "pnpm exec vitest run --project unit tests/unit/live-openai-workflow.test.ts",
+      "exitCode": 1,
+      "durationMs": 2000,
+      "expectedFailure": "The manual trigger alone could not execute a workflow absent from the default branch, so the contract required one isolated pre-merge trigger branch"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Encrypted-secret isolated live workflow contract",
+      "command": "pnpm exec vitest run --project unit tests/unit/live-openai-workflow.test.ts",
+      "exitCode": 0,
+      "durationMs": 2000
+    },
+    {
       "phase": "GREEN",
       "name": "Successful proposal and refusal browser stories",
       "command": "PACTWIRE_BDD_TAGS=@AGR-02 pnpm test:bdd",
@@ -150,8 +173,8 @@
     }
   ],
   "testSummary": {
-    "files": 7,
-    "passed": 29,
+    "files": 8,
+    "passed": 30,
     "failed": 1,
     "skipped": 0,
     "retries": 0
@@ -253,6 +276,11 @@
     },
     {
       "kind": "test",
+      "path": "tests/unit/live-openai-workflow.test.ts",
+      "description": "Encrypted-secret, isolated-trigger, least-privilege, and sanitized-artifact workflow contract"
+    },
+    {
+      "kind": "test",
       "path": "tests/live-openai/requirement-proposals.live.test.ts",
       "description": "Required opt-in real GPT-5.6 Sol fictional PDF structured-output and exact-citation contract"
     },
@@ -277,6 +305,11 @@
       "description": "Direct-language proposal, authority-boundary, exact-source, cost, and safe-failure interface"
     },
     {
+      "kind": "config",
+      "path": ".github/workflows/live-openai.yml",
+      "description": "Opt-in encrypted-secret live contract restricted to the dedicated pre-merge trigger branch or later manual dispatch"
+    },
+    {
       "kind": "evidence",
       "path": "docs/evidence/AGR-02/README.md",
       "description": "In-progress red/green record, OpenAI contract choices, and explicit live gate"
@@ -288,7 +321,7 @@
     "findings": []
   },
   "knownLimitations": [
-    "OPENAI_API_KEY is absent, so the required live GPT-5.6 Sol contract has not run and AGR-02 remains IN_PROGRESS.",
+    "OPENAI_API_KEY is absent locally and no encrypted repository secret exists, so the required live GPT-5.6 Sol contract has not run and AGR-02 remains IN_PROGRESS.",
     "The browser proof uses the explicitly labelled deterministic fixture adapter; it is not evidence of GPT-5.6 proposal quality.",
     "Displayed cost is an estimate from reported tokens and the dated standard-tier price snapshot; the provider invoice remains authoritative and cache-write premiums are not separately identifiable from the response usage fields."
   ],

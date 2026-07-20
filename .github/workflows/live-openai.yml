@@ -1,0 +1,47 @@
+name: Live OpenAI contract
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - live/agr-02-contract
+
+permissions:
+  contents: read
+
+jobs:
+  agr-02-live-contract:
+    name: AGR-02 fictional PDF on GPT-5.6 Sol
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CI: "true"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Configure Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run required live contract
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: pnpm test:live-openai
+
+      - name: Upload sanitized contract manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: agr-02-live-openai-${{ github.run_id }}
+          path: artifacts/verification/AGR-02/live-openai-contract.json
+          if-no-files-found: error
+          retention-days: 14

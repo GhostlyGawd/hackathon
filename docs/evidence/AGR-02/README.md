@@ -17,14 +17,15 @@ Refusal, incomplete response, invalid JSON or schema, unrelated input, returned-
 - Service integration covers successful non-executable drafts, one bounded retry with aggregate cost, refusal with no retry, reviewer read-only access, PostgreSQL storage, and immutability.
 - Signed HTTP integration covers generation, listing, visible refusal, and permission enforcement.
 - Runtime selection tests prove that the web path is deterministic by default, requires explicit live mode plus a key, and rejects unknown modes.
+- A least-privilege GitHub Actions workflow can read an encrypted `OPENAI_API_KEY` only on the deliberately created `live/agr-02-contract` branch (or through manual dispatch after merge) and uploads only the sanitized live manifest.
 - Browser BDD covers a complete exact-citation draft and a safe refusal recovery. The UI labels its deterministic CI adapter as “not a live GPT-5.6 result.”
 - Optimized-production desktop success and narrow refusal captures were made from source commit `3ba9250afaeeed2a33dddadbb00d6f8e13cd95b8` and reviewed for fictional-only data. Their SHA-256 values are `64cdd2ffc893769d845b7d3c47301762ad37f92d5617bb24264e4c0ba8071090` and `2f858db63416d6befaf357f08fecffd41f58b970962dec9719f1da0a35390a81`.
 - GitHub Actions run `29719987114` passed the complete clean-checkout matrix on Ubuntu and Windows, and `pnpm audit --prod` reported no known production dependency vulnerabilities.
 
 ## Remaining completion gates
 
-1. Provide `OPENAI_API_KEY` to the local process without committing or printing it.
-2. Run `pnpm test:live-openai` and require the controlled fictional PDF to return at least one exact cited proposal from GPT-5.6 Sol.
+1. Add the key through GitHub's encrypted prompt with `gh secret set OPENAI_API_KEY`; do not paste it into chat, a file, or a command argument.
+2. Push the reviewed PR head to the isolated `live/agr-02-contract` trigger branch and require the controlled fictional PDF to return at least one exact cited proposal from GPT-5.6 Sol.
 3. Review the sanitized live manifest and rerun the complete PR checks at the resulting evidence head.
 
 Until those gates pass, the deterministic adapter proves contract handling and product recovery behavior only. It does not validate GPT-5.6 extraction effectiveness.

@@ -63,3 +63,8 @@ API path, explicitly set `PACTWIRE_REQUIREMENT_PROPOSAL_ADAPTER=openai` and
 provide `OPENAI_API_KEY` through the process environment or a secret manager.
 The live contract can then be run separately with `pnpm test:live-openai`.
 Never commit or expose the key.
+
+For a pre-merge live run, store the key with GitHub's encrypted prompt using
+`gh secret set OPENAI_API_KEY`, then deliberately push the reviewed commit to
+the isolated `live/agr-02-contract` branch. Ordinary PR and `main` pushes never
+run this billable contract.
