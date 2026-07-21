@@ -123,7 +123,7 @@ describe("evidence harness integration", () => {
         sections: 26,
         tasks: 35,
         manifests: 17,
-        proofFiles: 171,
+        proofFiles: 172,
       }),
     );
   });

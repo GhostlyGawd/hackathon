@@ -1,0 +1,156 @@
+{
+  "schemaVersion": "1.0.0",
+  "recorderVersion": "pactwire-browser-cdp-recorder-v1",
+  "captureMode": "BROWSER_CDP",
+  "workspaceId": "11111111-1111-4111-8111-111111111111",
+  "runId": "15151515-1515-4151-8151-151515151515",
+  "startedAt": "2026-07-21T09:44:01.479Z",
+  "stoppedAt": "2026-07-21T09:44:01.891Z",
+  "actions": [
+    {
+      "sequence": 0,
+      "actionId": "deterministic-replay-0001",
+      "actor": "DETERMINISTIC",
+      "kind": "NAVIGATE",
+      "summary": "DRIFTED: NAVIGATE open-student-workspace",
+      "pageUrl": "http://classroom.pactwire.test:55167/student",
+      "occurredAt": "2026-07-21T09:44:01.531Z"
+    }
+  ],
+  "screenshots": [
+    {
+      "sequence": 0,
+      "checkpointId": "jrn-03-drift",
+      "artifactName": "screenshot-0000-jrn-03-drift.png",
+      "sha256": "62d31c0e89a7e647ddb71522c692cdcd9816f5ca8c71de31261a7b391d5bd02c",
+      "pageUrl": "http://classroom.pactwire.test:55167/student",
+      "capturedAt": "2026-07-21T09:44:01.844Z",
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      }
+    }
+  ],
+  "observations": [
+    {
+      "id": "66c03c4c-5fe2-51c6-b6a9-d57ebe8923e5",
+      "workspaceId": "11111111-1111-4111-8111-111111111111",
+      "runId": "15151515-1515-4151-8151-151515151515",
+      "source": "RECORDER",
+      "recorderVersion": "pactwire-browser-cdp-recorder-v1",
+      "sequence": 0,
+      "observedAt": "2026-07-21T09:44:01.482Z",
+      "payloadHash": "967d44ec47211ec34b9f4f2e5606ec9b5b208b1e7fc171fca59f213d9d1c5d0c",
+      "facts": {
+        "captureMode": "BROWSER_CDP",
+        "kind": "RECORDER_STARTED",
+        "recorderVersion": "pactwire-browser-cdp-recorder-v1"
+      }
+    },
+    {
+      "id": "8fde315e-75b5-5f18-84c2-42436e67e2f3",
+      "workspaceId": "11111111-1111-4111-8111-111111111111",
+      "runId": "15151515-1515-4151-8151-151515151515",
+      "source": "NETWORK",
+      "recorderVersion": "pactwire-browser-cdp-recorder-v1",
+      "sequence": 1,
+      "observedAt": "2026-07-21T09:44:01.505Z",
+      "payloadHash": "e84b7c277af3983012d38b68bf62e533b54c5976330f7a3b45e713e3fee689ce",
+      "facts": {
+        "checkpointIds": [],
+        "kind": "NETWORK_REQUEST",
+        "loadingState": "COMPLETED",
+        "request": {
+          "authorizedFieldCapture": "CAPTURED",
+          "authorizedFields": [],
+          "host": "classroom.pactwire.test",
+          "initiator": {
+            "type": "other"
+          },
+          "method": "GET",
+          "path": "/student",
+          "resourceType": "Document",
+          "url": "http://classroom.pactwire.test:55167/student",
+          "urlSha256": "b6aa4a03bcfb7e4ce02509b50fec54941dafd8b0df64364fa9c5bbf6f9e2a289"
+        },
+        "requestOrdinal": 1,
+        "response": {
+          "encodedDataLength": 8087,
+          "fromDiskCache": false,
+          "fromServiceWorker": false,
+          "mimeType": "text/html",
+          "protocol": "http/1.1",
+          "status": 410
+        }
+      }
+    },
+    {
+      "id": "5a801ecd-e1a9-50c8-a379-96ac8f57bc55",
+      "workspaceId": "11111111-1111-4111-8111-111111111111",
+      "runId": "15151515-1515-4151-8151-151515151515",
+      "source": "BROWSER",
+      "recorderVersion": "pactwire-browser-cdp-recorder-v1",
+      "sequence": 2,
+      "observedAt": "2026-07-21T09:44:01.516Z",
+      "payloadHash": "cd7c4a7bd4dca214f18689cc1d2495168b2746d45bdc027442142baa40966b9c",
+      "facts": {
+        "frame": "MAIN",
+        "kind": "NAVIGATION",
+        "pageUrl": "http://classroom.pactwire.test:55167/student"
+      }
+    },
+    {
+      "id": "dac17541-58a0-5287-932d-88262c4859ed",
+      "workspaceId": "11111111-1111-4111-8111-111111111111",
+      "runId": "15151515-1515-4151-8151-151515151515",
+      "source": "BROWSER",
+      "recorderVersion": "pactwire-browser-cdp-recorder-v1",
+      "sequence": 3,
+      "observedAt": "2026-07-21T09:44:01.844Z",
+      "payloadHash": "77a3d646b5a52f11f5f4c1c6ae604bfa1e04a0bd5a79db1a8451cf9d660134d7",
+      "facts": {
+        "artifactName": "screenshot-0000-jrn-03-drift.png",
+        "checkpointId": "jrn-03-drift",
+        "kind": "SCREENSHOT",
+        "pageUrl": "http://classroom.pactwire.test:55167/student",
+        "sha256": "62d31c0e89a7e647ddb71522c692cdcd9816f5ca8c71de31261a7b391d5bd02c",
+        "viewport": {
+          "height": 1100,
+          "width": 1440
+        }
+      }
+    },
+    {
+      "id": "f99a6ab4-f74e-5039-afe1-fb136b0136d2",
+      "workspaceId": "11111111-1111-4111-8111-111111111111",
+      "runId": "15151515-1515-4151-8151-151515151515",
+      "source": "RECORDER",
+      "recorderVersion": "pactwire-browser-cdp-recorder-v1",
+      "sequence": 4,
+      "observedAt": "2026-07-21T09:44:01.888Z",
+      "payloadHash": "36b3400dece23c8658d1f078cbb64e8af1fe3afefd6a0513f18966f9a7c5c574",
+      "facts": {
+        "kind": "RECORDER_STOPPED",
+        "recorderVersion": "pactwire-browser-cdp-recorder-v1"
+      }
+    }
+  ],
+  "visibility": {
+    "state": "NOT_TESTED",
+    "allRequiredVisible": false,
+    "checkpoints": [
+      {
+        "checkpointId": "student-submission-request",
+        "required": true,
+        "exercised": false,
+        "visible": false,
+        "observationIds": [],
+        "gapReasons": []
+      }
+    ]
+  },
+  "limitations": [
+    "BROWSER_CDP records browser-visible facts only; encrypted payload semantics and traffic outside the instrumented browser remain outside P0 visibility.",
+    "FR-038 proxy capture is deferred and no proxy evidence is represented by this BROWSER_CDP report."
+  ]
+}
