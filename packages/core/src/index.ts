@@ -17,3 +17,4 @@ export * from "./journey-authoring.js";
 export * from "./deterministic-replay.js";
 export * from "./evidence.js";
 export * from "./migrations.js";
+export * from "./canary-matcher.js";

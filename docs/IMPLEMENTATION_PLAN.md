@@ -248,7 +248,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | RUN-04 | P0 | RUN-03, JRN-02, JRN-03 | Model-assisted journey repair | NOT STARTED |
 | RUN-05 | P0 | FND-03, RUN-01, RUN-02 | Run orchestration and manifests | NOT STARTED |
 | DET-01 | P0 | AGR-03, RUN-02 | Human-confirmed destination registry | NOT STARTED |
-| DET-02 | P0 | JRN-01, RUN-02 | Deterministic canary matcher | NOT STARTED |
+| DET-02 | P0 | JRN-01, RUN-02 | Deterministic canary matcher | IN PROGRESS |
 | DET-03 | P0 | AGR-03, DET-01, DET-02, RUN-05 | Bounded finding evaluator | NOT STARTED |
 | DET-04 | P0 | DET-03, AGR-01, RUN-05 | Verifiable evidence receipts | NOT STARTED |
 | DET-05 | P0 + P1 follow-on | AUT-02, DET-03, DET-04 | Hold, human restore, and approval audit | NOT STARTED |
