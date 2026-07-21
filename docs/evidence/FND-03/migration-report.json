@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 7,
+  "migrationCount": 8,
   "totalTables": 25,
   "migrations": [
     {
@@ -103,6 +103,13 @@
       "immutableTables": [
         "requirement_proposal_runs"
       ]
+    },
+    {
+      "version": "0008",
+      "name": "requirement_review",
+      "sha256": "230f851ea71094b5a2c1eebb640703fdea20ff7cdcbe9221635ab6af878372ae",
+      "tables": [],
+      "immutableTables": []
     }
   ]
 }

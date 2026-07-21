@@ -234,7 +234,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | AUT-04 | P0 | AUT-03 | Secret isolation and redaction | COMPLETE |
 | AGR-01 | P0 | AUT-01, FND-03 | Immutable agreement intake | COMPLETE |
 | AGR-02 | P0 | AGR-01, FND-02 | GPT-5.6 structured proposals | COMPLETE |
-| AGR-03 | P0 + P1 follow-on | AGR-01, AGR-02, AUT-01 | Human review and requirement versions | NOT STARTED |
+| AGR-03 | P0 + P1 follow-on | AGR-01, AGR-02, AUT-01 | Human review and requirement versions | COMPLETE (P0) |
 | JRN-01 | P0 | AUT-01, AUT-04 | Fictional personas and canaries | COMPLETE |
 | JRN-02 | P0 | AGR-03, JRN-01 | Named journey editor | NOT STARTED |
 | FIX-01 | P0 | FND-01, FND-03 | Controlled classroom fixture | NOT STARTED |
@@ -413,6 +413,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### AGR-03 — Implement human requirement review, ambiguity, versioning, and comparison
 
+- **Status:** COMPLETE (P0) — source-bound human confirmation, ambiguity, rejection, immutable versions, browser evidence, and clean-checkout Ubuntu/Windows CI pass at implementation commit `a1566dbd1fdf1da4a60c9f443b3219ce74d3158a`. FR-015 remains DEFERRED (P1) until the changed-span and affected-journey acceptance gate passes.
 - **Deliver:** side-by-side source review; confirm/edit/reject/ambiguous actions; executable flag; author/reason/time; immutable revisions. P1 adds changed-span comparison and affected-journey re-review.
 - **PRD:** FR-012, FR-013, FR-014, and FR-015; Sections 12.3 and 15.
 - **Depends on:** AGR-01, AGR-02, and AUT-01.

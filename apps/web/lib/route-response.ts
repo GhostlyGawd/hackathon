@@ -12,6 +12,8 @@ import {
   PolicyDeniedError,
   PermissionDeniedError,
   RawSecretAccessDeniedError,
+  RequirementReviewConflictError,
+  RequirementVersionUnavailableError,
   SecretUnavailableError,
   UnsupportedAgreementTypeError,
   WorkspaceUnavailableError,
@@ -26,6 +28,21 @@ export function authorizationErrorResponse(error: unknown): NextResponse {
     error instanceof AgreementTooLargeError ||
     error instanceof AgreementUnavailableError ||
     error instanceof UnsupportedAgreementTypeError
+  ) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: error.publicMessage,
+          auditRecorded: false,
+        },
+      },
+      { status: error.status },
+    );
+  }
+  if (
+    error instanceof RequirementReviewConflictError ||
+    error instanceof RequirementVersionUnavailableError
   ) {
     return NextResponse.json(
       {
