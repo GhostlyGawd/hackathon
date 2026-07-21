@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import {
   applyRunEvent,
   confirmedRequirementSchema,
@@ -26,6 +27,9 @@ export const findingFixtureIds = Object.freeze({
   destinationVersion: "14141414-1414-4414-8414-141414141414",
   priorFinding: "15151515-1515-4515-8515-151515151515",
 });
+
+export const findingAgreementQuote =
+  "Student email is restricted to authorized service providers.";
 
 const observedAt = "2026-07-21T17:00:30.000Z";
 const running = runSchema.parse(
@@ -86,8 +90,8 @@ export const confirmedFindingRequirement = confirmedRequirementSchema.parse({
   details: {
     plainLanguage:
       "Student email must not be sent to a destination prohibited by the confirmed agreement.",
-    sourceText: "Student email is restricted to authorized service providers.",
-    pageNumber: 4,
+    sourceText: findingAgreementQuote,
+    pageNumber: 1,
     section: "Student data recipients",
     dataField: "email",
     action: "send",
@@ -99,10 +103,12 @@ export const confirmedFindingRequirement = confirmedRequirementSchema.parse({
       "Submit the fictional student form and inspect recorded request fields and destinations.",
   },
   citation: {
-    page: 4,
+    page: 1,
     startOffset: 120,
-    endOffset: 182,
-    quotedTextSha256: "c".repeat(64),
+    endOffset: 120 + findingAgreementQuote.length,
+    quotedTextSha256: createHash("sha256")
+      .update(findingAgreementQuote)
+      .digest("hex"),
   },
   predicate: {
     kind: "OBSERVABLE_DATA_FLOW",

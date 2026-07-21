@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { EvidenceReceiptPanel } from "./evidence-receipt-panel";
 
 type FindingState =
   | "WITNESSED_CONFLICT"
@@ -467,6 +468,11 @@ export function FindingEvaluationPanel({
               </section>
             </article>
           </div>
+
+          <EvidenceReceiptPanel
+            findingId={selected.finding.id}
+            workspaceId={workspaceId}
+          />
 
           <details className="finding-decision-table">
             <summary>View the deterministic decision order</summary>

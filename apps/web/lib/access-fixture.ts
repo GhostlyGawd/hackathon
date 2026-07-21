@@ -1,4 +1,5 @@
-import { randomBytes, randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import {
   Aes256GcmSecretCipher,
   AgreementIntakeService,
@@ -9,6 +10,8 @@ import {
   InMemoryAgreementObjectStore,
   InMemoryDestinationRegistryRepository,
   InMemoryFindingEvaluationRepository,
+  InMemoryEvidenceObjectStore,
+  InMemoryEvidenceReceiptRepository,
   InMemoryJourneyAuthoringRepository,
   InMemoryRunOrchestrationRepository,
   InMemoryRequirementProposalRepository,
@@ -18,7 +21,9 @@ import {
   InMemoryWorkspaceAuthorizationRepository,
   JourneyAuthoringService,
   confirmedRequirementSchema,
+  agreementVersionSchema,
   evaluateBoundedFinding,
+  createEvidenceReceiptBundle,
   matchCanaryObservation,
   InMemorySoftwareInventoryRepository,
   InMemoryTestAuthorizationRepository,
@@ -27,6 +32,7 @@ import {
   RequirementProposalService,
   RequirementReviewService,
   RunOrchestrationService,
+  EvidenceReceiptService,
   SyntheticDataService,
   SoftwareInventoryService,
   TestAuthorizationService,
@@ -102,6 +108,8 @@ export interface AccessRuntime {
   readonly runOrchestrationRepository: InMemoryRunOrchestrationRepository;
   readonly runOrchestrationService: RunOrchestrationService;
   readonly findingEvaluationRepository: InMemoryFindingEvaluationRepository;
+  readonly evidenceReceiptRepository: InMemoryEvidenceReceiptRepository;
+  readonly evidenceReceiptService: EvidenceReceiptService;
 }
 
 export function isFixtureMode(): boolean {
@@ -361,6 +369,8 @@ const fixtureFindingIds = Object.freeze({
 
 const fixtureFindingRequirementId =
   "72727272-7272-4272-8272-727272727272";
+const fixtureAgreementQuote =
+  "Student email is restricted to agreement-authorized service providers.";
 
 function requiredManifest(
   history: readonly RunHistoryEntry[],
@@ -389,9 +399,8 @@ function fixtureRequirement(manifest: RunManifest) {
     details: {
       plainLanguage:
         "Student email must not be sent to a destination prohibited by the confirmed agreement.",
-      sourceText:
-        "Student email is restricted to agreement-authorized service providers.",
-      pageNumber: 4,
+      sourceText: fixtureAgreementQuote,
+      pageNumber: 1,
       section: "Student data recipients",
       dataField: "email",
       action: "send",
@@ -403,10 +412,12 @@ function fixtureRequirement(manifest: RunManifest) {
         "Submit the fictional student form and inspect recorded request destinations.",
     },
     citation: {
-      page: 4,
+      page: 1,
       startOffset: 120,
-      endOffset: 182,
-      quotedTextSha256: "c".repeat(64),
+      endOffset: 120 + fixtureAgreementQuote.length,
+      quotedTextSha256: createHash("sha256")
+        .update(fixtureAgreementQuote)
+        .digest("hex"),
     },
     predicate: {
       kind: "OBSERVABLE_DATA_FLOW",
@@ -432,6 +443,41 @@ function fixtureRequirement(manifest: RunManifest) {
       },
     ],
     createdAt: "2026-07-22T13:45:00.000Z",
+  });
+}
+
+function fixtureReceiptAgreementVersion(manifest: RunManifest) {
+  const normalizedText = `${"Controlled fictional agreement. ".padEnd(120, " ")}${fixtureAgreementQuote}`;
+  const sourceSha256 = createHash("sha256")
+    .update(normalizedText, "utf8")
+    .digest("hex");
+  return agreementVersionSchema.parse({
+    id: manifest.snapshot.agreementVersionId,
+    workspaceId: manifest.workspaceId,
+    softwareId: manifest.softwareId,
+    version: 1,
+    sourceObjectKey: `agreements/sha256/${sourceSha256}.txt`,
+    sourceSha256,
+    sourceMimeType: "text/plain",
+    sourceFileName: "Controlled Fictional Agreement.txt",
+    sourceByteLength: Buffer.byteLength(normalizedText, "utf8"),
+    normalizedText,
+    pageMap: [
+      {
+        pageNumber: 1,
+        startOffset: 0,
+        endOffset: normalizedText.length,
+        text: normalizedText,
+        textSha256: createHash("sha256")
+          .update(normalizedText, "utf8")
+          .digest("hex"),
+      },
+    ],
+    createdAt: "2026-07-22T13:30:00.000Z",
+    createdBy: {
+      kind: "HUMAN",
+      actorId: fixtureUsers.officer.userId,
+    },
   });
 }
 
@@ -639,6 +685,111 @@ async function seedFindingEvaluations(
   }
 }
 
+async function seedEvidenceReceipts(
+  runRepository: InMemoryRunOrchestrationRepository,
+  findingRepository: InMemoryFindingEvaluationRepository,
+  receiptService: EvidenceReceiptService,
+): Promise<void> {
+  const finding = await findingRepository.get(
+    fixtureWorkspaceIds.cedarRidge,
+    fixtureFindingIds.conflict,
+  );
+  if (!finding) throw new Error("Receipt fixture is missing its conflict finding");
+  const history = await runRepository.listHistory(
+    fixtureWorkspaceIds.cedarRidge,
+    fixtureRunHistorySoftwareId,
+  );
+  const manifest = history.find(
+    ({ run }) => run.id === finding.finding.runId,
+  )?.manifest;
+  if (!manifest) throw new Error("Receipt fixture is missing its exact run manifest");
+  const screenshot = await readFile(
+    new URL("../../../docs/evidence/FIX-01/fixture-regression-desktop.png", import.meta.url),
+  );
+  const match = fixtureMatcherOutcome(manifest, "MATCHED");
+  const destination = fixtureDestination(manifest, "PROHIBITED");
+  const bundle = createEvidenceReceiptBundle({
+    receiptId: "79797979-7979-4979-8979-797979797979",
+    findingEvaluation: finding,
+    runManifest: manifest,
+    requirement: fixtureRequirement(manifest),
+    agreementVersion: fixtureReceiptAgreementVersion(manifest),
+    artifacts: [
+      {
+        kind: "OBSERVED_EVENT",
+        path: "observations/submission-request.json",
+        mediaType: "application/json",
+        content: {
+          eventType: "NETWORK_REQUEST",
+          method: "POST",
+          hostname: "fixture-analytics.pactwire.test",
+          path: "/collect",
+          recordedFields: ["email"],
+          observationId: match.observationId,
+          payloadSha256: manifest.observationHashes[0]?.payloadHash,
+        },
+      },
+      {
+        kind: "CANARY_MATCH",
+        path: "matches/email-canary.json",
+        mediaType: "application/json",
+        content: {
+          status: match.status,
+          observationId: match.observationId,
+          canaryId: match.status === "MATCHED" ? match.canaryId : undefined,
+          sourceField:
+            match.status === "MATCHED" ? match.canarySourceField : "email",
+          matchKind: match.status === "MATCHED" ? match.transform : "EXACT",
+          matchedValueSha256: "6".repeat(64),
+        },
+      },
+      {
+        kind: "DESTINATION_RECORD",
+        path: "destinations/fixture-analytics-v1.json",
+        mediaType: "application/json",
+        content: destination,
+      },
+      {
+        kind: "SCREENSHOT",
+        path: "screenshots/fixture-regression-desktop.png",
+        mediaType: "image/png",
+        content: new Uint8Array(screenshot),
+      },
+      {
+        kind: "ACTION_TRACE",
+        path: "actions/fictional-submission.json",
+        mediaType: "application/json",
+        content: {
+          actions: [
+            {
+              sequence: 1,
+              action: "NAVIGATE",
+              target: "https://classroom.pactwire.test",
+              result: "COMPLETED",
+            },
+            {
+              sequence: 2,
+              action: "SUBMIT",
+              target: "fictional student submission",
+              result: "COMPLETED",
+            },
+          ],
+        },
+      },
+    ],
+    secretValues: [
+      "pw-0123456789abcdef0123456789abcdef@canary.pactwire.invalid",
+    ],
+    createdAt: "2026-07-22T14:05:00.000Z",
+    createdBy: {
+      kind: "AUTOMATION",
+      actorId: "pactwire-receipt-builder",
+      component: "pactwire-evidence-receipt-v1",
+    },
+  });
+  await receiptService.append(bundle);
+}
+
 async function createFixtureRuntime(): Promise<AccessRuntime> {
   if (!isFixtureMode()) {
     throw new Error("The local access fixture is disabled");
@@ -783,6 +934,16 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     runOrchestrationRepository,
     findingEvaluationRepository,
   );
+  const evidenceReceiptRepository = new InMemoryEvidenceReceiptRepository();
+  const evidenceReceiptService = new EvidenceReceiptService(
+    evidenceReceiptRepository,
+    new InMemoryEvidenceObjectStore(),
+  );
+  await seedEvidenceReceipts(
+    runOrchestrationRepository,
+    findingEvaluationRepository,
+    evidenceReceiptService,
+  );
   return Object.freeze({
     repository,
     service,
@@ -808,6 +969,8 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     runOrchestrationRepository,
     runOrchestrationService,
     findingEvaluationRepository,
+    evidenceReceiptRepository,
+    evidenceReceiptService,
   });
 }
 
