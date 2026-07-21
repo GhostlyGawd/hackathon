@@ -1,0 +1,232 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "RUN-02",
+  "title": "Implement deterministic recorder and visibility detection (P0)",
+  "status": "IN_PROGRESS",
+  "prdSections": [13, 17],
+  "functionalRequirements": ["FR-031", "FR-035"],
+  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "startedAt": "2026-07-21T02:48:00.000-04:00",
+  "artifactRoot": "artifacts/verification/RUN-02/",
+  "curatedEvidenceRoot": "docs/evidence/RUN-02/",
+  "environment": {
+    "os": "Windows local; clean-checkout GitHub Actions pending",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing deterministic-recorder module",
+      "command": "pnpm exec vitest run --project unit tests/unit/deterministic-recorder.test.ts --project property tests/property/deterministic-recorder.property.test.ts --project integration tests/integration/deterministic-recorder.test.ts",
+      "exitCode": 1,
+      "durationMs": 3000,
+      "expectedFailure": "All three focused suites failed to import the not-yet-created deterministic-recorder module"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Canonical recorder contracts and seeded visibility properties",
+      "command": "pnpm --filter @pactwire/runner typecheck && pnpm exec vitest run --project unit tests/unit/deterministic-recorder.test.ts --project property tests/property/deterministic-recorder.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 8900
+    },
+    {
+      "phase": "RED",
+      "name": "Real Chromium response-tail and service-worker edge cases",
+      "command": "pnpm exec vitest run --project integration tests/integration/deterministic-recorder.test.ts",
+      "exitCode": 1,
+      "durationMs": 6600,
+      "expectedFailure": "All three real-browser cases failed: Chromium's post-response 204 loading tail was misclassified as visibility loss, the forced-gap assertion inherited that false reason, and the blocked service-worker API was unavailable rather than returning a controller"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Real CDP browser, network, storage, screenshot, gap, service-worker, and opaque-body cases",
+      "command": "pnpm exec vitest run --project integration tests/integration/deterministic-recorder.test.ts",
+      "exitCode": 0,
+      "durationMs": 7100
+    },
+    {
+      "phase": "RED",
+      "name": "Root lint rejected unsafe matcher assignments in recorder integration proof",
+      "command": "pnpm lint",
+      "exitCode": 1,
+      "durationMs": 36100,
+      "expectedFailure": "ESLint reported four unsafe any assignments introduced by nested asymmetric test matchers"
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined deterministic-recorder browser stories",
+      "command": "PACTWIRE_BDD_TAGS=@RUN-02 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 35300,
+      "expectedFailure": "Both RUN-02 scenarios exposed twelve undefined recorder step instances before their isolated-browser bindings existed"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Independent baseline observation and known visibility-loss stories",
+      "command": "PACTWIRE_BDD_TAGS=@RUN-02 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 51000
+    },
+    {
+      "phase": "RED",
+      "name": "URL minimization, required-checkpoint, and optional-field regressions",
+      "command": "pnpm exec vitest run --project unit tests/unit/deterministic-recorder.test.ts --project integration tests/integration/deterministic-recorder.test.ts",
+      "exitCode": 1,
+      "durationMs": 7200,
+      "expectedFailure": "The config accepted no required checkpoint, URL values were not minimized, and a missing allowed-but-optional field incorrectly produced NOT_VISIBLE"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Minimized URLs and checkpoint-specific field/response visibility",
+      "command": "pnpm --filter @pactwire/runner typecheck && pnpm exec vitest run --project unit tests/unit/deterministic-recorder.test.ts --project integration tests/integration/deterministic-recorder.test.ts",
+      "exitCode": 0,
+      "durationMs": 12300
+    },
+    {
+      "phase": "RED",
+      "name": "Tampered observation facts retained a stale canonical hash",
+      "command": "pnpm exec vitest run --project unit tests/unit/deterministic-recorder.test.ts",
+      "exitCode": 1,
+      "durationMs": 3600,
+      "expectedFailure": "The report schema accepted changed observation facts while preserving the original payload hash"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Focused deterministic-recorder behavior matrix",
+      "command": "pnpm exec vitest run --project unit tests/unit/deterministic-recorder.test.ts --project property tests/property/deterministic-recorder.property.test.ts --project integration tests/integration/deterministic-recorder.test.ts",
+      "exitCode": 0,
+      "durationMs": 7700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Latest runner build, root lint, and executable recorder stories",
+      "command": "pnpm --filter @pactwire/runner build && pnpm lint && PACTWIRE_BDD_TAGS=@RUN-02 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 51000
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence traceability required the RUN-02 manifest",
+      "command": "pnpm evidence:check",
+      "exitCode": 1,
+      "durationMs": 2500,
+      "expectedFailure": "The evidence checker reported the new unit, property, and integration recorder proof files as orphans"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Evidence inventory and traceability reconciliation",
+      "command": "pnpm evidence:check && pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 0,
+      "durationMs": 5100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete optimized-production repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 303300
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency and credential-pattern audit",
+      "command": "pnpm audit --prod and workspace credential-pattern scan",
+      "exitCode": 0,
+      "durationMs": 3900
+    }
+  ],
+  "testSummary": {
+    "files": 65,
+    "passed": 259,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-22-canonical-event-order-and-hashing",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-05-required-capture-gap-prevents-clean-classification",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "baseline-observation.feature",
+        "scenario": "The independent recorder witnesses the required fictional submission request",
+        "passed": true
+      },
+      {
+        "feature": "visibility-loss.feature",
+        "scenario": "A known required recorder gap cannot become a clean result",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": false,
+    "rationale": "Source-bound optimized-production recorder reports, screenshots, and sanitized paired browser traces are pending the implementation source commit and clean-checkout CI.",
+    "assets": []
+  },
+  "proofs": [
+    {
+      "kind": "schema",
+      "path": "apps/runner/src/deterministic-recorder.ts",
+      "description": "Versioned browser-CDP recorder, canonical observations and hashes, minimized request-field summaries, response metadata, storage diffs, masked screenshots, capture gaps, and required visibility evaluation"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/deterministic-recorder.test.ts",
+      "description": "Strict P0 configuration, URL minimization, canonical ordering, authorized-field hashing, report integrity, and visibility examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/deterministic-recorder.property.test.ts",
+      "description": "Seeded PROP-22 ordering/hash determinism and PROP-05 required-gap classification invariants"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/deterministic-recorder.test.ts",
+      "description": "Real isolated Chromium CDP, request/response, storage, screenshot, service-worker, opaque-body, optional-field, and forced-gap coverage"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/baseline-observation.feature",
+      "description": "Independent required-request observation workflow tagged RUN-02, FR-031, and FR-035"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/visibility-loss.feature",
+      "description": "Known required capture-gap workflow tagged RUN-02, FR-031, FR-035, and PROP-05"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/deterministic-recorder.steps.mjs",
+      "description": "Real isolated Chromium, independent fixture oracle, recorder finalization, Playwright trace, screenshot, JSON report, and capture-gap evidence bindings"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T07:10:09.557Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "RUN-02 P0 records browser-visible facts through an independent CDP session; it does not claim visibility into traffic outside the isolated browser or plaintext semantics that the browser itself cannot inspect.",
+    "FR-038 proxy capture is the explicit P1 follow-on. The P0 schema accepts only BROWSER_CDP and cannot mislabel a browser report as proxy evidence.",
+    "RUN-03 still owns the GPT-5.6 computer-use lane; model output cannot create or replace any RUN-02 observation or visibility decision.",
+    "Authorized request values and all storage values persist only as SHA-256 digests; raw request bodies, headers, cookies, query values, fragments, and configured secrets are absent from recorder JSON.",
+    "All exercised identities, values, hosts, and capture gaps are controlled fictional fixtures; a visible run is not a safety, compliance, agreement-conformity, or product-effectiveness conclusion."
+  ],
+  "reviewer": "codex-agent"
+}
