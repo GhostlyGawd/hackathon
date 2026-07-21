@@ -64,6 +64,11 @@ const migrationFiles = [
     fileName: "0010_deterministic_replay_versions.sql",
   },
   {
+    version: "0012",
+    name: "run_orchestration",
+    fileName: "0012_run_orchestration.sql",
+  },
+  {
     version: "0013",
     name: "destination_registry",
     fileName: "0013_destination_registry.sql",
