@@ -469,7 +469,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### JRN-03 — Implement deterministic recording/replay and the non-model baseline
 
-- **Status:** IN PROGRESS — the saved human-authored replay format, frozen execution inputs, exact-origin checkpoint outcome, controlled-fixture drift detection, and non-model baseline arm are implemented and green. Completion remains gated on running this arm through the same independent recorder and scoring layer as the GPT-5.6 arm.
+- **Status:** IN PROGRESS — the saved human-authored replay format, frozen execution inputs, exact-origin checkpoint outcome, controlled-fixture drift detection, and non-model baseline arm are implemented and green at source commit `0eca6378612af76d838f4146353a1e771cbec827`. Completion remains gated on running this arm through the same independent recorder and scoring layer as the GPT-5.6 arm.
 - **Deliver:** stable replay format, checkpoint assertions, variable canary injection, replay outcome, drift detection, and human-authored baseline arm.
 - **PRD:** FR-024 and FR-027; Sections 3 and 19.2.
 - **Depends on:** JRN-02 and FIX-01.

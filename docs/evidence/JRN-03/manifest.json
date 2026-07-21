@@ -5,14 +5,30 @@
   "status": "IN_PROGRESS",
   "prdSections": [3, 19],
   "functionalRequirements": ["FR-024", "FR-027"],
-  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "sourceCommitSha": "0eca6378612af76d838f4146353a1e771cbec827",
   "startedAt": "2026-07-21T00:05:00.000-04:00",
   "artifactRoot": "artifacts/verification/JRN-03/",
   "curatedEvidenceRoot": "docs/evidence/JRN-03/",
   "environment": {
-    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29803249286",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29803249286/job/88548347644",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29803249286/job/88548347622",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -222,6 +238,35 @@
       "command": "pnpm audit --prod and workspace credential-pattern scan",
       "exitCode": 0,
       "durationMs": 2200
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows",
+      "command": "GitHub Actions run 29803249286: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 411300
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production replay capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=JRN-03 PACTWIRE_BDD_TAGS=@JRN-03 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 13700
+    },
+    {
+      "phase": "RED",
+      "name": "Curated replay evidence required manifest links",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 1150,
+      "expectedFailure": "The evidence harness rejected both screenshots, both replay traces, and both browser traces as unreferenced source-bound assets"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Browser-trace privacy sanitization",
+      "command": "Mechanically replace the repository root in Playwright trace.stacks, preserve every archive entry, and scan all trace metadata for personal paths and credential patterns",
+      "exitCode": 0,
+      "durationMs": 1200
     }
   ],
   "testSummary": {
@@ -270,9 +315,87 @@
     ]
   },
   "visualEvidence": {
-    "applicable": false,
-    "rationale": "Source-bound optimized-production screenshots and paired browser/replay traces are pending the implementation source commit and clean-checkout CI.",
-    "assets": []
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/JRN-03/baseline-replay-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T05:17:57.000Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop controlled classroom fixture after the deterministic baseline submitted a fictional response, showing BASELINE mode, reserved student data, and the visible fictional submission completed state.",
+        "caption": "The frozen human-authored replay completed all six operations and the required submission-request checkpoint against the optimized-production fictional fixture.",
+        "provenance": "captured",
+        "sourceCommitSha": "0eca6378612af76d838f4146353a1e771cbec827"
+      },
+      {
+        "path": "docs/evidence/JRN-03/baseline-replay-trace.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T05:17:57.000Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Machine-readable deterministic baseline trace with six completed operations, a verified required checkpoint, zero model calls, and hashes in place of raw fictional values.",
+        "caption": "The durable baseline outcome is COMPLETED only after its required checkpoint is VERIFIED; two runtime values appear only as SHA-256 hashes.",
+        "provenance": "captured",
+        "sourceCommitSha": "0eca6378612af76d838f4146353a1e771cbec827"
+      },
+      {
+        "path": "docs/evidence/JRN-03/baseline-browser-trace-sanitized.zip",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T05:17:57.000Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Sanitized Playwright browser trace for the completed deterministic baseline, containing action, page snapshot, screenshot, and network records without local personal paths.",
+        "caption": "The paired Playwright archive preserves ten captured trace entries; only local repository-root text in optional stack metadata was replaced with $REPOSITORY.",
+        "provenance": "captured",
+        "sourceCommitSha": "0eca6378612af76d838f4146353a1e771cbec827"
+      },
+      {
+        "path": "docs/evidence/JRN-03/drift-replay-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T05:17:58.000Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop controlled classroom fixture in INTERFACE DRIFT mode, showing that the student checkpoint moved and the old student route is unavailable.",
+        "caption": "The identical frozen replay stopped at its first navigation after the controlled fixture moved the route; no fictional submission request was sent.",
+        "provenance": "captured",
+        "sourceCommitSha": "0eca6378612af76d838f4146353a1e771cbec827"
+      },
+      {
+        "path": "docs/evidence/JRN-03/drift-replay-trace.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T05:17:58.000Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Machine-readable deterministic drift trace with one failed navigation, NAVIGATION_STATUS_MISMATCH, a NOT_REACHED required checkpoint, and zero model calls.",
+        "caption": "The drift outcome cannot become success: it records DRIFTED, stops at the moved route, and leaves the required submission-request checkpoint NOT_REACHED.",
+        "provenance": "captured",
+        "sourceCommitSha": "0eca6378612af76d838f4146353a1e771cbec827"
+      },
+      {
+        "path": "docs/evidence/JRN-03/drift-browser-trace-sanitized.zip",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T05:17:58.000Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Sanitized Playwright browser trace for deterministic interface drift, containing the moved-route page and network records without local personal paths.",
+        "caption": "The paired Playwright archive preserves four captured trace entries for the stopped drift run; only local repository-root text in optional stack metadata was replaced with $REPOSITORY.",
+        "provenance": "captured",
+        "sourceCommitSha": "0eca6378612af76d838f4146353a1e771cbec827"
+      }
+    ]
   },
   "proofs": [
     {
@@ -288,7 +411,7 @@
     {
       "kind": "test",
       "path": "tests/integration/deterministic-replay.test.ts",
-      "description": "Real Playwright completion and moved-interface drift against the controlled fictional fixture"
+      "description": "Real Playwright completion, moved-interface drift, exact-origin checkpoints, and single-use response evidence against controlled fictional fixtures"
     },
     {
       "kind": "test",
@@ -338,12 +461,12 @@
     {
       "kind": "evidence",
       "path": "docs/evidence/JRN-03/README.md",
-      "description": "JRN-03 red/green record, current proof, source-bound capture gate, and claim limitations"
+      "description": "JRN-03 red/green record, clean-checkout CI, source-bound visual/trace proof, and incomplete shared-recorder claim boundary"
     }
   ],
   "sanitization": {
-    "reviewed": false,
-    "reviewedAt": "2026-07-21T00:48:00.000-04:00",
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T05:22:10.000Z",
     "findings": []
   },
   "knownLimitations": [

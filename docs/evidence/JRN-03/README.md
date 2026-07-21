@@ -2,6 +2,8 @@
 
 JRN-03 is in progress. It adds the human-authored deterministic replay arm: a saved, immutable plan bound to one agreement version, named journey version, authorization, runner configuration, exact action scope, fictional-field bindings, and every required checkpoint. Runtime canary values are injected only while an operation executes and are represented by hashes in the replay outcome.
 
+The implementation evidence is bound to source commit `0eca6378612af76d838f4146353a1e771cbec827`.
+
 ## Red-first record
 
 The manifest records focused failures before the replay schema, repositories, executor, real Playwright adapter, PostgreSQL guard, and BDD steps existed. Regression reds also exposed stale workspace-package resolution, a JSON operator-precedence bug in the database action-complement guard, and an author-identity mismatch that allowed the payload to claim automation while its indexed column claimed a human.
@@ -15,8 +17,10 @@ The manifest records focused failures before the replay schema, repositories, ex
 - Real-browser regressions bind response checkpoints to the exact authorized origin, consume each response once, and reject URL-parser backslash escapes before navigation.
 - Both tagged JRN-03 BDD scenarios pass, with zero model invocations and no raw fictional values in the durable replay outcome.
 - Static lint, type checking, the production dependency audit, and the credential-pattern scan pass.
+- [GitHub Actions run 29803249286](https://github.com/GhostlyGawd/hackathon/actions/runs/29803249286) passed from a clean checkout on [Ubuntu](https://github.com/GhostlyGawd/hackathon/actions/runs/29803249286/job/88548347644) and [Windows](https://github.com/GhostlyGawd/hackathon/actions/runs/29803249286/job/88548347622).
+- The source-bound evidence contains baseline and drift screenshots, durable replay traces, and paired Playwright browser archives. The browser archives preserve their captured actions, snapshots, screenshots, and network records while replacing the local repository root in optional stack metadata with `$REPOSITORY`.
 
-Source-bound screenshots and paired replay/browser traces will be curated only after the implementation commit passes the complete repository verification and clean-checkout CI. Until then, this bundle remains `IN_PROGRESS`.
+The bundle remains `IN_PROGRESS` because the independent recorder and common scoring layer do not exist yet. These captures prove this replay seam; they do not prove the end-to-end same-recorder ablation criterion.
 
 ## Claim boundary
 
