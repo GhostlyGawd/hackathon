@@ -78,6 +78,16 @@ const migrationFiles = [
     name: "destination_registry",
     fileName: "0013_destination_registry.sql",
   },
+  {
+    version: "0014",
+    name: "evidence_receipts",
+    fileName: "0014_evidence_receipts.sql",
+  },
+  {
+    version: "0015",
+    name: "approval_authority",
+    fileName: "0015_approval_authority.sql",
+  },
 ] as const;
 
 export async function loadCoreMigrations(): Promise<readonly CoreMigration[]> {

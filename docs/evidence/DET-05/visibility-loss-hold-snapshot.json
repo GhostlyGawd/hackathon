@@ -1,0 +1,75 @@
+{
+  "status": 200,
+  "cacheControl": "private, no-store",
+  "body": {
+    "approval": {
+      "workspaceId": "11111111-1111-4111-8111-111111111111",
+      "softwareId": "56565656-5656-4565-8565-565656565656",
+      "softwareName": "Northstar Classroom (Fictional)",
+      "state": "HOLD",
+      "approvalOrigin": {
+        "id": "82828282-8282-4282-8282-000000000003",
+        "workspaceId": "11111111-1111-4111-8111-111111111111",
+        "softwareId": "56565656-5656-4565-8565-565656565656",
+        "state": "HOLD",
+        "setBy": {
+          "actorId": "pactwire-deterministic-approval-authority",
+          "kind": "AUTOMATION",
+          "component": "approval-authority-v1",
+          "displayName": "Pactwire deterministic approval authority"
+        },
+        "reason": "REQUIRED_VISIBILITY_LOSS",
+        "sourceReference": "80808080-8080-4080-8080-808080808080",
+        "recordedBy": {
+          "actorId": "pactwire-deterministic-approval-authority",
+          "kind": "AUTOMATION",
+          "component": "approval-authority-v1"
+        },
+        "recordedAt": "2026-07-22T15:00:00.000Z"
+      },
+      "events": [
+        {
+          "eventId": "82828282-8282-4282-8282-000000000002",
+          "eventType": "APPROVAL_STATE_CHANGED",
+          "workspaceId": "11111111-1111-4111-8111-111111111111",
+          "softwareId": "56565656-5656-4565-8565-565656565656",
+          "from": "APPROVED",
+          "to": "HOLD",
+          "reason": "REQUIRED_VISIBILITY_LOSS",
+          "receiptId": "80808080-8080-4080-8080-808080808080",
+          "idempotencyKey": "receipt:80808080-8080-4080-8080-808080808080",
+          "actor": {
+            "actorId": "pactwire-deterministic-approval-authority",
+            "kind": "AUTOMATION",
+            "component": "approval-authority-v1"
+          },
+          "occurredAt": "2026-07-22T15:00:00.000Z"
+        }
+      ],
+      "decisions": [],
+      "holdReceipts": [
+        {
+          "id": "82828282-8282-4282-8282-000000000001",
+          "workspaceId": "11111111-1111-4111-8111-111111111111",
+          "softwareId": "56565656-5656-4565-8565-565656565656",
+          "receiptId": "80808080-8080-4080-8080-808080808080",
+          "findingId": "71717171-7171-4171-8171-717171710007",
+          "findingState": "NOT_VISIBLE",
+          "reason": "REQUIRED_VISIBILITY_LOSS",
+          "checkpointId": "completion-visible",
+          "actor": {
+            "actorId": "pactwire-deterministic-approval-authority",
+            "kind": "AUTOMATION",
+            "component": "approval-authority-v1"
+          },
+          "occurredAt": "2026-07-22T15:00:00.000Z"
+        }
+      ]
+    },
+    "controlledFixture": {
+      "conflictFindingId": "71717171-7171-4171-8171-717171710002",
+      "repairedFindingId": "71717171-7171-4171-8171-717171710003",
+      "visibilityRetryFindingId": "71717171-7171-4171-8171-717171710007"
+    }
+  }
+}

@@ -1,4 +1,6 @@
 import {
+  ApprovalAuthorityIntegrityError,
+  ApprovalAuthorityNotFoundError,
   AgreementCorruptError,
   AgreementHashMismatchError,
   AgreementIntegrityError,
@@ -48,6 +50,8 @@ export function authorizationErrorResponse(error: unknown): NextResponse {
     );
   }
   if (
+    error instanceof ApprovalAuthorityIntegrityError ||
+    error instanceof ApprovalAuthorityNotFoundError ||
     error instanceof DestinationEvidenceMismatchError ||
     error instanceof DestinationRegistryConflictError ||
     error instanceof DestinationUnavailableError ||

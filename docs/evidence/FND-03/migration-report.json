@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 13,
-  "totalTables": 34,
+  "migrationCount": 15,
+  "totalTables": 35,
   "migrations": [
     {
       "version": "0001",
@@ -170,6 +170,24 @@
       ],
       "immutableTables": [
         "destination_record_versions"
+      ]
+    },
+    {
+      "version": "0014",
+      "name": "evidence_receipts",
+      "sha256": "fe2106c5a32b4f46ae46c3bc9d79da7f5d99838cbce248c91cac2b13e88526d2",
+      "tables": [],
+      "immutableTables": []
+    },
+    {
+      "version": "0015",
+      "name": "approval_authority",
+      "sha256": "f6b9e1d18b6214f878a68112ca0789717fb9692f12de886e6c8caac6a4e03ff0",
+      "tables": [
+        "approval_hold_receipts"
+      ],
+      "immutableTables": [
+        "approval_hold_receipts"
       ]
     }
   ]

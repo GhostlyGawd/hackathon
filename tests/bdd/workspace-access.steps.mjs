@@ -141,6 +141,10 @@ After(async function ({ result, pickle }) {
       const slug = pickle.name.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-");
       const taskId = pickle.tags.some((tag) => tag.name === "@UX-01")
         ? "UX-01"
+        : pickle.tags.some((tag) => tag.name === "@DET-05")
+          ? "DET-05"
+        : pickle.tags.some((tag) => tag.name === "@DET-04")
+          ? "DET-04"
         : pickle.tags.some((tag) => tag.name === "@DET-03")
           ? "DET-03"
         : pickle.tags.some((tag) => tag.name === "@RUN-05")

@@ -14,7 +14,9 @@ function shouldCaptureCurated() {
 
 function entry(world, kind) {
   const match = world.run05Runs.find(({ run }) => {
-    if (kind === "retry") return Boolean(run.retryOfRunId);
+    if (kind === "retry") {
+      return Boolean(run.retryOfRunId) && run.state === "COMPLETED";
+    }
     if (kind === "crashed") return Boolean(run.integrityFailure);
     return !run.retryOfRunId && !run.integrityFailure && run.state === kind;
   });
@@ -158,7 +160,9 @@ Then(
 Then(
   "its completed retry links to the source run with the same frozen configuration",
   async function () {
-    const card = this.page.locator('[data-run-kind="retry"]');
+    const card = this.page.locator(
+      '[data-run-kind="retry"][data-run-state="COMPLETED"]',
+    );
     const lineage = card.getByTestId("retry-lineage");
     await lineage
       .getByText("Exact frozen configuration verified", { exact: true })

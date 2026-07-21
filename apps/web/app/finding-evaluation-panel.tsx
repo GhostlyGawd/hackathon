@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { EvidenceReceiptPanel } from "./evidence-receipt-panel";
 
 type FindingState =
   | "WITNESSED_CONFLICT"
@@ -145,8 +146,10 @@ function PathList({
 }
 
 export function FindingEvaluationPanel({
+  canReviewEvidence,
   workspaceId,
 }: {
+  readonly canReviewEvidence: boolean;
   readonly workspaceId: string;
 }) {
   const [response, setResponse] = useState<FindingResponse>();
@@ -467,6 +470,13 @@ export function FindingEvaluationPanel({
               </section>
             </article>
           </div>
+
+          {canReviewEvidence ? (
+            <EvidenceReceiptPanel
+              findingId={selected.finding.id}
+              workspaceId={workspaceId}
+            />
+          ) : null}
 
           <details className="finding-decision-table">
             <summary>View the deterministic decision order</summary>

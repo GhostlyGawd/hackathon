@@ -24,6 +24,8 @@ export default {
     "json:artifacts/verification/UX-01/reports/cucumber.json",
     "json:artifacts/verification/DET-02/reports/cucumber.json",
     "json:artifacts/verification/DET-03/reports/cucumber.json",
+    "json:artifacts/verification/DET-04/reports/cucumber.json",
+    "json:artifacts/verification/DET-05/reports/cucumber.json",
   ],
   import: ["tests/bdd/**/*.steps.mjs"],
   paths: ["tests/bdd/**/*.feature"],

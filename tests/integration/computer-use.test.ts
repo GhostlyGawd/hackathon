@@ -394,13 +394,11 @@ describe("RUN-03 real isolated browser computer-use loop", () => {
         },
         { id: controlId, kind: effect },
       );
+      const point = await center(session, controlId);
       const transport = new ScriptedComputerUseResponsesTransport([
-        async () => {
-          const point = await center(session, controlId);
-          return response("resp_1", "call_1", [
-            { type: "click", ...point, button: "left" },
-          ]);
-        },
+        response("resp_1", "call_1", [
+          { type: "click", ...point, button: "left" },
+        ]),
       ]);
       const result = await runPolicyBoundedComputerUse({
         config: config(server, session, [
