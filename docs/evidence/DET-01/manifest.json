@@ -1,0 +1,236 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "DET-01",
+  "title": "Implement the human-confirmed destination registry",
+  "status": "IN_PROGRESS",
+  "prdSections": [6, 15, 16],
+  "functionalRequirements": ["FR-034"],
+  "sourceCommitSha": "b9a9767e1f930c8856e4b0668c4f52258d81fb4e",
+  "startedAt": "2026-07-21T12:40:00.000Z",
+  "artifactRoot": "artifacts/verification/DET-01/",
+  "curatedEvidenceRoot": "docs/evidence/DET-01/",
+  "environment": {
+    "os": "Windows local",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing destination registry domain",
+      "command": "Focused destination unit, property, and integration suites",
+      "exitCode": 1,
+      "durationMs": 9200,
+      "expectedFailure": "Unit and property suites could not import the destination registry; all four integration cases failed because its repositories did not exist"
+    },
+    {
+      "phase": "RED",
+      "name": "Generated invalid-hostname shrink",
+      "command": "pnpm exec vitest run --project property tests/property/destination-registry.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 968,
+      "expectedFailure": "Seed 20260723 shrank the overbroad hostname generator to a.0; the invalid numeric terminal label is retained as a permanent rejection example"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Unknown-default properties and append-only persistence",
+      "command": "Focused destination unit, property, integration, and migration suites",
+      "exitCode": 0,
+      "durationMs": 28600
+    },
+    {
+      "phase": "RED",
+      "name": "Missing signed destination HTTP boundary",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/destination-registry-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 3200,
+      "expectedFailure": "The route suite could not import the not-yet-created destination endpoints"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Signed observation, review, history, and role-denial routes",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/destination-registry-routes.test.ts",
+      "exitCode": 0,
+      "durationMs": 1500
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined destination browser workflow",
+      "command": "PACTWIRE_BDD_TAGS=@DET-01 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 17300,
+      "expectedFailure": "Both scenarios failed before the panel existed and all fourteen DET-01 browser steps were undefined"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production browser acceptance and source-bound visual capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=DET-01 PACTWIRE_BDD_TAGS=@DET-01 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 9615
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Focused lint, types, migration evidence, and destination suites",
+      "command": "Destination-focused ESLint, core/web typecheck, domain evidence check, six Vitest files, and git diff whitespace validation",
+      "exitCode": 0,
+      "durationMs": 43000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete optimized-production deterministic repository gate",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 319300
+    }
+  ],
+  "testSummary": {
+    "files": 72,
+    "passed": 289,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-04-unseen-hostnames-remain-unknown",
+        "seed": 20260723,
+        "numRuns": 250,
+        "passed": true,
+        "counterexample": "a.0 is retained as an invalid-hostname example after the first generator shrank outside the valid DNS input domain"
+      },
+      {
+        "id": "PROP-04-observation-never-promotes-without-human-review",
+        "seed": 20260723,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "ambiguity.feature",
+        "scenario": "An observed destination stays unknown without a human-confirmed entity mapping",
+        "passed": true
+      },
+      {
+        "feature": "requirement-review.feature",
+        "scenario": "The privacy officer confirms allowed and prohibited destinations from exact sources",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "rationale": "DET-01 adds visible UNKNOWN, ALLOWED, and PROHIBITED registry states. The controlled browser stories capture both desktop confirmation outcomes and the narrow unknown default from the running product at the source commit.",
+    "assets": [
+      {
+        "path": "docs/evidence/DET-01/known-allowed-destination-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T13:09:44.296Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop destination card for classroom-service.pactwire.test showing ALLOWED, fictional Northstar entity identity, named human reviewer, exact agreement version, recorder observation count, retained source count, and immutable version 2.",
+        "caption": "A fictional privacy officer confirmed the hostname-to-entity mapping and ALLOWED status from the exact stored destination schedule; version 1 remains the earlier UNKNOWN observation.",
+        "provenance": "captured",
+        "sourceCommitSha": "b9a9767e1f930c8856e4b0668c4f52258d81fb4e"
+      },
+      {
+        "path": "docs/evidence/DET-01/known-prohibited-destination-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T13:09:44.998Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop destination card for fixture-analytics.pactwire.test showing PROHIBITED, fictional Signal Quarry entity identity, named human reviewer, exact agreement version, recorder observation count, retained source count, and immutable version 2.",
+        "caption": "The same human-only evidence path records a PROHIBITED status for a second fictional destination under the selected exact agreement version.",
+        "provenance": "captured",
+        "sourceCommitSha": "b9a9767e1f930c8856e4b0668c4f52258d81fb4e"
+      },
+      {
+        "path": "docs/evidence/DET-01/unknown-destination-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T13:09:38.046Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow destination card for unknown-destination.pactwire.test showing UNKNOWN, immutable version 1, one recorder observation, one retained source record, and direct text that no company or agreement status is assigned.",
+        "caption": "A deterministic observation creates only an UNKNOWN record; the responsive UI explicitly says that no entity mapping or agreement status has been inferred.",
+        "provenance": "captured",
+        "sourceCommitSha": "b9a9767e1f930c8856e4b0668c4f52258d81fb4e"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/destination-registry.test.ts",
+      "description": "Canonical hostnames, UNKNOWN schema, model-author rejection, and unseen resolution examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/destination-registry.property.test.ts",
+      "description": "Seeded PROP-04 unseen and observed-hostname invariants across 500 generated cases"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/destination-registry.test.ts",
+      "description": "Human evidence review, exact agreement quote validation, stale-review serialization, PostgreSQL transaction, automation rejection, and immutable history"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/destination-registry-routes.test.ts",
+      "description": "Signed HTTP observation, human review, history, and reviewer-role denial"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/ambiguity.feature",
+      "description": "Real browser and API proof that an observed unknown destination receives no inferred company or agreement status"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/requirement-review.feature",
+      "description": "Real browser and API proof for exact-source ALLOWED and PROHIBITED human reviews"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/destination-registry.ts",
+      "description": "Strict evidence/version schemas, canonical hashes, fail-closed resolver, services, and in-memory/PostgreSQL repositories"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0013_destination_registry.sql",
+      "description": "Append-only destination versions with human authority, exact agreement evidence, latest-source, payload, and immutable database guards"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/destination-registry-panel.tsx",
+      "description": "Responsive observation, human evidence review, current classification, and version-history interface"
+    },
+    {
+      "kind": "config",
+      "path": "docs/decisions/DET-01-domain-ownership-evidence.md",
+      "description": "Accepted P0 source types and explicit model, recorder, human, and exact-agreement authority boundaries"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T13:11:00.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "DET-01 resolves registry identity and agreement status only; DET-03 still owns whether observed evidence creates a bounded finding.",
+    "A human confirmation records the reviewer's decision and cited evidence; it does not independently prove real-world ownership, legal meaning, safety, compliance, or software approval.",
+    "Signed-agreement evidence is checked against stored immutable bytes; other accepted mapping sources retain a locator, hash, excerpt, actor, and time but P0 does not ingest their full source objects.",
+    "The browser fixture uses ephemeral in-memory storage while PostgreSQL persistence and database guards are exercised separately in integration tests.",
+    "The task remains IN_PROGRESS until a clean GitHub Actions run succeeds; local deterministic gates and source-bound browser evidence are green."
+  ],
+  "reviewer": "codex-agent"
+}

@@ -3,9 +3,11 @@ import {
   Aes256GcmSecretCipher,
   AgreementIntakeService,
   DeterministicRequirementProposalAdapter,
+  DestinationRegistryService,
   FetchOpenAIResponsesTransport,
   InMemoryAgreementIntakeRepository,
   InMemoryAgreementObjectStore,
+  InMemoryDestinationRegistryRepository,
   InMemoryJourneyAuthoringRepository,
   InMemoryRunOrchestrationRepository,
   InMemoryRequirementProposalRepository,
@@ -89,6 +91,8 @@ export interface AccessRuntime {
   readonly syntheticDataService: SyntheticDataService;
   readonly journeyAuthoringRepository: InMemoryJourneyAuthoringRepository;
   readonly journeyAuthoringService: JourneyAuthoringService;
+  readonly destinationRegistryRepository: InMemoryDestinationRegistryRepository;
+  readonly destinationRegistryService: DestinationRegistryService;
   readonly runOrchestrationRepository: InMemoryRunOrchestrationRepository;
   readonly runOrchestrationService: RunOrchestrationService;
 }
@@ -453,6 +457,14 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     service,
     { idFactory, now },
   );
+  const destinationRegistryRepository =
+    new InMemoryDestinationRegistryRepository(repository);
+  const destinationRegistryService = new DestinationRegistryService(
+    destinationRegistryRepository,
+    service,
+    agreementService,
+    { idFactory, now },
+  );
   const runHistoryOptions = runHistoryFixtureOptions();
   const runOrchestrationRepository =
     new InMemoryRunOrchestrationRepository();
@@ -489,6 +501,8 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     syntheticDataService,
     journeyAuthoringRepository,
     journeyAuthoringService,
+    destinationRegistryRepository,
+    destinationRegistryService,
     runOrchestrationRepository,
     runOrchestrationService,
   });
