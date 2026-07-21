@@ -239,7 +239,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | AGR-02 | P0 | AGR-01, FND-02 | GPT-5.6 structured proposals | COMPLETE |
 | AGR-03 | P0 + P1 follow-on | AGR-01, AGR-02, AUT-01 | Human review and requirement versions | COMPLETE (P0) |
 | JRN-01 | P0 | AUT-01, AUT-04 | Fictional personas and canaries | COMPLETE |
-| JRN-02 | P0 | AGR-03, JRN-01 | Named journey editor | IN PROGRESS |
+| JRN-02 | P0 | AGR-03, JRN-01 | Named journey editor | COMPLETE |
 | FIX-01 | P0 | FND-01, FND-03 | Controlled classroom fixture | COMPLETE |
 | JRN-03 | P0 | JRN-02, FIX-01 | Deterministic replay baseline | NOT STARTED |
 | RUN-01 | P0 | AUT-03, AUT-04, FIX-01 | Isolated browser runner | NOT STARTED |
@@ -443,7 +443,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### JRN-02 — Implement named journey schema and editor
 
-- **Status:** IN PROGRESS — TDD implementation is scoped to FR-022 and its causal prerequisite/version boundary.
+- **Status:** COMPLETE — strict named-journey versions, current-prerequisite reassessment, immutable PostgreSQL lineage, signed scoped routes, responsive teacher/student authoring, seeded PROP-25 checks, three production browser stories, source-bound desktop/narrow evidence, and Ubuntu/Windows verification passed at implementation commit `a952d3326417e682b666dbd21798e28a3dc79ad3`.
 - **Deliver:** role, goal, start state, linked requirement, test fields, allowed/prohibited actions, checkpoints, required visibility, steps, and immutable versions.
 - **PRD:** FR-022; Sections 9 and 12.4.
 - **Depends on:** AGR-03 and JRN-01.
