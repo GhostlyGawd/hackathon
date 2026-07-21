@@ -7,6 +7,9 @@ import {
   AuthenticationRequiredError,
   CanaryGenerationExhaustedError,
   CanarySourceUnavailableError,
+  DestinationEvidenceMismatchError,
+  DestinationRegistryConflictError,
+  DestinationUnavailableError,
   LikelyRealDataError,
   JourneyPrerequisiteError,
   JourneyVersionConflictError,
@@ -45,6 +48,9 @@ export function authorizationErrorResponse(error: unknown): NextResponse {
     );
   }
   if (
+    error instanceof DestinationEvidenceMismatchError ||
+    error instanceof DestinationRegistryConflictError ||
+    error instanceof DestinationUnavailableError ||
     error instanceof RequirementReviewConflictError ||
     error instanceof RequirementVersionUnavailableError ||
     error instanceof JourneyVersionConflictError ||

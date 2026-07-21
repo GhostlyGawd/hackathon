@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { SecretIsolationPanel } from "./secret-isolation-panel";
 import { AgreementIntakePanel } from "./agreement-intake-panel";
 import { JourneyAuthoringPanel } from "./journey-authoring-panel";
+import { DestinationRegistryPanel } from "./destination-registry-panel";
 import { RunHistoryPanel } from "./run-history-panel";
 import { SoftwareInventory } from "./software-inventory";
 import { SyntheticDataPanel } from "./synthetic-data-panel";
@@ -588,6 +589,10 @@ export function AccessConsole() {
                 key={`${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
                 principalUserId={principal.userId}
+              />
+              <DestinationRegistryPanel
+                key={`destinations:${principal.activeWorkspaceId}:${principal.userId}`}
+                workspaceId={principal.activeWorkspaceId}
               />
               <RunHistoryPanel workspaceId={principal.activeWorkspaceId} />
               <div className="workspace-grid">

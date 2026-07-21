@@ -73,6 +73,11 @@ const migrationFiles = [
     name: "run_orchestration",
     fileName: "0012_run_orchestration.sql",
   },
+  {
+    version: "0013",
+    name: "destination_registry",
+    fileName: "0013_destination_registry.sql",
+  },
 ] as const;
 
 export async function loadCoreMigrations(): Promise<readonly CoreMigration[]> {

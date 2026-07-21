@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 12,
-  "totalTables": 33,
+  "migrationCount": 13,
+  "totalTables": 34,
   "migrations": [
     {
       "version": "0001",
@@ -159,6 +159,17 @@
         "run_worker_leases",
         "run_manifests",
         "run_orchestration_commands"
+      ]
+    },
+    {
+      "version": "0013",
+      "name": "destination_registry",
+      "sha256": "861c3160a5310326192ea440e1f97b480a8001b9babc1bd16cab21b28b532f6f",
+      "tables": [
+        "destination_record_versions"
+      ],
+      "immutableTables": [
+        "destination_record_versions"
       ]
     }
   ]
