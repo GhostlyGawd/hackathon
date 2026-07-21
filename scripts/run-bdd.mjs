@@ -150,6 +150,16 @@ await mkdir(
     repositoryRoot,
     "artifacts",
     "verification",
+    "DET-02",
+    "reports",
+  ),
+  { recursive: true },
+);
+await mkdir(
+  path.join(
+    repositoryRoot,
+    "artifacts",
+    "verification",
     "AGR-03",
     "reports",
   ),

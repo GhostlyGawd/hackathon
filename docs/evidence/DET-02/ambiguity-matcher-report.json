@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0.0",
+  "matcherVersion": "pactwire-canary-matcher-v1",
+  "workspaceId": "11111111-1111-4111-8111-111111111111",
+  "runId": "22222222-2222-4222-8222-222222222222",
+  "observationId": "d2020202-0202-4202-8202-020202020202",
+  "observationSource": "NETWORK",
+  "outcomes": [
+    {
+      "workspaceId": "11111111-1111-4111-8111-111111111111",
+      "runId": "22222222-2222-4222-8222-222222222222",
+      "observationId": "d2020202-0202-4202-8202-020202020202",
+      "observationSource": "NETWORK",
+      "candidateLocation": "BODY",
+      "candidatePath": "opaqueStudentReference",
+      "candidateValueSha256": "fe8a0c666520dd5103848878f6f08c5490efd66f34e7e93d6c61e3ac201e2948",
+      "status": "UNSUPPORTED_TRANSFORM",
+      "requestedTransform": "UNSUPPORTED_OPAQUE",
+      "reasonCode": "TRANSFORM_NOT_ENUMERATED"
+    }
+  ],
+  "counts": {
+    "matched": 0,
+    "noMatch": 0,
+    "unsupported": 1,
+    "collisions": 0
+  }
+}

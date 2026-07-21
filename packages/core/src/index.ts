@@ -20,4 +20,5 @@ export * from "./run-orchestration.js";
 export * from "./journey-repair.js";
 export * from "./evidence.js";
 export * from "./migrations.js";
+export * from "./canary-matcher.js";
 export * from "./destination-registry.js";
