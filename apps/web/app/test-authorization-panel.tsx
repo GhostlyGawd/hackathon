@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 
 type AuthorizationAction =
   | "NAVIGATE"
@@ -198,6 +205,7 @@ export function TestAuthorizationPanel({
   const [attestationStatement, setAttestationStatement] = useState(
     "I confirm the fictional district controls or may test this tenant.",
   );
+  const selectedSoftwareIdRef = useRef("");
 
   const [attemptKind, setAttemptKind] = useState<AttemptKind>("REDIRECT");
   const [attemptUrl, setAttemptUrl] = useState(
@@ -266,20 +274,30 @@ export function TestAuthorizationPanel({
     [fetchDecisions],
   );
 
+  const loadSoftware = useCallback(
+    async (preferredSoftwareId?: string): Promise<void> => {
+      const result = await authorizationApi<{
+        readonly items: readonly SoftwareItem[];
+      }>(`/api/workspaces/${workspaceId}/software`);
+      setSoftware(result.items);
+      const requestedSoftwareId =
+        preferredSoftwareId ?? selectedSoftwareIdRef.current;
+      const selected =
+        result.items.find(
+          (item) => item.software.id === requestedSoftwareId,
+        ) ?? result.items[0];
+      selectedSoftwareIdRef.current = selected?.software.id ?? "";
+      setSelectedSoftwareId(selected?.software.id ?? "");
+      setBaseUrl(selected?.software.authorizedTenantUrl ?? "");
+    },
+    [workspaceId],
+  );
+
   useEffect(() => {
     let active = true;
     setLoading(true);
     setError(undefined);
-    void authorizationApi<{ readonly items: readonly SoftwareItem[] }>(
-      `/api/workspaces/${workspaceId}/software`,
-    )
-      .then((result) => {
-        if (!active) return;
-        setSoftware(result.items);
-        const first = result.items[0];
-        setSelectedSoftwareId(first?.software.id ?? "");
-        setBaseUrl(first?.software.authorizedTenantUrl ?? "");
-      })
+    void loadSoftware()
       .catch((caught: unknown) => {
         if (active) {
           setError(
@@ -295,7 +313,29 @@ export function TestAuthorizationPanel({
     return () => {
       active = false;
     };
-  }, [principalUserId, workspaceId]);
+  }, [loadSoftware, principalUserId]);
+
+  useEffect(() => {
+    const inventoryChanged = () => {
+      void loadSoftware().catch(() => undefined);
+    };
+    const setupSelected = (event: Event) => {
+      const softwareId = (event as CustomEvent<{ softwareId?: unknown }>).detail
+        ?.softwareId;
+      void loadSoftware(
+        typeof softwareId === "string" ? softwareId : undefined,
+      ).catch(() => undefined);
+    };
+    window.addEventListener("pactwire:inventory-changed", inventoryChanged);
+    window.addEventListener("pactwire:setup-software-selected", setupSelected);
+    return () => {
+      window.removeEventListener("pactwire:inventory-changed", inventoryChanged);
+      window.removeEventListener(
+        "pactwire:setup-software-selected",
+        setupSelected,
+      );
+    };
+  }, [loadSoftware]);
 
   useEffect(() => {
     if (!selectedSoftwareId) {
@@ -331,6 +371,7 @@ export function TestAuthorizationPanel({
   }, [fetchAuthorizationState, selectedSoftwareId]);
 
   function selectSoftware(softwareId: string): void {
+    selectedSoftwareIdRef.current = softwareId;
     setSelectedSoftwareId(softwareId);
     const next = software.find((item) => item.software.id === softwareId);
     setBaseUrl(next?.software.authorizedTenantUrl ?? "");
@@ -400,6 +441,7 @@ export function TestAuthorizationPanel({
       );
       await refreshAuthorizationState(selectedSoftwareId);
       setShowForm(false);
+      window.dispatchEvent(new Event("pactwire:setup-progress-changed"));
     } catch (caught) {
       setError(
         caught instanceof Error

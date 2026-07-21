@@ -18,6 +18,7 @@ import {
   RequirementReviewConflictError,
   RequirementVersionUnavailableError,
   SecretUnavailableError,
+  SetupSoftwareUnavailableError,
   UnsupportedAgreementTypeError,
   WorkspaceUnavailableError,
 } from "@pactwire/core";
@@ -119,6 +120,7 @@ export function authorizationErrorResponse(error: unknown): NextResponse {
     error instanceof PermissionDeniedError ||
     error instanceof PersonaUnavailableError ||
     error instanceof SecretUnavailableError ||
+    error instanceof SetupSoftwareUnavailableError ||
     error instanceof WorkspaceUnavailableError
   ) {
     return NextResponse.json(

@@ -12,6 +12,7 @@ export * from "./requirement-proposals.js";
 export * from "./requirement-review.js";
 export * from "./test-authorization.js";
 export * from "./secret-isolation.js";
+export * from "./setup-workflow.js";
 export * from "./synthetic-data.js";
 export * from "./journey-authoring.js";
 export * from "./deterministic-replay.js";

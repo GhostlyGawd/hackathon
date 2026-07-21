@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 type PersonaRole = "TEACHER" | "STUDENT";
 type AuthorizationAction =
@@ -279,28 +279,34 @@ export function JourneyAuthoringPanel({
     form.goal.trim().length > 0 &&
     form.startState.trim().length > 0;
 
-  function applyRole(nextRole: PersonaRole, state = prerequisites): void {
-    setRole(nextRole);
-    const saved = state?.history.current.find(
-      (journey) => journey.version.role === nextRole,
-    );
-    setForm(saved ? formFromVersion(saved.version) : defaultForm(nextRole));
-    setNotice(undefined);
-  }
+  const applyRole = useCallback(
+    (nextRole: PersonaRole, state = prerequisites): void => {
+      setRole(nextRole);
+      const saved = state?.history.current.find(
+        (journey) => journey.version.role === nextRole,
+      );
+      setForm(saved ? formFromVersion(saved.version) : defaultForm(nextRole));
+      setNotice(undefined);
+    },
+    [prerequisites],
+  );
 
-  async function refreshPrerequisites(): Promise<void> {
+  const refreshPrerequisites = useCallback(async (
+    preferredSoftwareId?: string,
+  ): Promise<void> => {
     setLoading(true);
     setNotice(undefined);
     try {
       const softwareResult = await journeyApi<{
         readonly items: readonly SoftwareOption[];
       }>(`/api/workspaces/${workspaceId}/software`);
+      const requestedSoftwareId = preferredSoftwareId ?? selectedSoftwareId;
       const softwareId =
-        selectedSoftwareId &&
+        requestedSoftwareId &&
         softwareResult.items.some(
-          (item) => item.software.id === selectedSoftwareId,
+          (item) => item.software.id === requestedSoftwareId,
         )
-          ? selectedSoftwareId
+          ? requestedSoftwareId
           : (softwareResult.items[0]?.software.id ?? "");
       setSelectedSoftwareId(softwareId);
       if (!softwareId) {
@@ -393,7 +399,24 @@ export function JourneyAuthoringPanel({
     } finally {
       setLoading(false);
     }
-  }
+  }, [applyRole, role, selectedSoftwareId, workspaceId]);
+
+  useEffect(() => {
+    const setupSelected = (event: Event) => {
+      const selected = (event as CustomEvent<{ softwareId?: unknown }>).detail
+        ?.softwareId;
+      if (typeof selected !== "string") return;
+      setSelectedSoftwareId(selected);
+      void refreshPrerequisites(selected);
+    };
+    window.addEventListener("pactwire:setup-software-selected", setupSelected);
+    return () => {
+      window.removeEventListener(
+        "pactwire:setup-software-selected",
+        setupSelected,
+      );
+    };
+  }, [refreshPrerequisites]);
 
   async function saveJourney(event: FormEvent): Promise<void> {
     event.preventDefault();
@@ -495,6 +518,7 @@ export function JourneyAuthoringPanel({
         message:
           "This immutable version is runnable from the linked current prerequisites.",
       });
+      window.dispatchEvent(new Event("pactwire:setup-progress-changed"));
     } catch (error) {
       setNotice({
         tone: "blocked",

@@ -8,7 +8,7 @@
 | P0 functional requirements | 40 |
 | P1 functional requirements | 3 |
 | Completion model | Failing-first tests, implementation, full regression, evidence |
-| Last updated | 2026-07-19 |
+| Last updated | 2026-07-21 |
 
 This plan converts the PRD into dependency-aware, independently verifiable task packages. It is a build contract, not evidence that any feature already exists.
 
@@ -252,7 +252,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | DET-03 | P0 | AGR-03, DET-01, DET-02, RUN-05 | Bounded finding evaluator | NOT STARTED |
 | DET-04 | P0 | DET-03, AGR-01, RUN-05 | Verifiable evidence receipts | NOT STARTED |
 | DET-05 | P0 + P1 follow-on | AUT-02, DET-03, DET-04 | Hold, human restore, and approval audit | NOT STARTED |
-| UX-01 | P0 | AUT-02, AUT-03, FND-03, AGR-01, JRN-01 | Inventory and setup experience | NOT STARTED |
+| UX-01 | P0 | AUT-02, AUT-03, FND-03, AGR-01, JRN-01 | Inventory and setup experience | IN PROGRESS |
 | UX-02 | P0 | AGR-03, JRN-02, UX-01 | Agreement and journey review | NOT STARTED |
 | UX-03 | P0 | RUN-05, DET-04, DET-05, UX-01 | Run, finding, receipt, and hold experience | NOT STARTED |
 | QLT-01 | P0 | UX-01, UX-02, UX-03, RUN-05 | Quality and observability gates | NOT STARTED |
@@ -611,6 +611,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### UX-01 — Build the product shell, inventory, and setup workflow
 
+- **Status:** IN PROGRESS — source behavior, fixed-seed properties, API/component checks, and four real-browser acceptance scenarios are locally green; curated source-bound evidence and clean-checkout CI remain required before completion.
 - **Deliver:** accessible navigation, software inventory, status provenance, six-step setup, resumable drafts, authorization blockers, empty/loading/error states, desktop and narrow layouts.
 - **PRD:** Sections 5, 9, 12.1, and 12.2.
 - **Depends on:** AUT-02, AUT-03, FND-03, AGR-01, and JRN-01.
