@@ -32,3 +32,12 @@ Feature: Test authorization blocks work outside the district's stated scope
     Then the reason says "DELETE is prohibited by this authorization."
     And all three blocked attempts are recorded with bounded reasons
     And I capture the "authorization-blocked-narrow" narrow authorization evidence
+
+  @RUN-01 @FR-030 @PROP-20
+  Scenario: Sequential authorized runs receive separate local browser resources
+    Given the RUN-01 controlled fixture and isolated browser manager
+    When isolated run "first" seeds fictional local browser state and finalizes artifacts
+    And isolated run "second" starts against the same authorized origin
+    Then isolated run "second" sees no state from "first"
+    And every resource from isolated run "first" is destroyed
+    And I capture the RUN-01 "sequential-isolation" trace

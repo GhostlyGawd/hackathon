@@ -15,6 +15,15 @@ const requireFromRoot = createRequire(
 );
 
 await mkdir(
+  path.join(repositoryRoot, "artifacts", "verification", "RUN-01", "reports"),
+  { recursive: true },
+);
+await mkdir(
+  path.join(repositoryRoot, "artifacts", "verification", "RUN-01", "traces"),
+  { recursive: true },
+);
+
+await mkdir(
   path.join(repositoryRoot, "artifacts", "verification", "JRN-03", "reports"),
   { recursive: true },
 );

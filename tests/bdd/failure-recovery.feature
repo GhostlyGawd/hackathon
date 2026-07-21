@@ -16,3 +16,12 @@ Feature: Controlled failure and risky-action stops
     Then the fixture stops for a person and dispatches no request
     And the hidden fixture manifest independently expects "HUMAN_REQUIRED"
     And I capture the "fixture-risky-action-desktop" fixture evidence
+
+  @RUN-01 @FR-030 @PROP-20
+  Scenario: A crashed renderer releases its run before clean recovery
+    Given the RUN-01 controlled fixture and isolated browser manager
+    When isolated run "crashed" seeds fictional local browser state and its renderer crashes
+    Then isolated run "crashed" is terminal "CRASHED" with every resource destroyed
+    When isolated run "recovered" starts against the same authorized origin
+    Then isolated run "recovered" sees no state from "crashed"
+    And I capture the RUN-01 "crash-recovery" trace

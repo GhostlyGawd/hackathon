@@ -13,6 +13,7 @@ export default {
     "json:artifacts/verification/JRN-01/reports/cucumber.json",
     "json:artifacts/verification/JRN-02/reports/cucumber.json",
     "json:artifacts/verification/JRN-03/reports/cucumber.json",
+    "json:artifacts/verification/RUN-01/reports/cucumber.json",
     "json:artifacts/verification/AGR-01/reports/cucumber.json",
     "json:artifacts/verification/AGR-02/reports/cucumber.json",
     "json:artifacts/verification/AGR-03/reports/cucumber.json",

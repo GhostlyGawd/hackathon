@@ -1,0 +1,307 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "RUN-01",
+  "title": "Implement isolated browser execution",
+  "status": "COMPLETE",
+  "prdSections": [13, 16, 17],
+  "functionalRequirements": ["FR-030"],
+  "sourceCommitSha": "feb2234e126bc358c56de6d3e4de2e75fa7b2dbb",
+  "startedAt": "2026-07-21T01:20:00.000-04:00",
+  "completedAt": "2026-07-21T06:27:38.571Z",
+  "artifactRoot": "artifacts/verification/RUN-01/",
+  "curatedEvidenceRoot": "docs/evidence/RUN-01/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29806618321",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29806618321/job/88558377331",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29806618321/job/88558377365",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing isolated-browser runner",
+      "command": "pnpm exec vitest run --project unit tests/unit/isolated-browser-runner.test.ts --project property tests/property/isolated-browser-runner.property.test.ts --project integration tests/integration/isolated-browser-runner.test.ts",
+      "exitCode": 1,
+      "durationMs": 3300,
+      "expectedFailure": "All three focused suites failed to import the not-yet-created isolated-browser runner module"
+    },
+    {
+      "phase": "RED",
+      "name": "Initial trace schema did not compile",
+      "command": "pnpm exec vitest run --project unit tests/unit/isolated-browser-runner.test.ts --project property tests/property/isolated-browser-runner.property.test.ts --project integration tests/integration/isolated-browser-runner.test.ts",
+      "exitCode": 1,
+      "durationMs": 3200,
+      "expectedFailure": "The first implementation had an incomplete trace-schema closure and failed during source transformation"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Strict policy configuration and seeded resource-isolation invariants",
+      "command": "pnpm exec vitest run --project unit tests/unit/isolated-browser-runner.test.ts --project property tests/property/isolated-browser-runner.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 3200
+    },
+    {
+      "phase": "RED",
+      "name": "WebSocket and credential-bearing URL policy gap",
+      "command": "pnpm exec vitest run --project unit tests/unit/isolated-browser-runner.test.ts",
+      "exitCode": 1,
+      "durationMs": 3200,
+      "expectedFailure": "The request-policy example rejected authorized WebSocket traffic as an unsupported protocol before explicit WebSocket and URL-credential decisions existed"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Credential-free HTTP and WebSocket request policy",
+      "command": "pnpm exec vitest run --project unit tests/unit/isolated-browser-runner.test.ts && pnpm --filter @pactwire/runner typecheck",
+      "exitCode": 0,
+      "durationMs": 8200
+    },
+    {
+      "phase": "GREEN",
+      "name": "Real Chromium isolation, egress, local-capability, concurrency, and crash cases",
+      "command": "pnpm exec vitest run --project integration tests/integration/isolated-browser-runner.test.ts",
+      "exitCode": 0,
+      "durationMs": 8400
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined isolated-browser user stories",
+      "command": "PACTWIRE_BDD_TAGS=@RUN-01 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 24800,
+      "expectedFailure": "Both RUN-01 scenarios exposed twelve undefined isolated-browser step instances before the real fixture and Chromium bindings existed"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Sequential isolation and crash-recovery browser stories",
+      "command": "PACTWIRE_BDD_TAGS=@RUN-01 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 25000
+    },
+    {
+      "phase": "RED",
+      "name": "Root lint rejected unscoped browser globals in BDD bindings",
+      "command": "pnpm lint",
+      "exitCode": 1,
+      "durationMs": 27000,
+      "expectedFailure": "ESLint reported four no-undef violations for document references inside Playwright evaluation callbacks"
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence traceability required the RUN-01 manifest",
+      "command": "pnpm evidence:check",
+      "exitCode": 1,
+      "durationMs": 3000,
+      "expectedFailure": "The evidence checker reported the new unit, property, and integration browser-runner proof files as orphans"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Focused isolated-browser behavior matrix",
+      "command": "pnpm exec vitest run --project unit tests/unit/isolated-browser-runner.test.ts --project property tests/property/isolated-browser-runner.property.test.ts --project integration tests/integration/isolated-browser-runner.test.ts",
+      "exitCode": 0,
+      "durationMs": 21800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Root lint and evidence reconciliation",
+      "command": "pnpm lint && pnpm evidence:check && pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 0,
+      "durationMs": 31400
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete optimized-production repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 382100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency and credential-pattern audit",
+      "command": "pnpm audit --prod and workspace credential-pattern scan",
+      "exitCode": 0,
+      "durationMs": 2500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Corrected-source clean-checkout verification on Ubuntu and Windows",
+      "command": "GitHub Actions run 29806618321: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 476000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production isolation capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=RUN-01 PACTWIRE_BDD_TAGS=@RUN-01 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 18500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Curated trace privacy scan",
+      "command": "Scan RUN-01 traces for raw fictional markers, personal paths, token-shaped credentials, access keys, and private-key headers",
+      "exitCode": 0,
+      "durationMs": 600
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory rejected stale source-bound proof total",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 1080,
+      "expectedFailure": "The evidence inventory still expected 148 proof files after the two source-bound RUN-01 traces became the 149th and 150th unique proofs"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete evidence-bound optimized-production verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 308000
+    }
+  ],
+  "testSummary": {
+    "files": 62,
+    "passed": 247,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-20-arbitrary-run-order-and-concurrency-share-no-resource",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-20-released-resources-are-never-reassigned",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "authorization.feature",
+        "scenario": "Sequential authorized runs receive separate local browser resources",
+        "passed": true
+      },
+      {
+        "feature": "failure-recovery.feature",
+        "scenario": "A crashed renderer releases its run before clean recovery",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "rationale": "Machine-readable lifecycle traces are applicable and required. A screenshot is not applicable because RUN-01 adds no visible UI or isolation-error surface.",
+    "assets": [
+      {
+        "path": "docs/evidence/RUN-01/sequential-isolation-trace.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T06:27:03.093Z",
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "altText": "Machine-readable lifecycle trace for two sequential real-Chromium runs, showing terminal cleanup for the first run and empty cookie, local-storage, clipboard, and prior-marker assertions for the second run.",
+        "caption": "The first run retained its isolated download only through artifact finalization, released its browser and temporary root, and the second run at the same authorized origin observed no browser-local state from it.",
+        "provenance": "captured",
+        "sourceCommitSha": "feb2234e126bc358c56de6d3e4de2e75fa7b2dbb"
+      },
+      {
+        "path": "docs/evidence/RUN-01/crash-recovery-trace.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T06:27:04.998Z",
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "altText": "Machine-readable lifecycle trace for a real Chromium renderer crash followed by a recovery run, showing crash cleanup and empty browser-local state in recovery.",
+        "caption": "A CDP-induced renderer crash produced a CRASHED terminal session, removed its isolated download and temporary root, disconnected its browser, and allowed a clean recovery run.",
+        "provenance": "captured",
+        "sourceCommitSha": "feb2234e126bc358c56de6d3e4de2e75fa7b2dbb"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "schema",
+      "path": "apps/runner/src/isolated-browser.ts",
+      "description": "Strict session policy, permanent resource registry, per-run Chromium lifecycle, lower-layer request and WebSocket gates, isolated local capabilities, cleanup, diagnostics, and sanitized trace schema"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/isolated-browser-runner.test.ts",
+      "description": "Exact-origin and host policy, URL-credential and protocol refusal, strict configuration, and permanent resource non-reuse examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/isolated-browser-runner.property.test.ts",
+      "description": "Seeded PROP-20 run-order, concurrency, release, and permanent non-reassignment invariants"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/isolated-browser-runner.test.ts",
+      "description": "Real Chromium sequential and concurrent isolation, HTTP/WebSocket egress, popup, clipboard, download, renderer-crash, cleanup, and recovery checks"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/authorization.feature",
+      "description": "User-visible sequential isolation story tagged RUN-01, FR-030, and PROP-20"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/failure-recovery.feature",
+      "description": "User-visible renderer crash and clean recovery story tagged RUN-01, FR-030, and PROP-20"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/isolated-browser.steps.mjs",
+      "description": "Controlled fictional fixture, real per-run Chromium resources, crash injection, terminal-resource assertions, and sanitized trace capture"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/RUN-01/sequential-isolation-trace.json",
+      "description": "Source-bound optimized-production trace proving sequential finalization, resource destruction, and absence of prior browser-local state"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/RUN-01/crash-recovery-trace.json",
+      "description": "Source-bound optimized-production trace proving renderer-crash cleanup and a clean recovery run"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T06:27:38.571Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "RUN-01 exposes the isolated execution primitive to trusted runner code; RUN-03 still owns the policy-bounded GPT-5.6 computer-use adapter and ensures the model never receives raw Playwright authority.",
+    "RUN-02 still owns independent deterministic observation, capture-gap classification, and recorder-version evidence.",
+    "The network boundary is host based and enforced below future model code at the Playwright HTTP and WebSocket routing layers; this task does not claim an operating-system container or firewall boundary.",
+    "No UI screenshot is applicable because RUN-01 adds no visible UI or isolation-error surface; its required evidence is a machine-readable lifecycle trace.",
+    "All exercised hosts, identities, markers, and downloads are controlled fictional fixtures; the passing cases do not establish safety, compliance, agreement conformity, or product effectiveness."
+  ],
+  "reviewer": "codex-agent"
+}

@@ -242,7 +242,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | JRN-02 | P0 | AGR-03, JRN-01 | Named journey editor | COMPLETE |
 | FIX-01 | P0 | FND-01, FND-03 | Controlled classroom fixture | COMPLETE |
 | JRN-03 | P0 | JRN-02, FIX-01 | Deterministic replay baseline | IN PROGRESS |
-| RUN-01 | P0 | AUT-03, AUT-04, FIX-01 | Isolated browser runner | NOT STARTED |
+| RUN-01 | P0 | AUT-03, AUT-04, FIX-01 | Isolated browser runner | COMPLETE |
 | RUN-02 | P0 + P1 follow-on | RUN-01, JRN-01 | Deterministic recorder and visibility | NOT STARTED |
 | RUN-03 | P0 | RUN-01, AUT-03, AUT-04, FIX-01 | Policy-bounded GPT-5.6 computer use | NOT STARTED |
 | RUN-04 | P0 | RUN-03, JRN-02, JRN-03 | Model-assisted journey repair | NOT STARTED |
@@ -484,6 +484,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### RUN-01 — Implement isolated browser execution
 
+- **Status:** COMPLETE — per-run Chromium processes/contexts, exact-origin navigation and host egress, service-worker blocking, popup policy, isolated or blocked downloads/clipboard, terminal cleanup, renderer crash recovery, and PROP-20 cross-run resource invariants are green with source-bound traces and clean Ubuntu/Windows verification at source commit `feb2234e126bc358c56de6d3e4de2e75fa7b2dbb`.
 - **Deliver:** per-run Chromium context or container, clean storage, controlled downloads/clipboard, network egress policy, lifecycle cleanup, and crash handling.
 - **PRD:** FR-030; Sections 13, 16, and 17.
 - **Depends on:** AUT-03, AUT-04, and FIX-01.
