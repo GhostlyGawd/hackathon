@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 10,
-  "totalTables": 26,
+  "migrationCount": 11,
+  "totalTables": 30,
   "migrations": [
     {
       "version": "0001",
@@ -127,6 +127,23 @@
       ],
       "immutableTables": [
         "deterministic_replay_versions"
+      ]
+    },
+    {
+      "version": "0012",
+      "name": "run_orchestration",
+      "sha256": "1ee0264bc7386b020fe0c0589cd7f05ed7d56d0f97724dc1c725aee90713c870",
+      "tables": [
+        "run_execution_scopes",
+        "run_worker_leases",
+        "run_manifests",
+        "run_orchestration_commands"
+      ],
+      "immutableTables": [
+        "run_execution_scopes",
+        "run_worker_leases",
+        "run_manifests",
+        "run_orchestration_commands"
       ]
     }
   ]

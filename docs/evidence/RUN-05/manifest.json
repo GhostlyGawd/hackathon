@@ -1,0 +1,215 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "RUN-05",
+  "title": "Implement run orchestration, retries, manifests, and recovery",
+  "status": "IN_PROGRESS",
+  "prdSections": [10, 17],
+  "functionalRequirements": ["FR-037"],
+  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "startedAt": "2026-07-21T07:45:00.000-04:00",
+  "artifactRoot": "artifacts/verification/RUN-05/",
+  "curatedEvidenceRoot": "docs/evidence/RUN-05/",
+  "environment": {
+    "os": "Windows local",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing run-manifest implementation",
+      "command": "pnpm exec vitest run --project unit tests/unit/run-orchestration.test.ts",
+      "exitCode": 1,
+      "durationMs": 2600,
+      "expectedFailure": "The focused examples failed to import the not-yet-created run-orchestration module"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing orchestration repository",
+      "command": "pnpm exec vitest run --project integration tests/integration/run-orchestration.test.ts",
+      "exitCode": 1,
+      "durationMs": 2700,
+      "expectedFailure": "All three queue, crash/retry, and cancellation cases failed because the orchestration repository did not exist"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing PostgreSQL orchestration boundary",
+      "command": "pnpm exec vitest run --project integration tests/integration/run-orchestration.test.ts",
+      "exitCode": 1,
+      "durationMs": 6400,
+      "expectedFailure": "The in-memory cases passed while the PostgreSQL case failed because PostgresRunOrchestrationRepository did not exist"
+    },
+    {
+      "phase": "GREEN",
+      "name": "PostgreSQL queue, lease, manifest, and idempotency persistence",
+      "command": "pnpm exec vitest run --project integration tests/integration/run-orchestration.test.ts --reporter=verbose",
+      "exitCode": 0,
+      "durationMs": 6300
+    },
+    {
+      "phase": "GREEN",
+      "name": "Seeded manifest, retry, and terminal-state properties",
+      "command": "pnpm exec vitest run --project property tests/property/run-orchestration.property.test.ts --reporter=verbose",
+      "exitCode": 0,
+      "durationMs": 6200
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined recovery and run-history stories",
+      "command": "PACTWIRE_BDD_TAGS=@RUN-05 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 23000,
+      "expectedFailure": "Both RUN-05 scenarios exposed nine undefined run-history and recovery step instances before the API, UI, and browser bindings existed"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Real API and browser recovery stories",
+      "command": "PACTWIRE_BDD_TAGS=@RUN-05 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 31800
+    },
+    {
+      "phase": "RED",
+      "name": "Production session boundary for manifest comparison",
+      "command": "PACTWIRE_BDD_TAGS=@RUN-05 pnpm test:bdd -- --production",
+      "exitCode": 1,
+      "durationMs": 16700,
+      "expectedFailure": "The visible authenticated page loaded run history, but the separate Playwright request context received 401 instead of sharing the optimized-production session cookie"
+    },
+    {
+      "phase": "RED",
+      "name": "Migration inventory exposed the new orchestration schema",
+      "command": "pnpm exec vitest run --project integration tests/integration/domain-migrations.test.ts tests/integration/run-orchestration.test.ts",
+      "exitCode": 1,
+      "durationMs": 16000,
+      "expectedFailure": "The migration inventory still expected ten versions and twenty-eight PostgreSQL tables after the four orchestration tables were added"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Optimized-production run history and recovery stories",
+      "command": "PACTWIRE_BDD_TAGS=@RUN-05 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 15000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Repository type and lint boundaries",
+      "command": "pnpm typecheck && pnpm lint",
+      "exitCode": 0,
+      "durationMs": 38100
+    }
+  ],
+  "testSummary": {
+    "files": 4,
+    "passed": 12,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-22-canonical-observation-and-coverage-ordering",
+        "seed": 20260722,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-18-arbitrary-safe-retry-chains-preserve-frozen-inputs",
+        "seed": 20260722,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-19-terminal-state-has-manifest-or-integrity-failure",
+        "seed": 20260722,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "failure-recovery.feature",
+        "scenario": "Terminal run history distinguishes captured and missing coverage",
+        "passed": true
+      },
+      {
+        "feature": "failure-recovery.feature",
+        "scenario": "A worker failure and completed retry keep exact configuration lineage",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": false,
+    "rationale": "Source-bound desktop and narrow run-history captures are pending the implementation commit.",
+    "assets": []
+  },
+  "proofs": [
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0012_run_orchestration.sql",
+      "description": "Append-only execution scopes, worker leases, terminal manifests, idempotency receipts, and database guards"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/run-orchestration.ts",
+      "description": "Canonical hashes, immutable manifests, queue and lease operations, retries, cancellation, integrity failures, and in-memory and PostgreSQL repositories"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/run-orchestration.test.ts",
+      "description": "Focused manifest ordering, missing-coverage, immutability, and terminal-state examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/run-orchestration.property.test.ts",
+      "description": "Seeded PROP-18, PROP-19, and PROP-22 retry, terminal-state, ordering, and hashing invariants"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/run-orchestration.test.ts",
+      "description": "Queue claims, idempotency, crash/retry, cancel, manifest finalization, PostgreSQL persistence, and immutability"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/failure-recovery.feature",
+      "description": "User-visible terminal coverage and exact retry-lineage recovery stories tagged RUN-05 and FR-037"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/run-orchestration.steps.mjs",
+      "description": "Real API and browser assertions plus source-bound desktop, narrow, and manifest-comparison capture"
+    },
+    {
+      "kind": "schema",
+      "path": "apps/web/app/api/workspaces/[workspaceId]/runs/route.ts",
+      "description": "Workspace-authorized run-history API that omits the raw worker lease token and returns immutable records"
+    },
+    {
+      "kind": "evidence",
+      "path": "apps/web/app/run-history-panel.tsx",
+      "description": "Direct terminal-state, checkpoint coverage, integrity-failure, manifest-hash, and retry-lineage presentation"
+    },
+    {
+      "kind": "config",
+      "path": "scripts/run-bdd.mjs",
+      "description": "RUN-05 browser report and screenshot artifact layout"
+    }
+  ],
+  "sanitization": {
+    "reviewed": false,
+    "reviewedAt": "2026-07-21T08:12:00.000-04:00",
+    "findings": []
+  },
+  "knownLimitations": [
+    "The committed run-history fixture uses controlled fictional records and reserved identities; it does not establish safety, compliance, agreement conformity, or effectiveness on real school software.",
+    "A worker that loses manifest finalization is retained as an explicit integrity failure rather than being mislabeled completed; retry requires a new linked run.",
+    "Source-bound visual capture, full verification, and clean-checkout CI are still pending, so RUN-05 remains in progress."
+  ],
+  "reviewer": "codex-agent"
+}
