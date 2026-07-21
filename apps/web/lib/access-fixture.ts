@@ -3,11 +3,13 @@ import { readFile } from "node:fs/promises";
 import {
   Aes256GcmSecretCipher,
   AgreementIntakeService,
+  ApprovalAuthorityService,
   DeterministicRequirementProposalAdapter,
   DestinationRegistryService,
   FetchOpenAIResponsesTransport,
   InMemoryAgreementIntakeRepository,
   InMemoryAgreementObjectStore,
+  InMemoryApprovalAuthorityRepository,
   InMemoryDestinationRegistryRepository,
   InMemoryFindingEvaluationRepository,
   InMemoryEvidenceObjectStore,
@@ -110,6 +112,8 @@ export interface AccessRuntime {
   readonly findingEvaluationRepository: InMemoryFindingEvaluationRepository;
   readonly evidenceReceiptRepository: InMemoryEvidenceReceiptRepository;
   readonly evidenceReceiptService: EvidenceReceiptService;
+  readonly approvalAuthorityRepository: InMemoryApprovalAuthorityRepository;
+  readonly approvalAuthorityService: ApprovalAuthorityService;
 }
 
 export function isFixtureMode(): boolean {
@@ -296,6 +300,42 @@ async function seedRunHistory(
     idempotencyKey: "fixture-partial-finalize",
   });
 
+  const visibilityRetry = await service.retryRun({
+    workspaceId: partial.workspaceId,
+    sourceRunId: partial.id,
+    requestedBy: human,
+    idempotencyKey: "fixture-partial-visibility-retry",
+  });
+  const visibilityRetryClaim = await claim("visibility-retry");
+  if (
+    !visibilityRetryClaim ||
+    visibilityRetryClaim.run.id !== visibilityRetry.run.id
+  ) {
+    throw new Error("Visibility retry fixture run was not claimed");
+  }
+  await service.finalizeRun({
+    workspaceId: visibilityRetry.run.workspaceId,
+    runId: visibilityRetry.run.id,
+    leaseToken: visibilityRetryClaim.leaseToken,
+    terminalStatus: "PARTIAL",
+    runnerVersion: "pactwire-runner-v1",
+    observations: [observation(6, "NETWORK")],
+    coverage: [
+      { checkpointId: requiredCheckpointIds[0], status: "VERIFIED" },
+      {
+        checkpointId: requiredCheckpointIds[1],
+        status: "NOT_VISIBLE",
+        reason:
+          "The completion signal remained outside recorder visibility on the exact frozen retry.",
+      },
+    ],
+    limitations: [
+      "The exact frozen retry still could not observe one required checkpoint.",
+    ],
+    actor: automation,
+    idempotencyKey: "fixture-partial-visibility-retry-finalize",
+  });
+
   const failed = await queue("failed");
   const failedClaim = await claim("failed");
   if (!failedClaim) throw new Error("Failed fixture run was not claimed");
@@ -353,18 +393,19 @@ async function seedRunHistory(
     fixtureWorkspaceIds.cedarRidge,
     fixtureRunHistorySoftwareId,
   );
-  if (history.length !== 5) {
+  if (history.length !== 6) {
     throw new Error("The controlled run-history fixture is incomplete");
   }
 }
 
-const fixtureFindingIds = Object.freeze({
+export const fixtureFindingIds = Object.freeze({
   clean: "71717171-7171-4171-8171-717171710001",
   conflict: "71717171-7171-4171-8171-717171710002",
   repaired: "71717171-7171-4171-8171-717171710003",
   ambiguity: "71717171-7171-4171-8171-717171710004",
   notVisible: "71717171-7171-4171-8171-717171710005",
   notTested: "71717171-7171-4171-8171-717171710006",
+  visibilityRetry: "71717171-7171-4171-8171-717171710007",
 });
 
 const fixtureFindingRequirementId =
@@ -655,8 +696,13 @@ async function seedFindingEvaluations(
   );
   const partial = requiredManifest(
     history,
-    ({ run }) => run.state === "PARTIAL",
+    ({ run }) => run.state === "PARTIAL" && !run.retryOfRunId,
     "partial manifest",
+  );
+  const visibilityRetry = requiredManifest(
+    history,
+    ({ run }) => run.state === "PARTIAL" && Boolean(run.retryOfRunId),
+    "visibility retry manifest",
   );
   const failed = requiredManifest(
     history,
@@ -678,6 +724,7 @@ async function seedFindingEvaluations(
       destinationStatus: "UNKNOWN",
     }),
     fixtureFindingInput(partial, fixtureFindingIds.notVisible),
+    fixtureFindingInput(visibilityRetry, fixtureFindingIds.visibilityRetry),
     fixtureFindingInput(failed, fixtureFindingIds.notTested),
   ];
   for (const input of inputs) {
@@ -690,104 +737,128 @@ async function seedEvidenceReceipts(
   findingRepository: InMemoryFindingEvaluationRepository,
   receiptService: EvidenceReceiptService,
 ): Promise<void> {
-  const finding = await findingRepository.get(
-    fixtureWorkspaceIds.cedarRidge,
-    fixtureFindingIds.conflict,
-  );
-  if (!finding) throw new Error("Receipt fixture is missing its conflict finding");
   const history = await runRepository.listHistory(
     fixtureWorkspaceIds.cedarRidge,
     fixtureRunHistorySoftwareId,
   );
-  const manifest = history.find(
-    ({ run }) => run.id === finding.finding.runId,
-  )?.manifest;
-  if (!manifest) throw new Error("Receipt fixture is missing its exact run manifest");
   const screenshot = await readFile(
     new URL("../../../docs/evidence/FIX-01/fixture-regression-desktop.png", import.meta.url),
   );
-  const match = fixtureMatcherOutcome(manifest, "MATCHED");
-  const destination = fixtureDestination(manifest, "PROHIBITED");
-  const bundle = createEvidenceReceiptBundle({
-    receiptId: "79797979-7979-4979-8979-797979797979",
-    findingEvaluation: finding,
-    runManifest: manifest,
-    requirement: fixtureRequirement(manifest),
-    agreementVersion: fixtureReceiptAgreementVersion(manifest),
-    artifacts: [
-      {
-        kind: "OBSERVED_EVENT",
-        path: "observations/submission-request.json",
-        mediaType: "application/json",
-        content: {
-          eventType: "NETWORK_REQUEST",
-          method: "POST",
-          hostname: "fixture-analytics.pactwire.test",
-          path: "/collect",
-          recordedFields: ["email"],
-          observationId: match.observationId,
-          payloadSha256: manifest.observationHashes[0]?.payloadHash,
-        },
-      },
-      {
-        kind: "CANARY_MATCH",
-        path: "matches/email-canary.json",
-        mediaType: "application/json",
-        content: {
-          status: match.status,
-          observationId: match.observationId,
-          canaryId: match.status === "MATCHED" ? match.canaryId : undefined,
-          sourceField:
-            match.status === "MATCHED" ? match.canarySourceField : "email",
-          matchKind: match.status === "MATCHED" ? match.transform : "EXACT",
-          matchedValueSha256: "6".repeat(64),
-        },
-      },
-      {
-        kind: "DESTINATION_RECORD",
-        path: "destinations/fixture-analytics-v1.json",
-        mediaType: "application/json",
-        content: destination,
-      },
-      {
-        kind: "SCREENSHOT",
-        path: "screenshots/fixture-regression-desktop.png",
-        mediaType: "image/png",
-        content: new Uint8Array(screenshot),
-      },
-      {
-        kind: "ACTION_TRACE",
-        path: "actions/fictional-submission.json",
-        mediaType: "application/json",
-        content: {
-          actions: [
-            {
-              sequence: 1,
-              action: "NAVIGATE",
-              target: "https://classroom.pactwire.test",
-              result: "COMPLETED",
-            },
-            {
-              sequence: 2,
-              action: "SUBMIT",
-              target: "fictional student submission",
-              result: "COMPLETED",
-            },
-          ],
-        },
-      },
-    ],
-    secretValues: [
-      "pw-0123456789abcdef0123456789abcdef@canary.pactwire.invalid",
-    ],
-    createdAt: "2026-07-22T14:05:00.000Z",
-    createdBy: {
-      kind: "AUTOMATION",
-      actorId: "pactwire-receipt-builder",
-      component: "pactwire-evidence-receipt-v1",
+  const receipts = [
+    {
+      findingId: fixtureFindingIds.conflict,
+      receiptId: "79797979-7979-4979-8979-797979797979",
+      destinationStatus: "PROHIBITED" as const,
+      createdAt: "2026-07-22T14:05:00.000Z",
     },
-  });
-  await receiptService.append(bundle);
+    {
+      findingId: fixtureFindingIds.visibilityRetry,
+      receiptId: "80808080-8080-4080-8080-808080808080",
+      destinationStatus: "ALLOWED" as const,
+      createdAt: "2026-07-22T14:06:00.000Z",
+    },
+  ] as const;
+  for (const receiptFixture of receipts) {
+    const finding = await findingRepository.get(
+      fixtureWorkspaceIds.cedarRidge,
+      receiptFixture.findingId,
+    );
+    if (!finding) {
+      throw new Error("Receipt fixture is missing its exact finding");
+    }
+    const manifest = history.find(
+      ({ run }) => run.id === finding.finding.runId,
+    )?.manifest;
+    if (!manifest) {
+      throw new Error("Receipt fixture is missing its exact run manifest");
+    }
+    const match = fixtureMatcherOutcome(manifest, "MATCHED");
+    const destination = fixtureDestination(
+      manifest,
+      receiptFixture.destinationStatus,
+    );
+    const bundle = createEvidenceReceiptBundle({
+      receiptId: receiptFixture.receiptId,
+      findingEvaluation: finding,
+      runManifest: manifest,
+      requirement: fixtureRequirement(manifest),
+      agreementVersion: fixtureReceiptAgreementVersion(manifest),
+      artifacts: [
+        {
+          kind: "OBSERVED_EVENT",
+          path: "observations/submission-request.json",
+          mediaType: "application/json",
+          content: {
+            eventType: "NETWORK_REQUEST",
+            method: "POST",
+            hostname: destination.hostname,
+            path: "/collect",
+            recordedFields: ["email"],
+            observationId: match.observationId,
+            payloadSha256: manifest.observationHashes[0]?.payloadHash,
+          },
+        },
+        {
+          kind: "CANARY_MATCH",
+          path: "matches/email-canary.json",
+          mediaType: "application/json",
+          content: {
+            status: match.status,
+            observationId: match.observationId,
+            canaryId: match.status === "MATCHED" ? match.canaryId : undefined,
+            sourceField:
+              match.status === "MATCHED" ? match.canarySourceField : "email",
+            matchKind:
+              match.status === "MATCHED" ? match.transform : "EXACT",
+            matchedValueSha256: "6".repeat(64),
+          },
+        },
+        {
+          kind: "DESTINATION_RECORD",
+          path: `destinations/${receiptFixture.destinationStatus.toLowerCase()}-destination-v1.json`,
+          mediaType: "application/json",
+          content: destination,
+        },
+        {
+          kind: "SCREENSHOT",
+          path: "screenshots/fixture-regression-desktop.png",
+          mediaType: "image/png",
+          content: new Uint8Array(screenshot),
+        },
+        {
+          kind: "ACTION_TRACE",
+          path: "actions/fictional-submission.json",
+          mediaType: "application/json",
+          content: {
+            actions: [
+              {
+                sequence: 1,
+                action: "NAVIGATE",
+                target: "https://classroom.pactwire.test",
+                result: "COMPLETED",
+              },
+              {
+                sequence: 2,
+                action: "SUBMIT",
+                target: "fictional student submission",
+                result: "COMPLETED",
+              },
+            ],
+          },
+        },
+      ],
+      secretValues: [
+        "pw-0123456789abcdef0123456789abcdef@canary.pactwire.invalid",
+      ],
+      createdAt: receiptFixture.createdAt,
+      createdBy: {
+        kind: "AUTOMATION",
+        actorId: "pactwire-receipt-builder",
+        component: "pactwire-evidence-receipt-v1",
+      },
+    });
+    await receiptService.append(bundle);
+  }
 }
 
 async function createFixtureRuntime(): Promise<AccessRuntime> {
@@ -944,6 +1015,50 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     findingEvaluationRepository,
     evidenceReceiptService,
   );
+  const approvalAuthorityRepository =
+    new InMemoryApprovalAuthorityRepository();
+  await approvalAuthorityRepository.initialize({
+    workspaceId: fixtureWorkspaceIds.cedarRidge,
+    softwareId: fixtureRunHistorySoftwareId,
+    softwareName: "Northstar Classroom (Fictional)",
+    state: "APPROVED",
+    approvalOrigin: {
+      id: "81818181-8181-4181-8181-818181818181",
+      workspaceId: fixtureWorkspaceIds.cedarRidge,
+      softwareId: fixtureRunHistorySoftwareId,
+      state: "APPROVED",
+      setBy: {
+        kind: "IMPORTED_SYSTEM",
+        actorId: "fictional-district-registry",
+        displayName: "Fictional Cedar Ridge App Registry",
+        source: "district inventory export",
+      },
+      reason: "Imported existing district approval record.",
+      sourceReference: "AP-2042",
+      recordedBy: {
+        kind: "HUMAN",
+        actorId: fixtureUsers.officer.userId,
+      },
+      recordedAt: "2026-07-22T13:00:00.000Z",
+    },
+  });
+  let approvalIdentifier = 1;
+  let approvalClockOffset = 0;
+  const approvalAuthorityService = new ApprovalAuthorityService(
+    approvalAuthorityRepository,
+    service,
+    {
+      idFactory: () =>
+        `82828282-8282-4282-8282-${String(approvalIdentifier++).padStart(12, "0")}`,
+      now: () => {
+        const current = new Date(
+          Date.UTC(2026, 6, 22, 15, 0, approvalClockOffset),
+        ).toISOString();
+        approvalClockOffset += 1;
+        return current;
+      },
+    },
+  );
   return Object.freeze({
     repository,
     service,
@@ -971,6 +1086,8 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     findingEvaluationRepository,
     evidenceReceiptRepository,
     evidenceReceiptService,
+    approvalAuthorityRepository,
+    approvalAuthorityService,
   });
 }
 

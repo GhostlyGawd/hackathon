@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { SecretIsolationPanel } from "./secret-isolation-panel";
 import { AgreementIntakePanel } from "./agreement-intake-panel";
+import { ApprovalAuthorityPanel } from "./approval-authority-panel";
 import { JourneyAuthoringPanel } from "./journey-authoring-panel";
 import { DestinationRegistryPanel } from "./destination-registry-panel";
 import { FindingEvaluationPanel } from "./finding-evaluation-panel";
@@ -17,6 +18,9 @@ type WorkspaceRole =
   | "REVIEWER"
   | "APPLICATION_APPROVER"
   | "SECURITY_REVIEWER";
+
+const controlledApprovalSoftwareId =
+  "56565656-5656-4565-8565-565656565656";
 
 interface Principal {
   readonly userId: string;
@@ -189,6 +193,12 @@ function canReviewEvidence(roles: readonly RoleAssignment[]): boolean {
     ["PRIVACY_OFFICER", "REVIEWER", "SECURITY_REVIEWER"].includes(
       assignment.role,
     ),
+  );
+}
+
+function canRestoreApproval(roles: readonly RoleAssignment[]): boolean {
+  return roles.some((assignment) =>
+    ["PRIVACY_OFFICER", "APPLICATION_APPROVER"].includes(assignment.role),
   );
 }
 
@@ -394,6 +404,7 @@ export function AccessConsole() {
           <a href="#credentials">Credentials</a>
           <a href="#synthetic-data" aria-current="page">Test data</a>
           <a href="#run-history">Runs</a>
+          <a href="#approval">Approval</a>
         </nav>
         <span className="environment-badge">
           <span aria-hidden="true" /> Controlled fixture
@@ -578,6 +589,14 @@ export function AccessConsole() {
                 key={`findings:${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
               />
+              {canReviewEvidence(roles) ? (
+                <ApprovalAuthorityPanel
+                  canRestoreApproval={canRestoreApproval(roles)}
+                  key={`approval:${principal.activeWorkspaceId}:${principal.userId}`}
+                  softwareId={controlledApprovalSoftwareId}
+                  workspaceId={principal.activeWorkspaceId}
+                />
+              ) : null}
               <div className="workspace-grid">
               <div className="workspace-column">
                 <article className="workspace-card">

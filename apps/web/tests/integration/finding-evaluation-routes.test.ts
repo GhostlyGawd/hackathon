@@ -78,7 +78,9 @@ describe("DET-03 finding evaluation HTTP boundary", () => {
     expect(body.decisionTable.map(({ priority }) => priority)).toEqual([
       1, 2, 3, 4, 5, 6, 7,
     ]);
-    expect(body.findings.map(({ finding }) => finding.state).sort()).toEqual(
+    expect(
+      [...new Set(body.findings.map(({ finding }) => finding.state))].sort(),
+    ).toEqual(
       [
         "NEEDS_REVIEW",
         "NOT_REOBSERVED_IN_NAMED_TESTS",
@@ -88,6 +90,9 @@ describe("DET-03 finding evaluation HTTP boundary", () => {
         "WITNESSED_CONFLICT",
       ].sort(),
     );
+    expect(
+      body.findings.filter(({ finding }) => finding.state === "NOT_VISIBLE"),
+    ).toHaveLength(2);
     expect(
       body.findings.every(
         ({ finding, display }) =>
