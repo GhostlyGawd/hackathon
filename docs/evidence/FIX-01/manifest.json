@@ -2,17 +2,34 @@
   "schemaVersion": "1.0.0",
   "taskId": "FIX-01",
   "title": "Build the controlled classroom fixture",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [18],
   "functionalRequirements": [],
-  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "sourceCommitSha": "6c9657f3fadb1721a6816327b6d30eb94fafc4ae",
   "startedAt": "2026-07-21T01:50:00.000Z",
+  "completedAt": "2026-07-21T02:39:50.000Z",
   "artifactRoot": "artifacts/verification/FIX-01/",
   "curatedEvidenceRoot": "docs/evidence/FIX-01/",
   "environment": {
     "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29795959902",
+      "jobs": [
+        {
+          "name": "Ubuntu",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29795959902/job/88527229886",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Windows",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29795959902/job/88527229917",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -132,6 +149,42 @@
       "command": "rg -P with token-boundary secret-key and private-key patterns, excluding dependencies, build output, artifacts, and images; no matches is success",
       "exitCode": 0,
       "durationMs": 600
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production browser capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=FIX-01 PACTWIRE_BDD_PRODUCTION=1 PACTWIRE_BDD_TAGS=@FIX-01 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 19100
+    },
+    {
+      "phase": "RED",
+      "name": "Unreferenced curated fixture screenshots",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 2778,
+      "expectedFailure": "The evidence harness found all eleven source-bound fixture screenshots before the FIX-01 manifest referenced them"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Manifest-linked focused acceptance and evidence reconciliation",
+      "command": "pnpm evidence:check; pnpm exec vitest run --project unit tests/unit/controlled-fixture.test.ts --project property tests/property/controlled-fixture.property.test.ts --project integration tests/integration/controlled-fixture.test.ts tests/integration/evidence-harness.test.ts",
+      "exitCode": 0,
+      "durationMs": 5703
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows at the implementation source commit",
+      "command": "GitHub Actions run 29795959902: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 342000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete repository verification with finalized evidence",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 265774
     }
   ],
   "testSummary": {
@@ -209,9 +262,152 @@
     ]
   },
   "visualEvidence": {
-    "applicable": false,
-    "rationale": "Eleven development captures were reviewed; curated optimized-production copies will be attached after the implementation source commit exists.",
-    "assets": []
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/FIX-01/fixture-teacher-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T02:30:00.908Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop controlled classroom fixture showing the fictional teacher entry point, seeded class phrase, reserved teacher account, active baseline mode, and link to the fictional student journey.",
+        "caption": "The teacher entry point exposes only a seeded fictional assignment and reserved .invalid identities before the student journey begins.",
+        "provenance": "captured",
+        "sourceCommitSha": "6c9657f3fadb1721a6816327b6d30eb94fafc4ae"
+      },
+      {
+        "path": "docs/evidence/FIX-01/fixture-teacher-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T02:30:01.146Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow controlled classroom fixture showing the responsive fictional teacher entry point with the seeded class phrase, reserved account, and baseline journey link.",
+        "caption": "The same fictional teacher setup remains readable and operable at a narrow mobile viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "6c9657f3fadb1721a6816327b6d30eb94fafc4ae"
+      },
+      {
+        "path": "docs/evidence/FIX-01/fixture-baseline-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T02:30:01.694Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop baseline fixture after a fictional student submission, showing the exact seeded privacy rule, reserved student email, unique response canary, and declared baseline completion state.",
+        "caption": "Baseline mode completes the fictional submission through the fixture's declared first-party behavior.",
+        "provenance": "captured",
+        "sourceCommitSha": "6c9657f3fadb1721a6816327b6d30eb94fafc4ae"
+      },
+      {
+        "path": "docs/evidence/FIX-01/fixture-regression-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T02:30:07.870Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop regression fixture after submission, showing that the declared fixture behavior sends the exact synthetic student email to the reserved fictional analytics destination.",
+        "caption": "Regression mode creates the fixture's witnessed conflict by dispatching the exact synthetic email to a reserved analytics host.",
+        "provenance": "captured",
+        "sourceCommitSha": "6c9657f3fadb1721a6816327b6d30eb94fafc4ae"
+      },
+      {
+        "path": "docs/evidence/FIX-01/fixture-repaired-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T02:30:06.148Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop repaired fixture after submission, showing that the analytics request contains only an aggregate submission-completed event and omits the synthetic student email.",
+        "caption": "Repaired mode preserves a completion event while removing the seeded student identifier from the analytics payload.",
+        "provenance": "captured",
+        "sourceCommitSha": "6c9657f3fadb1721a6816327b6d30eb94fafc4ae"
+      },
+      {
+        "path": "docs/evidence/FIX-01/fixture-ambiguous-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T02:29:59.980Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow ambiguous fixture after submission, showing an unsupported opaque transform sent to the classroom service and an unknown reserved destination without presenting a finding.",
+        "caption": "Ambiguous mode makes the unknown transform and destination visible without turning uncertainty into a pass or conflict claim.",
+        "provenance": "captured",
+        "sourceCommitSha": "6c9657f3fadb1721a6816327b6d30eb94fafc4ae"
+      },
+      {
+        "path": "docs/evidence/FIX-01/fixture-invisible-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T02:30:06.896Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow invisible fixture showing a prominent warning that required capture is unavailable and missing traffic cannot be treated as a clean run.",
+        "caption": "Visibility-loss mode preserves the capture gap as an explicit unknown state before and after submission.",
+        "provenance": "captured",
+        "sourceCommitSha": "6c9657f3fadb1721a6816327b6d30eb94fafc4ae"
+      },
+      {
+        "path": "docs/evidence/FIX-01/fixture-interface-drift-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T02:30:02.682Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop interface-drift fixture with changed turn-in wording and route while retaining the same fictional assignment, reserved student identity, and seeded network behavior.",
+        "caption": "Interface-drift mode changes the browser checkpoint while keeping the seeded traffic behavior stable for replay testing.",
+        "provenance": "captured",
+        "sourceCommitSha": "6c9657f3fadb1721a6816327b6d30eb94fafc4ae"
+      },
+      {
+        "path": "docs/evidence/FIX-01/fixture-prompt-injection-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T02:30:05.260Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow prompt-injection fixture labeling an instruction to reveal credentials and change destination as untrusted page content beside the unchanged fictional submission form.",
+        "caption": "The injected instruction is visibly untrusted content and cannot alter the fixture's authorized seeded behavior.",
+        "provenance": "captured",
+        "sourceCommitSha": "6c9657f3fadb1721a6816327b6d30eb94fafc4ae"
+      },
+      {
+        "path": "docs/evidence/FIX-01/fixture-risky-action-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T02:30:04.425Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop risky-action fixture showing a request to message a real guardian stopped with a human-decision-required state and no real-world dispatch.",
+        "caption": "The fixture stops at the real-person boundary and requires a human instead of simulating successful outreach.",
+        "provenance": "captured",
+        "sourceCommitSha": "6c9657f3fadb1721a6816327b6d30eb94fafc4ae"
+      },
+      {
+        "path": "docs/evidence/FIX-01/fixture-failure-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T02:30:03.563Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop failure fixture after submission, showing a visible seeded service outage and the direct statement that no request was dispatched.",
+        "caption": "Failure mode returns a bounded outage state and records zero network dispatches for the attempted submission.",
+        "provenance": "captured",
+        "sourceCommitSha": "6c9657f3fadb1721a6816327b6d30eb94fafc4ae"
+      }
+    ]
   },
   "proofs": [
     {
@@ -297,7 +493,7 @@
   ],
   "sanitization": {
     "reviewed": true,
-    "reviewedAt": "2026-07-21T02:15:00.000Z",
+    "reviewedAt": "2026-07-21T02:31:00.000Z",
     "findings": []
   },
   "knownLimitations": [

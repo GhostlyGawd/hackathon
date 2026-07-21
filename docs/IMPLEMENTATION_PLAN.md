@@ -239,7 +239,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | AGR-03 | P0 + P1 follow-on | AGR-01, AGR-02, AUT-01 | Human review and requirement versions | COMPLETE (P0) |
 | JRN-01 | P0 | AUT-01, AUT-04 | Fictional personas and canaries | COMPLETE |
 | JRN-02 | P0 | AGR-03, JRN-01 | Named journey editor | NOT STARTED |
-| FIX-01 | P0 | FND-01, FND-03 | Controlled classroom fixture | IN PROGRESS |
+| FIX-01 | P0 | FND-01, FND-03 | Controlled classroom fixture | COMPLETE |
 | JRN-03 | P0 | JRN-02, FIX-01 | Deterministic replay baseline | NOT STARTED |
 | RUN-01 | P0 | AUT-03, AUT-04, FIX-01 | Isolated browser runner | NOT STARTED |
 | RUN-02 | P0 + P1 follow-on | RUN-01, JRN-01 | Deterministic recorder and visibility | NOT STARTED |
@@ -454,6 +454,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### FIX-01 — Build the controlled classroom fixture
 
+- **Status:** COMPLETE — all nine deterministic modes, independent hidden oracle, exact fictional DPA, real reserved-host browser traffic, seeded properties, BDD stories, optimized-production visual evidence, and Ubuntu/Windows verification passed at implementation commit `6c9657f3fadb1721a6816327b6d30eb94fafc4ae`.
 - **Deliver:** fictional teacher/student app and DPA with baseline, regression, repaired, ambiguous, invisible, interface-drift, prompt-injection, risky-action, and failure modes.
 - **PRD:** Section 18.
 - **Depends on:** FND-01 and FND-03.
