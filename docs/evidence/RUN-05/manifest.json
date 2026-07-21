@@ -5,7 +5,7 @@
   "status": "IN_PROGRESS",
   "prdSections": [10, 17],
   "functionalRequirements": ["FR-037"],
-  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "sourceCommitSha": "442f0da0a5c65e08a526b90b59d854a89e751920",
   "startedAt": "2026-07-21T07:45:00.000-04:00",
   "artifactRoot": "artifacts/verification/RUN-05/",
   "curatedEvidenceRoot": "docs/evidence/RUN-05/",
@@ -93,15 +93,45 @@
     },
     {
       "phase": "REGRESSION",
+      "name": "Source-bound desktop, narrow, and manifest comparison capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=RUN-05 PACTWIRE_BDD_TAGS=@RUN-05 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 15300
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory recognized the curated comparison report",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 3200,
+      "expectedFailure": "The repository evidence inventory still expected 180 proof files before the source-bound manifest comparison became the 181st proof"
+    },
+    {
+      "phase": "RED",
+      "name": "Full gate exposed the stale generated table-count assertion",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 85700,
+      "expectedFailure": "All pre-test gates and the optimized build passed before the domain-evidence unit test expected the pre-RUN-05 total of 26 tables instead of the generated total of 30"
+    },
+    {
+      "phase": "REGRESSION",
       "name": "Repository type and lint boundaries",
       "command": "pnpm typecheck && pnpm lint",
       "exitCode": 0,
       "durationMs": 38100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete evidence-bound optimized-production verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 328400
     }
   ],
   "testSummary": {
-    "files": 4,
-    "passed": 12,
+    "files": 72,
+    "passed": 289,
     "failed": 0,
     "skipped": 0,
     "retries": 0
@@ -145,9 +175,61 @@
     ]
   },
   "visualEvidence": {
-    "applicable": false,
-    "rationale": "Source-bound desktop and narrow run-history captures are pending the implementation commit.",
-    "assets": []
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/RUN-05/terminal-run-history-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T12:19:46.373Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop run-history screen showing five fictional terminal runs, four immutable manifests, complete, partial, and failed checkpoint coverage, and one explicit worker lease integrity failure.",
+        "caption": "Terminal rows state exactly which required checkpoints were recorded, not visible, or not tested, while the summary avoids any safety or compliance conclusion.",
+        "provenance": "captured",
+        "sourceCommitSha": "442f0da0a5c65e08a526b90b59d854a89e751920"
+      },
+      {
+        "path": "docs/evidence/RUN-05/terminal-run-history-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T12:19:46.603Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow run-history screen stacking the same five fictional terminal states with readable configuration, manifest, integrity-failure, and checkpoint details.",
+        "caption": "The complete, partial, failed, crashed-worker, and retry records remain explicit and readable at the narrow viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "442f0da0a5c65e08a526b90b59d854a89e751920"
+      },
+      {
+        "path": "docs/evidence/RUN-05/retry-lineage-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T12:19:48.657Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop recovery view pairing a completed retry with its failed worker source and showing that the exact frozen configuration was verified.",
+        "caption": "The crashed source remains FAILED with WORKER_LEASE_EXPIRED and no manifest; its new linked run completes with an immutable manifest and the same frozen inputs.",
+        "provenance": "captured",
+        "sourceCommitSha": "442f0da0a5c65e08a526b90b59d854a89e751920"
+      },
+      {
+        "path": "docs/evidence/RUN-05/retry-lineage-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T12:19:48.881Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow recovery view showing the completed retry, source run identifier, exact frozen configuration label, and preserved worker lease failure.",
+        "caption": "Retry lineage and the source integrity failure remain understandable without horizontal scrolling at the narrow viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "442f0da0a5c65e08a526b90b59d854a89e751920"
+      }
+    ]
   },
   "proofs": [
     {
@@ -199,17 +281,22 @@
       "kind": "config",
       "path": "scripts/run-bdd.mjs",
       "description": "RUN-05 browser report and screenshot artifact layout"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/RUN-05/manifest-comparison.json",
+      "description": "Sanitized source-bound comparison of complete, partial, failed, integrity-failed, and retried manifest hashes and checkpoint coverage"
     }
   ],
   "sanitization": {
-    "reviewed": false,
-    "reviewedAt": "2026-07-21T08:12:00.000-04:00",
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T12:20:00.000Z",
     "findings": []
   },
   "knownLimitations": [
     "The committed run-history fixture uses controlled fictional records and reserved identities; it does not establish safety, compliance, agreement conformity, or effectiveness on real school software.",
     "A worker that loses manifest finalization is retained as an explicit integrity failure rather than being mislabeled completed; retry requires a new linked run.",
-    "Source-bound visual capture, full verification, and clean-checkout CI are still pending, so RUN-05 remains in progress."
+    "Clean-checkout GitHub Actions verification is still pending, so RUN-05 remains in progress."
   ],
   "reviewer": "codex-agent"
 }
