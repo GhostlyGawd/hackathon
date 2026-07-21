@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1.0.0",
+  "replayVersionId": "13131313-1313-4313-8313-131313131313",
+  "replayHash": "6d74b2b0e91966917e571d0d59374c3674a8ecdf11c128f2a620b18135a5b5f7",
+  "snapshot": {
+    "agreementVersionId": "33333333-3333-4333-8333-333333333333",
+    "journeyVersionId": "66666666-6666-4666-8666-666666666666",
+    "authorizationId": "44444444-4444-4444-8444-444444444444",
+    "runnerConfigVersion": "deterministic-replay-v1",
+    "snapshotHash": "6bdd4848753a7e4645d5dd1a8332db9e64a01581521cd93e72636359b3726789"
+  },
+  "arm": "HUMAN_AUTHORED_DETERMINISTIC",
+  "modelInvocationCount": 0,
+  "state": "DRIFTED",
+  "startedAt": "2026-07-21T11:18:31.794Z",
+  "completedAt": "2026-07-21T11:18:32.028Z",
+  "trace": [
+    {
+      "sequence": 1,
+      "operationId": "open-student-workspace",
+      "kind": "NAVIGATE",
+      "status": "COMPLETED",
+      "observedAt": "2026-07-21T11:18:31.882Z"
+    },
+    {
+      "sequence": 2,
+      "operationId": "check-student-email",
+      "kind": "ASSERT_VALUE",
+      "status": "COMPLETED",
+      "observedAt": "2026-07-21T11:18:31.918Z",
+      "valueHash": "e3af5e4dd8a70004cc29f1a35dc382b065ad25ef135d962735c2a6f6f29e5a81"
+    },
+    {
+      "sequence": 3,
+      "operationId": "enter-student-response",
+      "kind": "FILL",
+      "status": "COMPLETED",
+      "observedAt": "2026-07-21T11:18:31.942Z",
+      "valueHash": "8226e3a432507f5998758167b1c8fcbfd62543b95f8a78ce798d1b16a4b30d45"
+    },
+    {
+      "sequence": 4,
+      "operationId": "submit-student-response",
+      "kind": "CLICK",
+      "status": "COMPLETED",
+      "observedAt": "2026-07-21T11:18:32.002Z"
+    },
+    {
+      "sequence": 5,
+      "operationId": "observe-submission-request",
+      "kind": "CHECKPOINT",
+      "status": "DRIFTED",
+      "observedAt": "2026-07-21T11:18:32.028Z",
+      "reasonCode": "CHECKPOINT_STATUS_MISMATCH"
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpointId": "submission-request",
+      "required": true,
+      "status": "MISSING"
+    }
+  ],
+  "limitations": [
+    "Execution checkpoints control replay outcome; RUN-02 owns independent observed browser and network evidence."
+  ]
+}

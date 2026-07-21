@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "24242424-2424-4424-8424-242424242424",
+  "repairId": "23232323-2323-4323-8323-232323232323",
+  "workspaceId": "11111111-1111-4111-8111-111111111111",
+  "sourceReplayVersionId": "13131313-1313-4313-8313-131313131313",
+  "repairHash": "3f4eb6e2edd8cab0844c918f0bdaf6cdaf9fa721ceee67757bc5a22ff5554925",
+  "status": "NOT_TESTED",
+  "reasonCode": "REPAIR_NOT_BOUNDED",
+  "executionState": "FAILED",
+  "checkpoints": [],
+  "verifiedCheckpointIds": [],
+  "recorderVisibility": "NOT_TESTED",
+  "verifiedAt": "2026-07-21T11:05:00.000Z",
+  "verifiedBy": {
+    "actorId": "run-04-bdd-verifier",
+    "kind": "AUTOMATION",
+    "component": "journey-repair-verifier"
+  }
+}
