@@ -60,7 +60,17 @@ importers:
         specifier: 4.4.3
         version: 4.4.3
 
-  apps/runner: {}
+  apps/runner:
+    dependencies:
+      '@pactwire/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      playwright-core:
+        specifier: 1.61.1
+        version: 1.61.1
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
 
   apps/web:
     dependencies:

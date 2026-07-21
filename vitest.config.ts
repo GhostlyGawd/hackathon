@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 
 const project = (name: string, include: string[]) => ({
@@ -14,6 +15,13 @@ const project = (name: string, include: string[]) => ({
 });
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      "@pactwire/core": fileURLToPath(
+        new URL("./packages/core/src/index.ts", import.meta.url),
+      ),
+    },
+  },
   test: {
     passWithNoTests: true,
     projects: [

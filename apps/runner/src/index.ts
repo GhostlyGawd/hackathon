@@ -3,3 +3,6 @@ export const runnerService = Object.freeze({
   responsibility: "isolated browser execution",
   service: "runner",
 });
+
+export * from "./deterministic-replay.js";
+export * from "./playwright-replay.js";

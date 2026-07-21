@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 9,
-  "totalTables": 25,
+  "migrationCount": 10,
+  "totalTables": 26,
   "migrations": [
     {
       "version": "0001",
@@ -117,6 +117,17 @@
       "sha256": "3ae1707f95d61a403727595282ffa10313295a3cf6c30f40625ffae022102b2d",
       "tables": [],
       "immutableTables": []
+    },
+    {
+      "version": "0010",
+      "name": "deterministic_replay_versions",
+      "sha256": "c9e74bd13b70dcd4d12572efb725e93fac74fe286ef8517761f236c30fdb3606",
+      "tables": [
+        "deterministic_replay_versions"
+      ],
+      "immutableTables": [
+        "deterministic_replay_versions"
+      ]
     }
   ]
 }

@@ -241,7 +241,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | JRN-01 | P0 | AUT-01, AUT-04 | Fictional personas and canaries | COMPLETE |
 | JRN-02 | P0 | AGR-03, JRN-01 | Named journey editor | COMPLETE |
 | FIX-01 | P0 | FND-01, FND-03 | Controlled classroom fixture | COMPLETE |
-| JRN-03 | P0 | JRN-02, FIX-01 | Deterministic replay baseline | NOT STARTED |
+| JRN-03 | P0 | JRN-02, FIX-01 | Deterministic replay baseline | IN PROGRESS |
 | RUN-01 | P0 | AUT-03, AUT-04, FIX-01 | Isolated browser runner | NOT STARTED |
 | RUN-02 | P0 + P1 follow-on | RUN-01, JRN-01 | Deterministic recorder and visibility | NOT STARTED |
 | RUN-03 | P0 | RUN-01, AUT-03, AUT-04, FIX-01 | Policy-bounded GPT-5.6 computer use | NOT STARTED |
@@ -469,6 +469,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### JRN-03 — Implement deterministic recording/replay and the non-model baseline
 
+- **Status:** IN PROGRESS — the saved human-authored replay format, frozen execution inputs, exact-origin checkpoint outcome, controlled-fixture drift detection, and non-model baseline arm are implemented and green. Completion remains gated on running this arm through the same independent recorder and scoring layer as the GPT-5.6 arm.
 - **Deliver:** stable replay format, checkpoint assertions, variable canary injection, replay outcome, drift detection, and human-authored baseline arm.
 - **PRD:** FR-024 and FR-027; Sections 3 and 19.2.
 - **Depends on:** JRN-02 and FIX-01.

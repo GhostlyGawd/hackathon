@@ -1,0 +1,358 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "JRN-03",
+  "title": "Implement deterministic recording/replay and the non-model baseline",
+  "status": "IN_PROGRESS",
+  "prdSections": [3, 19],
+  "functionalRequirements": ["FR-024", "FR-027"],
+  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "startedAt": "2026-07-21T00:05:00.000-04:00",
+  "artifactRoot": "artifacts/verification/JRN-03/",
+  "curatedEvidenceRoot": "docs/evidence/JRN-03/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing deterministic replay domain and executor",
+      "command": "pnpm exec vitest run --project unit tests/unit/deterministic-replay.test.ts --project property tests/property/deterministic-replay.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 2004,
+      "expectedFailure": "The focused suites could not import the not-yet-created deterministic replay domain and runner modules"
+    },
+    {
+      "phase": "RED",
+      "name": "Source tests resolved a stale compiled workspace package",
+      "command": "pnpm exec vitest run --project unit tests/unit/deterministic-replay.test.ts --project property tests/property/deterministic-replay.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 5379,
+      "expectedFailure": "Execution examples and properties resolved the previous compiled core package, leaving the new replay schema undefined"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Replay schema, frozen-input executor, and seeded invariants",
+      "command": "pnpm exec vitest run --project unit tests/unit/deterministic-replay.test.ts --project property tests/property/deterministic-replay.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 3638
+    },
+    {
+      "phase": "RED",
+      "name": "Missing real-browser replay adapter",
+      "command": "pnpm exec vitest run --project integration tests/integration/deterministic-replay.test.ts",
+      "exitCode": 1,
+      "durationMs": 4066,
+      "expectedFailure": "The controlled-fixture integration could not construct the not-yet-created Playwright replay adapter"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Controlled-fixture completion and interface-drift detection",
+      "command": "pnpm exec vitest run --project integration tests/integration/deterministic-replay.test.ts",
+      "exitCode": 0,
+      "durationMs": 5779
+    },
+    {
+      "phase": "RED",
+      "name": "Missing immutable replay repositories",
+      "command": "pnpm exec vitest run --project integration tests/integration/deterministic-replay-persistence.test.ts",
+      "exitCode": 1,
+      "durationMs": 5441,
+      "expectedFailure": "The persistence suite could not construct the not-yet-created in-memory and PostgreSQL replay repositories"
+    },
+    {
+      "phase": "RED",
+      "name": "PostgreSQL action-complement operator precedence",
+      "command": "pnpm exec vitest run --project integration tests/integration/deterministic-replay-persistence.test.ts",
+      "exitCode": 1,
+      "durationMs": 6698,
+      "expectedFailure": "The replay insert reached a PostgreSQL JSON predicate whose ungrouped operators produced a boolean-to-JSON type error"
+    },
+    {
+      "phase": "RED",
+      "name": "Payload and indexed author identity mismatch",
+      "command": "pnpm exec vitest run --project integration tests/integration/deterministic-replay-persistence.test.ts",
+      "exitCode": 1,
+      "durationMs": 6600,
+      "expectedFailure": "A direct insert with a human created_by column and an automated payload createdBy resolved successfully before the trigger compared both identities"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Immutable PostgreSQL replay and matching human authorship",
+      "command": "pnpm exec vitest run --project integration tests/integration/deterministic-replay-persistence.test.ts",
+      "exitCode": 0,
+      "durationMs": 4800
+    },
+    {
+      "phase": "RED",
+      "name": "Migration inventory omitted replay persistence",
+      "command": "pnpm exec vitest run --project integration tests/integration/domain-migrations.test.ts",
+      "exitCode": 1,
+      "durationMs": 16051,
+      "expectedFailure": "The migration inventory still expected nine migrations after deterministic replay persistence became migration 0010"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Replay migration, persistence, and derived domain evidence",
+      "command": "pnpm exec vitest run --project integration tests/integration/domain-migrations.test.ts tests/integration/deterministic-replay-persistence.test.ts --project unit tests/unit/domain-evidence.test.ts",
+      "exitCode": 0,
+      "durationMs": 16438
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined deterministic replay stories",
+      "command": "PACTWIRE_BDD_TAGS=@JRN-03 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 15221,
+      "expectedFailure": "Both JRN-03 scenarios reported thirteen undefined step instances before the real-browser bindings existed"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Deterministic baseline and moved-interface browser stories",
+      "command": "PACTWIRE_BDD_TAGS=@JRN-03 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 14399
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence traceability required the JRN-03 manifest",
+      "command": "pnpm evidence:check",
+      "exitCode": 1,
+      "durationMs": 2400,
+      "expectedFailure": "The evidence checker reported the five new unit, property, integration, persistence, and Gherkin proof files as orphans"
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory rejected stale manifest and proof totals",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 939,
+      "expectedFailure": "The evidence inventory still expected thirteen manifests and 132 proof files after JRN-03 added the fourteenth manifest and eleven new unique proof paths"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Focused replay behavior and persistence matrix",
+      "command": "pnpm exec vitest run --project unit tests/unit/deterministic-replay.test.ts --project property tests/property/deterministic-replay.property.test.ts --project integration tests/integration/deterministic-replay.test.ts tests/integration/deterministic-replay-persistence.test.ts tests/integration/domain-migrations.test.ts",
+      "exitCode": 0,
+      "durationMs": 25950
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Evidence and derived-domain reconciliation",
+      "command": "pnpm evidence:check && pnpm domain:evidence:check && pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 0,
+      "durationMs": 3500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Optimized-production deterministic replay stories",
+      "command": "PACTWIRE_BDD_TAGS=@JRN-03 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 12200
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete optimized-production repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 281200
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency vulnerability audit",
+      "command": "pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 1700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Workspace credential-pattern scan",
+      "command": "rg -P with token-boundary secret-key, access-key, and private-key patterns, excluding dependencies, build output, artifacts, and binary evidence; no matches is success",
+      "exitCode": 0,
+      "durationMs": 800
+    },
+    {
+      "phase": "RED",
+      "name": "Cross-origin and reused responses could satisfy checkpoints",
+      "command": "pnpm exec vitest run --project integration tests/integration/deterministic-replay.test.ts",
+      "exitCode": 1,
+      "durationMs": 3890,
+      "expectedFailure": "Both real-browser regressions resolved COMPLETED because response checkpoints were neither bound to the authorized origin nor consumed after one observation"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Origin-bound single-use response checkpoints",
+      "command": "pnpm exec vitest run --project integration tests/integration/deterministic-replay.test.ts",
+      "exitCode": 0,
+      "durationMs": 6450
+    },
+    {
+      "phase": "RED",
+      "name": "Backslash path escaped the authorized origin",
+      "command": "pnpm exec vitest run --project unit tests/unit/deterministic-replay.test.ts",
+      "exitCode": 1,
+      "durationMs": 1400,
+      "expectedFailure": "The replay schema accepted a slash-backslash path that WHATWG URL resolution interpreted as a different host"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Schema and adapter preserve the exact navigation origin",
+      "command": "pnpm exec vitest run --project unit tests/unit/deterministic-replay.test.ts --project integration tests/integration/deterministic-replay.test.ts",
+      "exitCode": 0,
+      "durationMs": 4620
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Final focused replay, property, persistence, migration, and evidence matrix",
+      "command": "pnpm exec vitest run --project unit tests/unit/deterministic-replay.test.ts tests/unit/domain-evidence.test.ts --project property tests/property/deterministic-replay.property.test.ts --project integration tests/integration/deterministic-replay.test.ts tests/integration/deterministic-replay-persistence.test.ts tests/integration/domain-migrations.test.ts tests/integration/evidence-harness.test.ts",
+      "exitCode": 0,
+      "durationMs": 22700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete hardened optimized-production repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 277100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Final production dependency and credential audit",
+      "command": "pnpm audit --prod and workspace credential-pattern scan",
+      "exitCode": 0,
+      "durationMs": 2200
+    }
+  ],
+  "testSummary": {
+    "files": 58,
+    "passed": 235,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-18-runtime-values-do-not-change-frozen-scope",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-18-changed-frozen-fields-stop-before-execution",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-05-missing-required-checkpoint-never-succeeds",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "deterministic-replay.feature",
+        "scenario": "The human-authored baseline completes every required checkpoint without a model call",
+        "passed": true
+      },
+      {
+        "feature": "deterministic-replay.feature",
+        "scenario": "Interface drift cannot become a successful deterministic replay",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": false,
+    "rationale": "Source-bound optimized-production screenshots and paired browser/replay traces are pending the implementation source commit and clean-checkout CI.",
+    "assets": []
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/deterministic-replay.test.ts",
+      "description": "Stable human baseline, strict scope, complete bindings/checkpoints, no captured values, execution outcome, drift, and frozen-input refusal"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/deterministic-replay.property.test.ts",
+      "description": "Seeded PROP-18 frozen-scope and PROP-05 required-checkpoint invariants"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/deterministic-replay.test.ts",
+      "description": "Real Playwright completion and moved-interface drift against the controlled fictional fixture"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/deterministic-replay-persistence.test.ts",
+      "description": "Atomic audit append, immutable lineage, concurrent-version refusal, and PostgreSQL human-author enforcement"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/deterministic-replay.feature",
+      "description": "Human-authored non-model completion and interface-drift stories through real browser boundaries"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/deterministic-replay.steps.mjs",
+      "description": "Controlled fixture, Playwright executor, zero-model/no-raw-value assertions, fixture oracle, and paired evidence capture"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/deterministic-replay.ts",
+      "description": "Strict immutable replay format, canonical hashes, human baseline builder, and in-memory/PostgreSQL repositories"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0010_deterministic_replay_versions.sql",
+      "description": "Scoped append-only replay lineage and deterministic database guards for frozen scope, actions, checkpoints, bindings, and authorship"
+    },
+    {
+      "kind": "config",
+      "path": "apps/runner/src/deterministic-replay.ts",
+      "description": "Value-materializing executor with pre-action snapshot checks, bounded drift outcomes, checkpoint state, and hashed durable values"
+    },
+    {
+      "kind": "config",
+      "path": "apps/runner/src/playwright-replay.ts",
+      "description": "Real Playwright adapter for relative navigation, field actions, response/text checkpoints, and bounded drift codes"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/domain-migrations.test.ts",
+      "description": "Migration inventory, replay table constraints, immutable triggers, and clean migration application"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/domain-evidence.test.ts",
+      "description": "Derived migration evidence table and immutability totals"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/JRN-03/README.md",
+      "description": "JRN-03 red/green record, current proof, source-bound capture gate, and claim limitations"
+    }
+  ],
+  "sanitization": {
+    "reviewed": false,
+    "reviewedAt": "2026-07-21T00:48:00.000-04:00",
+    "findings": []
+  },
+  "knownLimitations": [
+    "JRN-03 proves a saved human-authored replay and its deterministic checkpoint outcome; RUN-01 still owns isolated production execution and runtime authorization-origin resolution.",
+    "Saved navigation and response checkpoints are exact-origin bound, but this adapter is not a substitute for RUN-01's redirect, popup, and network-egress policy enforcement.",
+    "The replay adapter sees only its own browser actions; RUN-02 owns independent traffic capture and observed facts.",
+    "JRN-03 does not diagnose or repair drift; RUN-04 owns model-assisted repair and human review for scope changes.",
+    "A COMPLETED replay means only that this frozen plan reached its required execution checkpoints; it does not establish safety, compliance, contract conformity, or product effectiveness.",
+    "All behavior and evidence use the controlled fictional classroom fixture and reserved destinations."
+  ],
+  "reviewer": "codex-agent"
+}
