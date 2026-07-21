@@ -295,7 +295,7 @@ export function ApprovalAuthorityPanel({
               <span>Current district status</span>
               <strong
                 className={`approval-state approval-state-${approval.state.toLowerCase()}`}
-                data-testid="approval-state"
+                data-testid="approval-current-state"
               >
                 {approval.state}
               </strong>

@@ -19,7 +19,7 @@ async function approvalPanel(world) {
   const panel = world.page.getByTestId("approval-authority-panel");
   await panel.waitFor();
   await panel.scrollIntoViewIfNeeded();
-  await panel.getByTestId("approval-state").waitFor();
+  await panel.getByTestId("approval-current-state").waitFor();
   return panel;
 }
 
@@ -77,7 +77,10 @@ async function capturePanel(world, name) {
 
 Then("the approval authority shows {string}", async function (state) {
   const panel = await approvalPanel(this);
-  await panel.getByTestId("approval-state").getByText(state, { exact: true }).waitFor();
+  await panel
+    .getByTestId("approval-current-state")
+    .getByText(state, { exact: true })
+    .waitFor();
   assert.equal(await panel.getAttribute("data-approval-state"), state);
   if (
     state === "APPROVED" &&
@@ -89,7 +92,10 @@ Then("the approval authority shows {string}", async function (state) {
 
 Then("the approval authority still shows {string}", async function (state) {
   const panel = await approvalPanel(this);
-  await panel.getByTestId("approval-state").getByText(state, { exact: true }).waitFor();
+  await panel
+    .getByTestId("approval-current-state")
+    .getByText(state, { exact: true })
+    .waitFor();
   assert.equal(await panel.getAttribute("data-approval-state"), state);
 });
 
