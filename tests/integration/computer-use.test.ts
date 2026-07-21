@@ -314,6 +314,61 @@ describe("RUN-03 real isolated browser computer-use loop", () => {
     await session.finalizeArtifacts(() => Promise.resolve(undefined));
   });
 
+  it("hands provider safety checks to a human before executing the associated action", async () => {
+    const { server, session } = await harness("BASELINE");
+    const transport = new ScriptedComputerUseResponsesTransport([
+      async () => {
+        const point = await center(
+          session,
+          server.scenario.interface.submitCheckpoint,
+        );
+        return {
+          id: "resp_safety_check",
+          status: "completed",
+          output: [
+            {
+              type: "computer_call",
+              call_id: "call_safety_check",
+              actions: [{ type: "click", ...point, button: "left" }],
+              pending_safety_checks: [
+                {
+                  id: "fixture-check-never-persist",
+                  code: "fixture_confirmation",
+                  message: "Fixture safety confirmation",
+                },
+              ],
+            },
+          ],
+        };
+      },
+    ]);
+    const evidence = evidenceSink();
+    const result = await runPolicyBoundedComputerUse({
+      config: config(server, session),
+      browser: adapter(session),
+      transport,
+      evidence: evidence.sink,
+      secretValues: [],
+    });
+
+    expect(result).toMatchObject({
+      status: "HUMAN_REQUIRED",
+      reason: "PROVIDER_SAFETY_CHECK_REQUIRED",
+      actionCount: 0,
+      completionObserved: false,
+    });
+    expect(result.actionSummaries).toEqual([]);
+    expect(JSON.stringify(result)).not.toContain("fixture-check-never-persist");
+    expect(
+      await session.page.getByTestId("student-result").getAttribute("data-state"),
+    ).toBe("ready");
+    expect(server.readEvents()).toEqual([]);
+    expect(evidence.screenshots).toContain(
+      "computer-use-provider-safety-check",
+    );
+    await session.finalizeArtifacts(() => Promise.resolve(undefined));
+  });
+
   it.each([
     ["popup", "fixture-popup", "POPUP_BLOCKED"],
     ["redirect", "fixture-redirect", "NAVIGATION_ORIGIN_BLOCKED"],

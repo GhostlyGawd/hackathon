@@ -455,6 +455,7 @@ export function buildComputerUseRequest(input: {
 
 export interface ParsedComputerCall {
   readonly callId: string;
+  readonly pendingSafetyCheckCount: number;
   readonly actions: readonly ComputerAction[];
 }
 
@@ -494,9 +495,15 @@ export function parseComputerUseResponse(
         if (!("actions" in item) || "action" in item) {
           throw new ComputerUseResponseError();
         }
+        const pendingSafetyChecks = z
+          .array(z.unknown())
+          .max(100)
+          .default([])
+          .parse(item.pending_safety_checks);
         calls.push(
           deepFreeze({
             callId: z.string().min(1).max(500).parse(item.call_id),
+            pendingSafetyCheckCount: pendingSafetyChecks.length,
             actions: z.array(computerActionSchema).min(1).max(100).parse(item.actions),
           }),
         );
@@ -905,6 +912,7 @@ export type ComputerUseRunReason =
   | "INVALID_MODEL_RESPONSE"
   | "MODEL_STOPPED_BEFORE_COMPLETION"
   | "MODEL_RESPONSE_INCOMPLETE"
+  | "PROVIDER_SAFETY_CHECK_REQUIRED"
   | "MAX_TURNS_REACHED"
   | "MAX_ACTIONS_REACHED"
   | "AUTHORIZED_GOAL_CONTAINS_SECRET"
@@ -1023,6 +1031,12 @@ export async function runPolicyBoundedComputerUse(input: {
 
     const call = parsed.calls[0];
     if (!call) return finish("FAILED", "INVALID_MODEL_RESPONSE");
+    if (call.pendingSafetyCheckCount > 0) {
+      await input.evidence?.captureScreenshot(
+        "computer-use-provider-safety-check",
+      );
+      return finish("HUMAN_REQUIRED", "PROVIDER_SAFETY_CHECK_REQUIRED");
+    }
     for (const action of call.actions) {
       if (actionSummaries.length >= config.maxActions) {
         return finish("MAX_ACTIONS", "MAX_ACTIONS_REACHED");

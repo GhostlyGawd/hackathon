@@ -288,6 +288,7 @@ describe("RUN-03 policy-bounded computer use", () => {
       calls: [
         {
           callId: "call_fixture_01",
+          pendingSafetyCheckCount: 0,
           actions: [
             { type: "move", x: 800, y: 500 },
             {
