@@ -1,0 +1,436 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "DET-05",
+  "title": "Implement hold, human restoration, and approval audit",
+  "status": "IN_PROGRESS",
+  "prdSections": [10, 12, 15],
+  "functionalRequirements": ["FR-050", "FR-051", "FR-052", "FR-053", "FR-054", "FR-055"],
+  "sourceCommitSha": "8bb40f8aecfc5a6d5928c031edac466f161f251d",
+  "startedAt": "2026-07-21T15:30:00.000-04:00",
+  "artifactRoot": "artifacts/verification/DET-05/",
+  "curatedEvidenceRoot": "docs/evidence/DET-05/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing approval-authority domain",
+      "command": "pnpm exec vitest run --project unit tests/unit/approval-authority.test.ts --project property tests/property/approval-authority.property.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 2300,
+      "expectedFailure": "The focused suites failed to import the not-yet-created approval-authority module"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing approval-authority migration and PostgreSQL persistence",
+      "command": "pnpm exec vitest run --project integration tests/integration/domain-migrations.test.ts tests/integration/approval-authority.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 4700,
+      "expectedFailure": "The migration inventory lacked 0015_approval_authority.sql and the PostgreSQL approval repository did not exist"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing authenticated approval API",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/approval-authority-routes.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 3500,
+      "expectedFailure": "The HTTP suite could not import the not-yet-created approval and decision routes"
+    },
+    {
+      "phase": "RED",
+      "name": "Visibility loss lacked exact prior-visible and frozen-retry evidence",
+      "command": "pnpm exec vitest run --project unit tests/unit/approval-authority.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 2800,
+      "expectedFailure": "A boolean visibility claim could place approval on hold without a stored VERIFIED checkpoint and exact frozen retry lineage"
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined approval-authority browser behavior",
+      "command": "PACTWIRE_BDD_TAGS=@DET-05 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 8400,
+      "expectedFailure": "The four approval scenarios had undefined browser and API steps before the DET-05 panel and step definitions existed"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Approval reducer, properties, persistence, and authenticated routes",
+      "command": "pnpm exec vitest run --project unit tests/unit/approval-authority.test.ts --project property tests/property/approval-authority.property.test.ts --project integration tests/integration/approval-authority.test.ts apps/web/tests/integration/approval-authority-routes.test.ts --reporter=dot",
+      "exitCode": 0,
+      "durationMs": 21300
+    },
+    {
+      "phase": "GREEN",
+      "name": "Approval hold, repair, visibility-loss, and human-restoration browser stories",
+      "command": "PACTWIRE_BDD_TAGS=@DET-05 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 21900
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Lint, repository type check, and optimized production build",
+      "command": "pnpm lint; pnpm typecheck; pnpm build",
+      "exitCode": 0,
+      "durationMs": 64200
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production approval-state capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=DET-05 PACTWIRE_BDD_TAGS=@DET-05 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 22559
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory recognized DET-05 proof",
+      "command": "pnpm evidence:check; pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 1140,
+      "expectedFailure": "Traceability accepted twenty-three manifests and 239 unique proof files while the explicit inventory regression still expected twenty-two manifests and 220 proof files"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "DET-05 evidence traceability and explicit inventory",
+      "command": "pnpm evidence:check; pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts --reporter=dot",
+      "exitCode": 0,
+      "durationMs": 3889
+    },
+    {
+      "phase": "RED",
+      "name": "Complete repository verification recognized the new migration table",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 155849,
+      "expectedFailure": "The generated migration report correctly contained 32 tables while the explicit unit regression still expected the previous 31-table inventory"
+    },
+    {
+      "phase": "RED",
+      "name": "Unbounded integration workers saturated real browser fixtures",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 231380,
+      "expectedFailure": "Two existing RUN-03 tests exhausted real browser resources when the expanded integration project started unbounded workers; both returned MODEL_REQUEST_FAILED and passed immediately in isolation"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Bounded complete integration suite",
+      "command": "pnpm test:integration",
+      "exitCode": 0,
+      "durationMs": 73333
+    },
+    {
+      "phase": "RED",
+      "name": "Complete production-browser matrix found cross-feature selector and state-cardinality regressions",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 371785,
+      "expectedFailure": "The DET-05 current-state badge reused the software form's approval-state test identifier in 26 workflows, and one DET-03 assertion did not yet compare the six unique states after DET-05 added a second evidence-distinct NOT_VISIBLE finding"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Affected approval, finding, and inventory production-browser stories",
+      "command": "PACTWIRE_BDD_TAGS='@AUT-02 or @DET-03 or @DET-05' pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 65761
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete evidence-bound optimized-production repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 464856
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency audit",
+      "command": "pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 993
+    }
+  ],
+  "testSummary": {
+    "files": 91,
+    "passed": 364,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-01-no-automated-approved-entry",
+        "seed": 20260719,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-02-automation-never-enters-approved",
+        "seed": 20260721,
+        "numRuns": 500,
+        "passed": true
+      },
+      {
+        "id": "PROP-03-concurrent-receipt-hold-is-idempotent",
+        "seed": 20260721,
+        "numRuns": 200,
+        "passed": true
+      },
+      {
+        "id": "PROP-11-approval-history-is-append-only",
+        "seed": 20260721,
+        "numRuns": 300,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "approval-authority.feature",
+        "scenario": "A witnessed conflict places one receipt-linked hold",
+        "passed": true
+      },
+      {
+        "feature": "approval-authority.feature",
+        "scenario": "A repaired rerun cannot restore approval automatically",
+        "passed": true
+      },
+      {
+        "feature": "approval-authority.feature",
+        "scenario": "Repeated visibility loss on a frozen retry places a hold",
+        "passed": true
+      },
+      {
+        "feature": "approval-authority.feature",
+        "scenario": "Only an authorized human can restore approval after reviewing a named rerun",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/DET-05/approved-before-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T21:37:51.580Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop Pactwire approval panel showing the fictional district record in APPROVED state before any finding is applied, with the imported human-owned source named.",
+        "caption": "The controlled record begins with the district's existing imported approval; Pactwire does not claim to have granted it.",
+        "provenance": "captured",
+        "sourceCommitSha": "8bb40f8aecfc5a6d5928c031edac466f161f251d"
+      },
+      {
+        "path": "docs/evidence/DET-05/approved-before-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T21:37:51.802Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow Pactwire approval panel showing the fictional district's imported APPROVED state and its source without horizontal overflow.",
+        "caption": "The narrow layout preserves the approval source and authority boundary in reading order.",
+        "provenance": "captured",
+        "sourceCommitSha": "8bb40f8aecfc5a6d5928c031edac466f161f251d"
+      },
+      {
+        "path": "docs/evidence/DET-05/approved-to-hold-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T21:37:52.290Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop Pactwire approval panel after a stored witnessed conflict, showing HOLD, the WITNESSED_CONFLICT reason, and one exact contributing receipt.",
+        "caption": "Exact deterministic conflict evidence pauses the existing approval once and links the receipt that caused the hold.",
+        "provenance": "captured",
+        "sourceCommitSha": "8bb40f8aecfc5a6d5928c031edac466f161f251d"
+      },
+      {
+        "path": "docs/evidence/DET-05/approved-to-hold-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T21:37:52.516Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow Pactwire approval panel showing the receipt-linked APPROVED to HOLD transition and witnessed-conflict reason.",
+        "caption": "The narrow transition view keeps the reason, receipt, and automation limit visible.",
+        "provenance": "captured",
+        "sourceCommitSha": "8bb40f8aecfc5a6d5928c031edac466f161f251d"
+      },
+      {
+        "path": "docs/evidence/DET-05/hold-after-repair-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T21:37:55.022Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop Pactwire approval panel showing HOLD after the repaired named rerun and direct language that automation cannot restore approval.",
+        "caption": "Not re-observing the prior conflict in a named rerun leaves the existing hold unchanged for human review.",
+        "provenance": "captured",
+        "sourceCommitSha": "8bb40f8aecfc5a6d5928c031edac466f161f251d"
+      },
+      {
+        "path": "docs/evidence/DET-05/hold-after-repair-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T21:37:55.268Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow Pactwire approval panel showing that the repaired named rerun leaves approval on HOLD pending a person.",
+        "caption": "The narrow repair state does not imply safety or silently turn HOLD back into APPROVED.",
+        "provenance": "captured",
+        "sourceCommitSha": "8bb40f8aecfc5a6d5928c031edac466f161f251d"
+      },
+      {
+        "path": "docs/evidence/DET-05/visibility-loss-hold-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T21:37:57.682Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop Pactwire approval panel showing HOLD for required visibility loss after a previously verified checkpoint and exact frozen retry remained not visible.",
+        "caption": "Persistent required visibility loss has its own reason and evidence lineage; it is not labeled a contract conflict.",
+        "provenance": "captured",
+        "sourceCommitSha": "8bb40f8aecfc5a6d5928c031edac466f161f251d"
+      },
+      {
+        "path": "docs/evidence/DET-05/visibility-loss-hold-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T21:37:57.898Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow Pactwire approval panel showing the required-visibility-loss hold, affected checkpoint, and contributing receipt.",
+        "caption": "The narrow view preserves the retry-gated reason and checkpoint provenance.",
+        "provenance": "captured",
+        "sourceCommitSha": "8bb40f8aecfc5a6d5928c031edac466f161f251d"
+      },
+      {
+        "path": "docs/evidence/DET-05/human-restored-approval-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T21:38:01.066Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop Pactwire approval panel showing APPROVED after a fictional privacy officer signs a named-scope restoration reason, with the earlier automated hold retained in history.",
+        "caption": "Only the authorized human decision restores approval, and the append-only audit keeps both the original hold and restoration actor.",
+        "provenance": "captured",
+        "sourceCommitSha": "8bb40f8aecfc5a6d5928c031edac466f161f251d"
+      },
+      {
+        "path": "docs/evidence/DET-05/human-restored-approval-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T21:38:01.307Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow Pactwire approval panel showing the fictional human-signed restoration and retained approval history.",
+        "caption": "The narrow restored state still names the human owner, reason, named test scope, and prior hold history.",
+        "provenance": "captured",
+        "sourceCommitSha": "8bb40f8aecfc5a6d5928c031edac466f161f251d"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "schema",
+      "path": "packages/core/src/approval-authority.ts",
+      "description": "Strict approval snapshot, finding signal, receipt lineage, signed human decision, idempotent reducer, lock, and PostgreSQL repository"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0015_approval_authority.sql",
+      "description": "Append-only approval events, human decisions, receipt contributions, uniqueness, and immutable-row guards"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/api/workspaces/[workspaceId]/software/[softwareId]/approval/route.ts",
+      "description": "Authenticated approval review and server-owned application of stored finding, receipt, run, and visibility evidence"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/api/workspaces/[workspaceId]/software/[softwareId]/approval/decision/route.ts",
+      "description": "Permission-gated, signed human approval decision endpoint with named-scope and clean-rerun requirements"
+    },
+    {
+      "kind": "evidence",
+      "path": "apps/web/app/approval-authority-panel.tsx",
+      "description": "Direct-language current state, evidence-linked hold reasons, restoration boundary, signed decision form, and append-only history UI"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/approval-authority.test.ts",
+      "description": "Authority decision table, exact receipt binding, visibility retry gate, repair behavior, human restoration, and idempotency examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/approval-authority.property.test.ts",
+      "description": "Fixed-seed PROP-02, PROP-03, and PROP-11 generated automation, concurrency, and append-only invariants"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/domain-invariants.property.test.ts",
+      "description": "Existing fixed-seed PROP-01 proof that no automated event sequence can enter or restore APPROVED"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/approval-authority.test.ts",
+      "description": "PostgreSQL transaction, row-lock, duplicate receipt, immutable event, and human-decision persistence tests"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/approval-authority-routes.test.ts",
+      "description": "Authenticated review, server-derived evidence, role denial, cross-workspace concealment, and human restoration route tests"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/approval-authority.feature",
+      "description": "Four real-browser stories covering receipt-linked conflict hold, repaired rerun, retry-gated visibility loss, and signed human restoration"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/approval-authority.steps.mjs",
+      "description": "Browser and authenticated API assertions plus source-bound desktop, narrow, before, and after capture"
+    },
+    {
+      "kind": "test",
+      "path": "tests/helpers/approval-authority-fixtures.ts",
+      "description": "Controlled fictional approval, finding, receipt, visibility, and actor fixtures used across deterministic layers"
+    },
+    {
+      "kind": "test",
+      "path": "tests/helpers/postgres-approval-fixture.ts",
+      "description": "Disposable PostgreSQL approval-authority fixture with transactional schema setup and teardown"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/DET-05/approved-before-snapshot.json",
+      "description": "Sanitized authenticated API snapshot before any automated hold"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/DET-05/approved-to-hold-snapshot.json",
+      "description": "Sanitized API snapshot of the one-event receipt-linked witnessed-conflict hold"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/DET-05/hold-after-repair-snapshot.json",
+      "description": "Sanitized API snapshot proving a repaired named rerun leaves the prior hold unchanged"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/DET-05/visibility-loss-hold-snapshot.json",
+      "description": "Sanitized API snapshot of the retry-gated required-visibility-loss hold and checkpoint"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/DET-05/human-restored-approval-snapshot.json",
+      "description": "Sanitized API snapshot retaining the automated hold and signed human restoration history"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/DET-05/README.md",
+      "description": "Curated DET-05 evidence description, reproduction commands, authority boundary, and explicit P1 deferral"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T21:38:05.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "The committed proof uses fictional identities, a fictional product, reserved identifiers, synthetic observations, and a controlled agreement; it does not establish effectiveness on real school software.",
+    "A clean sampled rerun means only that the prior conflict was not re-observed in the named tests; it does not establish safety, compliance, approval, or behavior outside that scope.",
+    "Prior checkpoint visibility and frozen retry lineage are derived from stored controlled run manifests; external truth for agreement meaning and destination identity remains human-owned.",
+    "FR-056 P1 webhook or ticket delivery is explicitly deferred until delivery behavior and bounded-language copy have their own failing-first tests and evidence.",
+    "Production operational concerns such as notification integration, retention operations, and external district-system reconciliation remain outside DET-05.",
+    "GitHub Actions clean-checkout verification is pending for the DET-05 pull request."
+  ],
+  "reviewer": "codex-agent"
+}
