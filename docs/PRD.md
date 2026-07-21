@@ -820,7 +820,7 @@ The following require architecture or product decision records during implementa
 2. Credential handoff design for products with multifactor authentication.
 3. Exact retry policy before required visibility loss creates a hold.
 4. Production object-storage and encryption-key provider.
-5. Domain-ownership evidence accepted for human confirmation.
+5. Domain-ownership evidence accepted for human confirmation. **Resolved for P0:** [DET-01 domain-ownership evidence decision](decisions/DET-01-domain-ownership-evidence.md).
 6. Which product-change signals should schedule a rerun.
 7. Integration contract for a district's real procurement or filtering system.
 8. Which DPA requirement patterns are safe to make machine-testable in the first library.

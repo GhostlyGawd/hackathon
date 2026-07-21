@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 10,
-  "totalTables": 26,
+  "migrationCount": 11,
+  "totalTables": 27,
   "migrations": [
     {
       "version": "0001",
@@ -127,6 +127,17 @@
       ],
       "immutableTables": [
         "deterministic_replay_versions"
+      ]
+    },
+    {
+      "version": "0013",
+      "name": "destination_registry",
+      "sha256": "861c3160a5310326192ea440e1f97b480a8001b9babc1bd16cab21b28b532f6f",
+      "tables": [
+        "destination_record_versions"
+      ],
+      "immutableTables": [
+        "destination_record_versions"
       ]
     }
   ]

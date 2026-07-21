@@ -3,9 +3,11 @@ import {
   Aes256GcmSecretCipher,
   AgreementIntakeService,
   DeterministicRequirementProposalAdapter,
+  DestinationRegistryService,
   FetchOpenAIResponsesTransport,
   InMemoryAgreementIntakeRepository,
   InMemoryAgreementObjectStore,
+  InMemoryDestinationRegistryRepository,
   InMemoryJourneyAuthoringRepository,
   InMemoryRequirementProposalRepository,
   InMemoryRequirementReviewRepository,
@@ -87,6 +89,8 @@ export interface AccessRuntime {
   readonly syntheticDataService: SyntheticDataService;
   readonly journeyAuthoringRepository: InMemoryJourneyAuthoringRepository;
   readonly journeyAuthoringService: JourneyAuthoringService;
+  readonly destinationRegistryRepository: InMemoryDestinationRegistryRepository;
+  readonly destinationRegistryService: DestinationRegistryService;
 }
 
 export function isFixtureMode(): boolean {
@@ -270,6 +274,14 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     service,
     { idFactory, now },
   );
+  const destinationRegistryRepository =
+    new InMemoryDestinationRegistryRepository(repository);
+  const destinationRegistryService = new DestinationRegistryService(
+    destinationRegistryRepository,
+    service,
+    agreementService,
+    { idFactory, now },
+  );
   return Object.freeze({
     repository,
     service,
@@ -290,6 +302,8 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     syntheticDataService,
     journeyAuthoringRepository,
     journeyAuthoringService,
+    destinationRegistryRepository,
+    destinationRegistryService,
   });
 }
 
