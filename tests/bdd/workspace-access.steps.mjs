@@ -99,12 +99,6 @@ class AccessWorld {
     this.context.on("page", (openedPage) => {
       if (openedPage !== this.page) this.unexpectedPopupCount += 1;
     });
-    await this.page.route("**/api/demo/session", async (route) => {
-      if (route.request().method() === "GET") {
-        await new Promise((resolve) => setTimeout(resolve, 350));
-      }
-      await route.continue();
-    });
     this.page.on("console", (message) => {
       if (message.type() === "error") this.consoleErrors.push(message.text());
     });
