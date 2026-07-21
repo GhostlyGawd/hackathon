@@ -55,6 +55,14 @@ BDD and visual evidence are not applicable to this prerequisite because it
 changes no user-visible workflow, browser behavior, finding, receipt, or
 recovery state.
 
+## Clean-checkout CI
+
+The patched graph and complete deterministic gate passed from a frozen install
+on both required operating systems:
+
+- [Ubuntu verification](https://github.com/GhostlyGawd/hackathon/actions/runs/29875318319/job/88784474215)
+- [Windows verification](https://github.com/GhostlyGawd/hackathon/actions/runs/29875318319/job/88784474533)
+
 ## Claim boundary
 
 A clean package-manager audit means only that the configured registry reported

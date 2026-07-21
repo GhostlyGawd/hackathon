@@ -10,9 +10,25 @@
   "artifactRoot": "artifacts/verification/SEC-01/",
   "curatedEvidenceRoot": "docs/evidence/SEC-01/",
   "environment": {
-    "os": "Windows local; GitHub Actions pending",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29875318319",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29875318319/job/88784474215",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29875318319/job/88784474533",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -58,6 +74,13 @@
       "command": "pnpm verify",
       "exitCode": 0,
       "durationMs": 461200
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout latest-main Ubuntu and Windows verification",
+      "command": "GitHub Actions CI run 29875318319",
+      "exitCode": 0,
+      "durationMs": 480000
     }
   ],
   "testSummary": {
@@ -102,7 +125,6 @@
   "knownLimitations": [
     "This is a narrow SEC-01 prerequisite, not completion of the threat suite; prompt injection, cross-workspace access, tampering, retention, publication, and safe-recovery cases remain outstanding.",
     "The production audit reports advisories known to the configured package registry at run time; a clean result does not prove that the dependency graph is vulnerability-free.",
-    "The sharp override is compatible with the current optimized Next.js build on Windows; clean-checkout Ubuntu and Windows CI are still pending.",
     "No product safety, compliance, approval, or real-world effectiveness claim follows from a clean dependency audit."
   ],
   "reviewer": "codex-agent"
