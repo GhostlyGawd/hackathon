@@ -120,6 +120,21 @@
       "command": "Focused unit/property/integration matrix, focused eslint, runner build, and PACTWIRE_BDD_TAGS=@RUN-03 pnpm test:bdd -- --production",
       "exitCode": 0,
       "durationMs": 77800
+    },
+    {
+      "phase": "RED",
+      "name": "Provider serialized an absent modifier list as null",
+      "command": "GitHub Actions run 29816191727 and pnpm exec vitest run --project unit tests/unit/computer-use.test.ts",
+      "exitCode": 1,
+      "durationMs": 13780,
+      "expectedFailure": "The sanitized live contract reached screenshot exchange and returned a click with the official keys field, but the generated API response used the documented nullable form that the parser still rejected"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Nullable provider modifiers and deterministic computer-use matrix",
+      "command": "Focused computer-use unit/property/integration tests, root typecheck, and focused eslint",
+      "exitCode": 0,
+      "durationMs": 39300
     }
   ],
   "testSummary": {

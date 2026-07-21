@@ -79,7 +79,7 @@ const pointerActionFields = {
   x: coordinate,
   y: coordinate,
   button: pointerButton.default("left"),
-  keys: computerKeys.optional(),
+  keys: computerKeys.nullish(),
 };
 const dragPointSchema = z
   .union([
@@ -102,7 +102,7 @@ export const computerActionSchema = z.discriminatedUnion("type", [
       y: coordinate,
       scroll_x: delta,
       scroll_y: delta,
-      keys: computerKeys.optional(),
+      keys: computerKeys.nullish(),
     })
     .strict(),
   z
@@ -119,7 +119,7 @@ export const computerActionSchema = z.discriminatedUnion("type", [
     .object({
       type: z.literal("drag"),
       path: z.array(dragPointSchema).min(2).max(100),
-      keys: computerKeys.optional(),
+      keys: computerKeys.nullish(),
     })
     .strict(),
   z
@@ -127,7 +127,7 @@ export const computerActionSchema = z.discriminatedUnion("type", [
       type: z.literal("move"),
       x: coordinate,
       y: coordinate,
-      keys: computerKeys.optional(),
+      keys: computerKeys.nullish(),
     })
     .strict(),
   z.object({ type: z.literal("screenshot") }).strict(),
