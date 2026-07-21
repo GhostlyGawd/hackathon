@@ -1,0 +1,1 @@
+{"issues":[{"code":"ARTIFACT_HASH_MISMATCH","message":"Artifact actions/fictional-submission.json does not match its recorded SHA-256 hash.","path":"$.artifacts[actions/fictional-submission.json]"}],"receiptId":"79797979-7979-4979-8979-797979797979","status":"INVALID","verifiedArtifactCount":7,"verifiedHashCount":9,"verifierVersion":"pactwire-evidence-receipt-v1"}
