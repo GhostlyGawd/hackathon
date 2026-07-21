@@ -20,3 +20,13 @@ Feature: Controlled ambiguous traffic
     Then the destination remains "UNKNOWN" until a person reviews it
     And no company or agreement status is inferred for the destination
     And I capture the "unknown-destination-narrow" narrow destination-registry evidence
+
+  @DET-03 @FR-041 @PROP-04
+  Scenario: Unsupported traffic to an unknown destination requires human review
+    Given the fictional workspace access fixture is reset
+    And I start a signed session as the "Privacy officer"
+    When I open the bounded finding matrix
+    And I select the "NEEDS_REVIEW" finding
+    Then the selected finding says "Evidence needs human review"
+    And its reason codes include "TRANSFORM_NOT_ENUMERATED" and "DESTINATION_OWNERSHIP_UNKNOWN"
+    And the ambiguous finding is not shown as a recorded conflict

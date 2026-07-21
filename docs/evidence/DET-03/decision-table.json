@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "1.0.0",
+  "evaluatorVersion": "pactwire-bounded-finding-v1",
+  "source": "authenticated DET-03 fixture API",
+  "decisionTable": [
+    {
+      "priority": 1,
+      "condition": "The rule is not human-confirmed and machine-testable",
+      "state": "NEEDS_REVIEW",
+      "reasonCode": "RULE_NOT_HUMAN_CONFIRMED"
+    },
+    {
+      "priority": 2,
+      "condition": "A confirmed field was deterministically observed at a confirmed prohibited destination with complete lineage",
+      "state": "WITNESSED_CONFLICT",
+      "reasonCode": "CONFIRMED_PROHIBITED_FLOW_WITNESSED"
+    },
+    {
+      "priority": 3,
+      "condition": "A required path was exercised but its evidence was not visible",
+      "state": "NOT_VISIBLE",
+      "reasonCode": "REQUIRED_EVIDENCE_NOT_VISIBLE"
+    },
+    {
+      "priority": 4,
+      "condition": "A required path was not exercised",
+      "state": "NOT_TESTED",
+      "reasonCode": "REQUIRED_PATH_NOT_EXERCISED"
+    },
+    {
+      "priority": 5,
+      "condition": "A transform, field, destination, purpose, or evidence link is uncertain",
+      "state": "NEEDS_REVIEW",
+      "reasonCode": "EVIDENCE_LINEAGE_INCOMPLETE"
+    },
+    {
+      "priority": 6,
+      "condition": "Complete visible named scope did not reobserve a prior witnessed conflict",
+      "state": "NOT_REOBSERVED_IN_NAMED_TESTS",
+      "reasonCode": "PRIOR_CONFLICT_NOT_REOBSERVED_IN_COMPLETE_SCOPE"
+    },
+    {
+      "priority": 7,
+      "condition": "Complete visible named scope recorded no confirmed conflict",
+      "state": "NO_CONFLICT_OBSERVED_IN_NAMED_TESTS",
+      "reasonCode": "NO_CONFLICT_IN_COMPLETE_NAMED_SCOPE"
+    }
+  ],
+  "findingStates": [
+    {
+      "findingId": "71717171-7171-4171-8171-717171710003",
+      "state": "NOT_REOBSERVED_IN_NAMED_TESTS",
+      "label": "Prior conflict not recorded in this rerun",
+      "reasonCodes": [
+        "PRIOR_CONFLICT_NOT_REOBSERVED_IN_COMPLETE_SCOPE",
+        "MODEL_NARRATIVE_EXCLUDED"
+      ]
+    },
+    {
+      "findingId": "71717171-7171-4171-8171-717171710006",
+      "state": "NOT_TESTED",
+      "label": "Required path was not tested",
+      "reasonCodes": [
+        "REQUIRED_PATH_NOT_EXERCISED",
+        "MODEL_NARRATIVE_EXCLUDED"
+      ]
+    },
+    {
+      "findingId": "71717171-7171-4171-8171-717171710005",
+      "state": "NOT_VISIBLE",
+      "label": "Required evidence was not visible",
+      "reasonCodes": [
+        "REQUIRED_EVIDENCE_NOT_VISIBLE",
+        "MODEL_NARRATIVE_EXCLUDED"
+      ]
+    },
+    {
+      "findingId": "71717171-7171-4171-8171-717171710001",
+      "state": "NO_CONFLICT_OBSERVED_IN_NAMED_TESTS",
+      "label": "No conflict recorded in these named tests",
+      "reasonCodes": [
+        "NO_CONFLICT_IN_COMPLETE_NAMED_SCOPE",
+        "MODEL_NARRATIVE_EXCLUDED"
+      ]
+    },
+    {
+      "findingId": "71717171-7171-4171-8171-717171710002",
+      "state": "WITNESSED_CONFLICT",
+      "label": "Recorded conflict in this named test",
+      "reasonCodes": [
+        "CONFIRMED_PROHIBITED_FLOW_WITNESSED",
+        "MODEL_NARRATIVE_EXCLUDED"
+      ]
+    },
+    {
+      "findingId": "71717171-7171-4171-8171-717171710004",
+      "state": "NEEDS_REVIEW",
+      "label": "Evidence needs human review",
+      "reasonCodes": [
+        "TRANSFORM_NOT_ENUMERATED",
+        "DESTINATION_OWNERSHIP_UNKNOWN",
+        "MODEL_NARRATIVE_EXCLUDED"
+      ]
+    }
+  ]
+}
