@@ -77,3 +77,16 @@ and every decision to create or restore approval remain human-owned.
 FR-056 notification delivery is P1 and is not implemented by this task. It
 remains deferred until webhook delivery and bounded-language copy have their
 own tests and evidence.
+
+## Clean-checkout CI
+
+Completion head `9c925a72ae4da3cec31854bf0ca589aec3864e5b` passed the
+complete deterministic gate in GitHub Actions on both required operating
+systems:
+
+- [Ubuntu verification](https://github.com/GhostlyGawd/hackathon/actions/runs/29873841294/job/88779874881)
+- [Windows verification](https://github.com/GhostlyGawd/hackathon/actions/runs/29873841294/job/88779874875)
+
+The matrix ran from a frozen install and uploaded its verification artifacts.
+Dependency-advisory remediation is tracked separately under SEC-01; it does
+not change DET-05's bounded approval-authority claim.

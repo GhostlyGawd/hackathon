@@ -2,17 +2,34 @@
   "schemaVersion": "1.0.0",
   "taskId": "DET-05",
   "title": "Implement hold, human restoration, and approval audit",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [10, 12, 15],
   "functionalRequirements": ["FR-050", "FR-051", "FR-052", "FR-053", "FR-054", "FR-055"],
-  "sourceCommitSha": "8bb40f8aecfc5a6d5928c031edac466f161f251d",
+  "sourceCommitSha": "9c925a72ae4da3cec31854bf0ca589aec3864e5b",
   "startedAt": "2026-07-21T15:30:00.000-04:00",
+  "completedAt": "2026-07-21T18:45:00.000-04:00",
   "artifactRoot": "artifacts/verification/DET-05/",
   "curatedEvidenceRoot": "docs/evidence/DET-05/",
   "environment": {
-    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29873841294",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29873841294/job/88779874881",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29873841294/job/88779874875",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -186,6 +203,13 @@
       "command": "pnpm audit --prod",
       "exitCode": 0,
       "durationMs": 993
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout latest-main Ubuntu and Windows verification",
+      "command": "GitHub Actions CI run 29873841294",
+      "exitCode": 0,
+      "durationMs": 480000
     }
   ],
   "testSummary": {
@@ -467,7 +491,7 @@
     "Prior checkpoint visibility and frozen retry lineage are derived from stored controlled run manifests; external truth for agreement meaning and destination identity remains human-owned.",
     "FR-056 P1 webhook or ticket delivery is explicitly deferred until delivery behavior and bounded-language copy have their own failing-first tests and evidence.",
     "Production operational concerns such as notification integration, retention operations, and external district-system reconciliation remain outside DET-05.",
-    "GitHub Actions clean-checkout verification is pending for the DET-05 pull request."
+    "Dependency-advisory remediation is tracked as a separate SEC-01 prerequisite and does not broaden this task's authority-boundary claim."
   ],
   "reviewer": "codex-agent"
 }
