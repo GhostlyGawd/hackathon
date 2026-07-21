@@ -135,8 +135,10 @@ After(async function ({ result, pickle }) {
   try {
     if (result?.status === "FAILED" && this.page) {
       const slug = pickle.name.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-");
-      const taskId = pickle.tags.some((tag) => tag.name === "@FIX-01")
-        ? "FIX-01"
+      const taskId = pickle.tags.some((tag) => tag.name === "@JRN-02")
+        ? "JRN-02"
+        : pickle.tags.some((tag) => tag.name === "@FIX-01")
+          ? "FIX-01"
         : pickle.tags.some((tag) => tag.name === "@AUT-02")
           ? "AUT-02"
         : pickle.tags.some((tag) => tag.name === "@AUT-03")
@@ -1867,3 +1869,222 @@ Then(
     await captureRequirementEvidence(this, evidenceName, false, true);
   },
 );
+
+When("I refresh the named journey prerequisites", async function () {
+  const historyResponsePromise = this.page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return (
+      response.request().method() === "GET" &&
+      /\/api\/workspaces\/[^/]+\/software\/[^/]+\/journeys$/u.test(
+        url.pathname,
+      )
+    );
+  });
+  await this.page.getByTestId("refresh-journey-prerequisites").click();
+  const historyResponse = await historyResponsePromise;
+  assert.equal(historyResponse.status(), 200);
+  this.journeyHistoryUrl = historyResponse.url();
+  await this.page.getByTestId("journey-prerequisites-ready").waitFor();
+});
+
+When("I choose the {string} named journey", async function (role) {
+  const option = role.toUpperCase();
+  assert.ok(["TEACHER", "STUDENT"].includes(option), `Unknown role: ${role}`);
+  await this.page.getByTestId("journey-role-select").selectOption(option);
+  assert.equal(
+    await this.page.getByTestId("journey-role-select").inputValue(),
+    option,
+  );
+  await this.page
+    .getByTestId("current-journey")
+    .getByText(`${role} journey`, { exact: true })
+    .waitFor();
+});
+
+async function saveNamedJourney(world) {
+  const responsePromise = world.page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return (
+      response.request().method() === "POST" &&
+      /\/api\/workspaces\/[^/]+\/software\/[^/]+\/journeys$/u.test(
+        url.pathname,
+      )
+    );
+  });
+  await world.page.getByTestId("save-journey").click();
+  const response = await responsePromise;
+  assert.equal(response.status(), 201);
+  world.savedJourney = JSON.parse(await response.text()).journey;
+  await world.page
+    .getByTestId("current-journey")
+    .getByText(`Version ${world.savedJourney.version.version}`, { exact: true })
+    .waitFor();
+}
+
+When("I save the named journey", async function () {
+  await saveNamedJourney(this);
+});
+
+When("I save a new named journey version", async function () {
+  await saveNamedJourney(this);
+});
+
+Then(
+  "the current named journey is runnable as version {int}",
+  async function (version) {
+    assert.equal(this.savedJourney.readiness.status, "RUNNABLE");
+    assert.equal(this.savedJourney.version.version, version);
+    const current = this.page.getByTestId("current-journey");
+    await current.getByText("RUNNABLE", { exact: true }).waitFor();
+    await current.getByText(`Version ${version}`, { exact: true }).waitFor();
+  },
+);
+
+Then(
+  "its causal chain shows the confirmed rule, fictional field, and required checkpoint",
+  async function () {
+    assert.ok(this.savedJourney.causalLinks.length > 0);
+    const chain = this.page.getByTestId("journey-causal-chain");
+    for (const link of this.savedJourney.causalLinks) {
+      assert.ok(link.requirementText, "The saved link includes confirmed rule text");
+      await chain
+        .getByText(link.requirementText, { exact: true })
+        .first()
+        .waitFor();
+      await chain
+        .getByText(`Fictional field · ${link.sourceField}`, { exact: true })
+        .waitFor();
+      for (const checkpointId of link.checkpointIds) {
+        await chain.getByText(checkpointId, { exact: true }).first().waitFor();
+      }
+    }
+    await chain.getByText("Required visibility", { exact: true }).first().waitFor();
+  },
+);
+
+When("I change the named journey goal to {string}", async function (goal) {
+  await this.page.getByTestId("journey-goal").fill(goal);
+});
+
+Then(
+  "named journey history preserves versions {int} and {int}",
+  async function (newest, original) {
+    const versions = await this.page
+      .getByTestId("journey-version-history")
+      .locator("[data-journey-version]")
+      .evaluateAll((records) =>
+        records.map((record) => Number(record.getAttribute("data-journey-version"))),
+      );
+    assert.deepEqual(versions, [newest, original]);
+  },
+);
+
+Then(
+  "the editor says no successful run or repair has been recorded yet",
+  async function () {
+    const future = this.page.getByTestId("journey-future-state");
+    await future
+      .getByText("No successful run recorded yet.", { exact: true })
+      .waitFor();
+    await future
+      .getByText("No repair history recorded yet.", { exact: true })
+      .waitFor();
+  },
+);
+
+async function captureJourneyEvidence(world, name, narrow) {
+  if (narrow) await world.page.setViewportSize({ width: 390, height: 844 });
+  const panel = world.page.getByTestId("journey-authoring-panel");
+  await panel.scrollIntoViewIfNeeded();
+  const capture = async (root) => {
+    await panel.screenshot({ path: path.join(root, `${name}.png`) });
+  };
+  await capture(
+    path.join(
+      process.cwd(),
+      "artifacts",
+      "verification",
+      "JRN-02",
+      "screenshots",
+    ),
+  );
+  if (shouldCaptureCurated("JRN-02")) {
+    await capture(path.join(process.cwd(), "docs", "evidence", "JRN-02"));
+  }
+  if (narrow) await world.page.setViewportSize({ width: 1440, height: 1100 });
+}
+
+Then(
+  "I capture the {string} journey-editor evidence",
+  async function (evidenceName) {
+    await captureJourneyEvidence(this, evidenceName, false);
+  },
+);
+
+Then(
+  "I capture the {string} narrow journey-editor evidence",
+  async function (evidenceName) {
+    await captureJourneyEvidence(this, evidenceName, true);
+  },
+);
+
+When("I turn off required checkpoint visibility", async function () {
+  await this.page.getByTestId("journey-required-visibility").uncheck();
+});
+
+When("I try to save the named journey", async function () {
+  const button = this.page.getByTestId("save-journey");
+  assert.equal(await button.isDisabled(), true);
+  this.blockedJourneyPostObserved = false;
+  const listener = (request) => {
+    if (
+      request.method() === "POST" &&
+      new URL(request.url()).pathname.endsWith("/journeys")
+    ) {
+      this.blockedJourneyPostObserved = true;
+    }
+  };
+  this.page.on("request", listener);
+  await button.evaluate((element) => element.click());
+  await this.page.waitForTimeout(150);
+  this.page.off("request", listener);
+});
+
+Then(
+  "the journey editor blocks saving until required visibility is restored",
+  async function () {
+    assert.equal(this.blockedJourneyPostObserved, false);
+    const notice = this.page.getByTestId("journey-blocked-notice");
+    await notice
+      .getByText("Required visibility is missing", { exact: true })
+      .waitFor();
+    await notice
+      .getByText(
+        "A runnable journey must say what evidence has to be visible. Restore this checkpoint before saving.",
+        { exact: true },
+      )
+      .waitFor();
+  },
+);
+
+Then("no named journey version is stored", async function () {
+  assert.ok(this.journeyHistoryUrl, "The journey history URL was captured");
+  const result = await this.page.evaluate(async (url) => {
+    const response = await fetch(url, {
+      cache: "no-store",
+      credentials: "same-origin",
+    });
+    return { status: response.status, body: await response.json() };
+  }, this.journeyHistoryUrl);
+  assert.equal(result.status, 200);
+  const history = result.body;
+  assert.equal(history.versions.length, 0);
+  assert.equal(history.current.length, 0);
+  assert.equal(
+    await this.page
+      .getByTestId("journey-version-history")
+      .locator("[data-journey-version]")
+      .count(),
+    0,
+  );
+});

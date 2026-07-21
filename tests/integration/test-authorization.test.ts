@@ -17,6 +17,7 @@ import {
   createDatabaseTestService,
   type DatabaseTestService,
 } from "../../packages/testkit/src/index";
+import { insertPostgresJourneyFixture } from "../helpers/postgres-journey-fixture";
 
 const databases: DatabaseTestService[] = [];
 
@@ -242,7 +243,11 @@ describe("PostgreSQL test authorization", () => {
   it("rejects direct queued-run inserts that bypass the service gate", async () => {
     const context = await fixture();
     const authorization = await context.authorizationService.createAuthorization(
-      activeInput(context),
+      {
+        ...activeInput(context),
+        reviewAt: "2099-07-21T00:00:00.000Z",
+        expiresAt: "2099-07-22T00:00:00.000Z",
+      },
     );
     const agreementId = "91919191-9191-4191-8191-919191919191";
     const journeyVersionId = "92929292-9292-4292-8292-929292929292";
@@ -256,16 +261,21 @@ describe("PostgreSQL test authorization", () => {
         { kind: "HUMAN", actorId: context.principal.userId },
       ],
     );
-    await context.database.database.query(
-      "INSERT INTO journey_versions (workspace_id, id, journey_id, version, authorization_id, payload, created_at, created_by) VALUES ($1, $2, $3, 1, $4, '{}', now(), $5)",
-      [
-        context.workspaceId,
-        journeyVersionId,
-        "93939393-9393-4393-8393-939393939393",
-        authorization.id,
-        { kind: "HUMAN", actorId: context.principal.userId },
-      ],
-    );
+    await insertPostgresJourneyFixture(context.database.database, {
+      workspaceId: context.workspaceId,
+      softwareId: context.softwareId,
+      agreementVersionId: agreementId,
+      authorizationId: authorization.id,
+      journeyVersionId,
+      journeyId: "93939393-9393-4393-8393-939393939393",
+      personaId: "95959595-9595-4595-8595-959595959595",
+      proposalRunId: "96969696-9696-4696-8696-969696969696",
+      proposedRequirementId: "97979797-9797-4797-8797-979797979797",
+      confirmedRequirementId: "98989898-9898-4898-8898-989898989898",
+      actorId: context.principal.userId,
+      allowedActions: ["NAVIGATE"],
+      prohibitedActions: authorization.prohibitedActions,
+    });
     const queueSql =
       "INSERT INTO runs (workspace_id, id, software_id, state, agreement_version_id, journey_version_id, authorization_id, runner_config_version, snapshot_hash, queued_at) VALUES ($1, $2, $3, 'QUEUED', $4, $5, $6, 'runner-v1', $7, now())";
     const queueParams = [

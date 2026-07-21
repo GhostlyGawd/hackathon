@@ -21,6 +21,7 @@ import {
   createDatabaseTestService,
   type DatabaseTestService,
 } from "../../packages/testkit/src/index";
+import { insertPostgresJourneyFixture } from "../helpers/postgres-journey-fixture";
 
 const databases: DatabaseTestService[] = [];
 
@@ -141,16 +142,21 @@ async function fixture() {
       { kind: "HUMAN", actorId: principal.userId },
     ],
   );
-  await database.database.query(
-    "INSERT INTO journey_versions (workspace_id, id, journey_id, version, authorization_id, payload, created_at, created_by) VALUES ($1, $2, $3, 1, $4, '{}', now(), $5)",
-    [
-      created.workspace.id,
-      journeyVersionId,
-      "73737373-7373-4373-8373-737373737373",
-      policy.id,
-      { kind: "HUMAN", actorId: principal.userId },
-    ],
-  );
+  await insertPostgresJourneyFixture(database.database, {
+    workspaceId: created.workspace.id,
+    softwareId: software.software.id,
+    agreementVersionId: agreementId,
+    authorizationId: policy.id,
+    journeyVersionId,
+    journeyId: "73737373-7373-4373-8373-737373737373",
+    personaId: "78787878-7878-4878-8878-787878787878",
+    proposalRunId: "79797979-7979-4979-8979-797979797979",
+    proposedRequirementId: "80808080-8080-4080-8080-808080808080",
+    confirmedRequirementId: "81818181-8181-4181-8181-818181818180",
+    actorId: principal.userId,
+    allowedActions: ["NAVIGATE"],
+    prohibitedActions: policy.prohibitedActions,
+  });
   const runIds = [
     "74747474-7474-4474-8474-747474747474",
     "75757575-7575-4575-8575-757575757575",

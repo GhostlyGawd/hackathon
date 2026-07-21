@@ -1,0 +1,419 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "JRN-02",
+  "title": "Implement named journey schema and editor",
+  "status": "COMPLETE",
+  "prdSections": [9, 12],
+  "functionalRequirements": ["FR-022"],
+  "sourceCommitSha": "a952d3326417e682b666dbd21798e28a3dc79ad3",
+  "startedAt": "2026-07-21T02:40:00.000Z",
+  "completedAt": "2026-07-21T04:06:25.000Z",
+  "artifactRoot": "artifacts/verification/JRN-02/",
+  "curatedEvidenceRoot": "docs/evidence/JRN-02/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29799937840",
+      "jobs": [
+        {
+          "name": "Ubuntu",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29799937840/job/88538824439",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Windows",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29799937840/job/88538824393",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing named-journey builder",
+      "command": "pnpm exec vitest run --project unit tests/unit/journey-authoring.test.ts --project property tests/property/journey-authoring.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 3263,
+      "expectedFailure": "Three positive examples failed because buildJourneyVersion did not exist; six invalid-shape examples already rejected before implementation"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing journey service repository",
+      "command": "pnpm exec vitest run --project integration tests/integration/journey-authoring.test.ts",
+      "exitCode": 1,
+      "durationMs": 2814,
+      "expectedFailure": "All eight initial service scenarios failed because the in-memory journey repository did not exist"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing PostgreSQL journey repository",
+      "command": "pnpm exec vitest run --project integration tests/integration/journey-authoring.test.ts",
+      "exitCode": 1,
+      "durationMs": 5664,
+      "expectedFailure": "The PostgreSQL persistence scenario could not construct the not-yet-implemented repository"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing journey migration inventory entry",
+      "command": "pnpm exec vitest run --project integration tests/integration/domain-migrations.test.ts",
+      "exitCode": 1,
+      "durationMs": 11300,
+      "expectedFailure": "The migration inventory expected 0009 while the loader still returned only 0001 through 0008"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing signed journey route",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/journey-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 2795,
+      "expectedFailure": "The route suite could not import the not-yet-created signed journey endpoint"
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined named-journey browser behavior",
+      "command": "PACTWIRE_BDD_TAGS=@JRN-02 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 54429,
+      "expectedFailure": "All thirty-six prerequisite setup steps passed while three JRN-02 scenarios and twenty journey-editor step instances were undefined"
+    },
+    {
+      "phase": "RED",
+      "name": "Agreement history scope regression",
+      "command": "pnpm exec vitest run --project integration tests/integration/journey-authoring.test.ts",
+      "exitCode": 1,
+      "durationMs": 6200,
+      "expectedFailure": "The service returned a journey from another agreement version because the validated agreement scope was not applied to repository results"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Agreement-scoped journey history",
+      "command": "pnpm exec vitest run --project integration tests/integration/journey-authoring.test.ts",
+      "exitCode": 0,
+      "durationMs": 6500
+    },
+    {
+      "phase": "RED",
+      "name": "Review-due authorization regression",
+      "command": "pnpm exec vitest run --project integration tests/integration/journey-authoring.test.ts",
+      "exitCode": 1,
+      "durationMs": 5700,
+      "expectedFailure": "A journey was labeled RUNNABLE after the authorization's required human review time had passed"
+    },
+    {
+      "phase": "RED",
+      "name": "Database action-scope complement regression",
+      "command": "pnpm exec vitest run --project integration tests/integration/journey-authoring.test.ts",
+      "exitCode": 1,
+      "durationMs": 5800,
+      "expectedFailure": "The PostgreSQL repository accepted UPLOAD outside the human authorization because the migration guard did not yet compare action arrays"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Current authorization and PostgreSQL action boundary",
+      "command": "pnpm exec vitest run --project integration tests/integration/journey-authoring.test.ts",
+      "exitCode": 0,
+      "durationMs": 6000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Focused schema, property, persistence, migration, and signed-route matrix",
+      "command": "pnpm exec vitest run --project unit tests/unit/journey-authoring.test.ts tests/unit/domain-schemas.test.ts --project property tests/property/journey-authoring.property.test.ts --project integration tests/integration/journey-authoring.test.ts tests/integration/domain-migrations.test.ts apps/web/tests/integration/journey-routes.test.ts",
+      "exitCode": 0,
+      "durationMs": 16700
+    },
+    {
+      "phase": "RED",
+      "name": "Causal-link locator exposed repeated checkpoint evidence",
+      "command": "PACTWIRE_BDD_TAGS=@JRN-02 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 64500,
+      "expectedFailure": "Two scenarios passed; the teacher assertion used a strict single-element locator even though the same checkpoint correctly appeared once for each of two linked fictional fields"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Teacher, immutable student edit, and required-visibility browser journeys",
+      "command": "PACTWIRE_BDD_TAGS=@JRN-02 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 63700
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence traceability required the JRN-02 manifest",
+      "command": "pnpm evidence:check",
+      "exitCode": 1,
+      "durationMs": 3800,
+      "expectedFailure": "The evidence checker reported the five new unit, property, integration, route, and Gherkin files as orphans before this manifest referenced them"
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory rejected stale manifest and proof totals",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 2900,
+      "expectedFailure": "The repository evidence regression still expected twelve manifests and 122 proof files after JRN-02 added the thirteenth manifest and ten new proof paths"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Evidence index includes the named-journey manifest and proofs",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts && pnpm evidence:check",
+      "exitCode": 0,
+      "durationMs": 5200
+    },
+    {
+      "phase": "RED",
+      "name": "Complete gate rejected legacy placeholder journey fixtures",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 121700,
+      "expectedFailure": "All static gates, the production build, 92 unit checks, and 32 properties passed; three older PostgreSQL integration cases still inserted empty placeholder journeys after migration 0009 began requiring real scoped prerequisites"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Existing run fixtures use complete named journeys",
+      "command": "pnpm exec vitest run --project integration tests/integration/synthetic-data.test.ts tests/integration/test-authorization.test.ts",
+      "exitCode": 0,
+      "durationMs": 10100
+    },
+    {
+      "phase": "RED",
+      "name": "Standalone browser follow-up used a separate cookie context",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 247800,
+      "expectedFailure": "All 216 non-browser checks and 34 production BDD scenarios passed; the final zero-persistence GET returned 401 because Playwright's separate request context did not retain the standalone browser session cookie"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Authenticated production named-journey browser stories",
+      "command": "PACTWIRE_BDD_TAGS=@JRN-02 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 32400
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete optimized-production repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 265400
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency vulnerability audit",
+      "command": "pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 1700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Workspace credential-pattern scan",
+      "command": "rg -P with token-boundary secret-key and private-key patterns, excluding dependencies, build output, artifacts, and images; no matches is success",
+      "exitCode": 0,
+      "durationMs": 800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production browser capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=JRN-02 PACTWIRE_BDD_TAGS=@JRN-02 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 40717
+    },
+    {
+      "phase": "RED",
+      "name": "Unreferenced named-journey screenshots",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 2553,
+      "expectedFailure": "The evidence harness found both source-bound JRN-02 screenshots before the manifest referenced them"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Manifest-linked visual evidence reconciliation",
+      "command": "pnpm evidence:check; pnpm domain:evidence:check",
+      "exitCode": 0,
+      "durationMs": 2948
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows at the implementation source commit",
+      "command": "GitHub Actions run 29799937840: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 486000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete repository verification with finalized evidence",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 249373
+    }
+  ],
+  "testSummary": {
+    "files": 54,
+    "passed": 216,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-25-complete-required-checkpoint-causal-links",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-25-immutable-version-append",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "journey-authoring.feature",
+        "scenario": "The officer creates a runnable teacher journey with a causal chain",
+        "passed": true
+      },
+      {
+        "feature": "journey-authoring.feature",
+        "scenario": "A student journey edit appends immutable version history",
+        "passed": true
+      },
+      {
+        "feature": "journey-authoring.feature",
+        "scenario": "Required visibility cannot be omitted from a runnable journey",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/JRN-02/teacher-journey-editor-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T03:58:44.305Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop named journey editor after saving teacher version 1, showing the current fictional classroom rule, active authority, fictional teacher, bounded actions, required visibility, causal links, and immutable history.",
+        "caption": "The optimized-production teacher view links the human-confirmed rule through two fictional fields to the required assignment-published checkpoint and preserves saved version 1.",
+        "provenance": "captured",
+        "sourceCommitSha": "a952d3326417e682b666dbd21798e28a3dc79ad3"
+      },
+      {
+        "path": "docs/evidence/JRN-02/student-journey-editor-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T03:58:54.579Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow named journey editor after saving student version 2, showing the fictional student, required submission visibility, causal links, and immutable version 2 followed by preserved version 1.",
+        "caption": "The narrow optimized-production view keeps the student journey readable while proving that an edit appends version 2 without replacing version 1.",
+        "provenance": "captured",
+        "sourceCommitSha": "a952d3326417e682b666dbd21798e28a3dc79ad3"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/journey-authoring.test.ts",
+      "description": "Runnable shape, complete causal-link examples, invalid field/checkpoint/action combinations, freezing, and lineage"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/journey-authoring.property.test.ts",
+      "description": "Seeded PROP-25 generated causal-link completeness and immutable append proof"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/journey-authoring.test.ts",
+      "description": "Permissions, current prerequisites, agreement isolation, immutable and concurrent appends, dynamic reassessment, audit, and PostgreSQL authority enforcement"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/journey-routes.test.ts",
+      "description": "Signed create/list, bounded prerequisite rejection, forged role denial, causal response, and stale append HTTP proof"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/journey-authoring.feature",
+      "description": "Teacher authoring, immutable student edit, and required-visibility refusal through real browser and API boundaries"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/workspace-access.steps.mjs",
+      "description": "Playwright prerequisite, server-response, causal-link, immutable-history, zero-persistence, and visual-capture assertions"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/journey-authoring.ts",
+      "description": "Strict draft builder, current prerequisite assessment, causal views, scoped history, services, and in-memory/PostgreSQL repositories"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/domain.ts",
+      "description": "Journey, test-field, checkpoint, and step schemas with complete required-causal-link invariants"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0009_named_journey_versions.sql",
+      "description": "Scoped append-only lineage, current requirement and authorization, action complement, persona field, and human-author database guards"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/domain-migrations.test.ts",
+      "description": "Migration inventory, stable checksum, cross-scope foreign keys, runnable journey references, and immutable run linkage"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/synthetic-data.test.ts",
+      "description": "Existing canary persistence coverage now seeds a complete scoped journey instead of bypassing the named-journey contract"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/test-authorization.test.ts",
+      "description": "Existing direct run-queue database gates now reference a complete current named journey"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/journey-authoring-panel.tsx",
+      "description": "Direct-language role, goal, scope, visibility, causal-chain, version-history, and honest future-state editor"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/api/workspaces/[workspaceId]/software/[softwareId]/journeys/route.ts",
+      "description": "Signed URL-scoped journey create/list boundary with private no-store responses"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/JRN-02/README.md",
+      "description": "Curated JRN-02 red/green record, claim boundary, source-bound visual plan, and limitations"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T04:00:00.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "JRN-02 defines and versions journey specifications only; JRN-03 owns deterministic replay and RUN-04 owns model-assisted repair.",
+    "RUNNABLE means the current authoring prerequisites are complete; it does not mean a test ran, passed, found no issue, established safety, or established compliance.",
+    "The editor currently selects one current human-confirmed executable rule for each default teacher or student journey, while the domain supports multiple linked requirements.",
+    "Agreement change impact and journey re-review remain the explicitly deferred FR-015 follow-on in AGR-03.",
+    "All browser evidence uses controlled fictional accounts, reserved .invalid addresses, and the private fixture runtime."
+  ],
+  "reviewer": "codex-agent"
+}

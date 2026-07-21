@@ -6,11 +6,13 @@ import {
   FetchOpenAIResponsesTransport,
   InMemoryAgreementIntakeRepository,
   InMemoryAgreementObjectStore,
+  InMemoryJourneyAuthoringRepository,
   InMemoryRequirementProposalRepository,
   InMemoryRequirementReviewRepository,
   InMemorySecretIsolationRepository,
   InMemorySyntheticDataRepository,
   InMemoryWorkspaceAuthorizationRepository,
+  JourneyAuthoringService,
   InMemorySoftwareInventoryRepository,
   InMemoryTestAuthorizationRepository,
   OpenAIResponsesRequirementProposalAdapter,
@@ -83,6 +85,8 @@ export interface AccessRuntime {
   readonly secretIsolationService: SecretIsolationService;
   readonly syntheticDataRepository: InMemorySyntheticDataRepository;
   readonly syntheticDataService: SyntheticDataService;
+  readonly journeyAuthoringRepository: InMemoryJourneyAuthoringRepository;
+  readonly journeyAuthoringService: JourneyAuthoringService;
 }
 
 export function isFixtureMode(): boolean {
@@ -253,6 +257,19 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
         (++syntheticToken).toString(16).padStart(32, "0"),
     },
   );
+  const journeyAuthoringRepository = new InMemoryJourneyAuthoringRepository(
+    repository,
+  );
+  const journeyAuthoringService = new JourneyAuthoringService(
+    journeyAuthoringRepository,
+    {
+      requirements: requirementReviewRepository,
+      authorizations: testAuthorizationRepository,
+      personas: syntheticDataRepository,
+    },
+    service,
+    { idFactory, now },
+  );
   return Object.freeze({
     repository,
     service,
@@ -271,6 +288,8 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     secretIsolationService,
     syntheticDataRepository,
     syntheticDataService,
+    journeyAuthoringRepository,
+    journeyAuthoringService,
   });
 }
 

@@ -17,6 +17,133 @@ async function migratedDatabase(): Promise<DatabaseTestService> {
   return service;
 }
 
+async function insertRunnableJourneyFixture(
+  database: DatabaseTestService["database"],
+  input: {
+    readonly workspaceId: string;
+    readonly softwareId: string;
+    readonly agreementVersionId: string;
+    readonly authorizationId: string;
+    readonly journeyVersionId: string;
+    readonly journeyId: string;
+    readonly personaId: string;
+    readonly proposalRunId: string;
+    readonly proposedRequirementId: string;
+    readonly confirmedRequirementId: string;
+  },
+): Promise<void> {
+  await database.query(
+    "INSERT INTO personas (workspace_id, id, role, fictional, display_name, email, fields, fictional_confirmation, scan_result, created_at, created_by) VALUES ($1, $2, 'STUDENT', true, 'Journey Student (Fictional)', $3, jsonb_build_object('submissionPhrase', 'Fictional response'), jsonb_build_object('statementVersion', 'fictional-only-v1', 'confirmedAt', now(), 'confirmedBy', jsonb_build_object('kind', 'HUMAN', 'actorId', 'migration-fixture')), jsonb_build_object('scannerVersion', 'likely-real-v1', 'outcome', 'CLEAR', 'findings', jsonb_build_array()), now(), jsonb_build_object('kind', 'HUMAN', 'actorId', 'migration-fixture'))",
+    [
+      input.workspaceId,
+      input.personaId,
+      `journey-${input.personaId.slice(0, 8)}@pactwire.invalid`,
+    ],
+  );
+  await database.query(
+    "INSERT INTO requirement_proposal_runs (workspace_id, id, software_id, agreement_version_id, status, provider, requested_model, returned_model, attempts, total_input_tokens, total_cached_input_tokens, total_output_tokens, total_reasoning_tokens, total_tokens, total_estimated_cost_micro_usd, requested_by, created_at) VALUES ($1, $2, $3, $4, 'SUCCEEDED', 'DETERMINISTIC_FIXTURE', 'fixture-v1', 'fixture-v1', '[{}]', 0, 0, 0, 0, 0, 0, jsonb_build_object('kind', 'HUMAN', 'actorId', 'migration-fixture'), now())",
+    [
+      input.workspaceId,
+      input.proposalRunId,
+      input.softwareId,
+      input.agreementVersionId,
+    ],
+  );
+  await database.query(
+    "INSERT INTO requirement_versions (workspace_id, id, agreement_version_id, requirement_key, version, model_run_id, status, executable, payload, created_at) VALUES ($1, $2, $3, 'migration-rule', 1, $4, 'PROPOSED', false, '{}', now())",
+    [
+      input.workspaceId,
+      input.proposedRequirementId,
+      input.agreementVersionId,
+      input.proposalRunId,
+    ],
+  );
+  const confirmedPayload = {
+    id: input.confirmedRequirementId,
+    workspaceId: input.workspaceId,
+    agreementVersionId: input.agreementVersionId,
+    requirementKey: "migration-rule",
+    version: 2,
+    sourceVersionId: input.proposedRequirementId,
+    status: "CONFIRMED",
+    executable: true,
+    plainLanguage: "Observe the fictional migration request.",
+    predicate: { kind: "OBSERVABLE_DATA_FLOW" },
+    confirmedBy: { kind: "HUMAN", actorId: "migration-fixture" },
+    confirmedAt: "2026-07-21T00:00:00.000Z",
+  };
+  await database.query(
+    "INSERT INTO requirement_versions (workspace_id, id, agreement_version_id, requirement_key, version, source_requirement_version_id, status, executable, payload, created_at) VALUES ($1, $2, $3, 'migration-rule', 2, $4, 'CONFIRMED', true, $5, now())",
+    [
+      input.workspaceId,
+      input.confirmedRequirementId,
+      input.agreementVersionId,
+      input.proposedRequirementId,
+      confirmedPayload,
+    ],
+  );
+  const createdAt = new Date().toISOString();
+  const journeyPayload = {
+    id: input.journeyVersionId,
+    workspaceId: input.workspaceId,
+    softwareId: input.softwareId,
+    agreementVersionId: input.agreementVersionId,
+    journeyId: input.journeyId,
+    version: 1,
+    sourceVersionId: null,
+    name: "Migration journey",
+    role: "STUDENT",
+    goal: "Submit the fictional migration response.",
+    startState: "Signed in to the fictional migration workspace.",
+    requirementVersionIds: [input.confirmedRequirementId],
+    authorizationId: input.authorizationId,
+    personaId: input.personaId,
+    testFields: [
+      {
+        fieldId: "student-email",
+        sourceField: "email",
+        requirementVersionId: input.confirmedRequirementId,
+      },
+    ],
+    allowedActions: ["NAVIGATE"],
+    prohibitedActions: ["MESSAGE"],
+    checkpoints: [
+      {
+        checkpointId: "migration-request",
+        required: true,
+        description: "Observe the fictional migration request.",
+        observationSource: "NETWORK",
+        requiredVisibility: true,
+        requirementVersionIds: [input.confirmedRequirementId],
+        testFieldIds: ["student-email"],
+      },
+    ],
+    steps: [
+      {
+        stepId: "open-fixture",
+        instruction: "Open the fictional fixture.",
+        action: "NAVIGATE",
+      },
+    ],
+    createdAt,
+    createdBy: { kind: "HUMAN", actorId: "migration-fixture" },
+  };
+  await database.query(
+    "INSERT INTO journey_versions (workspace_id, id, software_id, agreement_version_id, journey_id, version, source_journey_version_id, authorization_id, persona_id, payload, created_at, created_by) VALUES ($1, $2, $3, $4, $5, 1, NULL, $6, $7, $8, $9, jsonb_build_object('kind', 'HUMAN', 'actorId', 'migration-fixture'))",
+    [
+      input.workspaceId,
+      input.journeyVersionId,
+      input.softwareId,
+      input.agreementVersionId,
+      input.journeyId,
+      input.authorizationId,
+      input.personaId,
+      journeyPayload,
+      createdAt,
+    ],
+  );
+}
+
 afterEach(async () => {
   await Promise.all(databases.splice(0).map((service) => service.close()));
 });
@@ -34,6 +161,7 @@ describe("core domain migrations", () => {
       "0006",
       "0007",
       "0008",
+      "0009",
     ]);
   });
 
@@ -50,6 +178,7 @@ describe("core domain migrations", () => {
       "0006",
       "0007",
       "0008",
+      "0009",
     ]);
     await expect(applyCoreMigrations(service.database)).resolves.toEqual([]);
     const tables = await service.database.query<{ table_name: string }>(
@@ -281,22 +410,25 @@ describe("core domain migrations", () => {
       [workspace, software],
     );
     await database.query(
-      "INSERT INTO authorizations (workspace_id, id, software_id, version, status, valid_from, expires_at, scope, attested_by, attested_at) VALUES ($1, $2, $3, 1, 'ACTIVE', now(), now() + interval '1 day', '{\"reviewAt\":\"2099-01-01T00:00:00.000Z\",\"attestation\":{\"authorityConfirmed\":true,\"syntheticAccountsOnlyConfirmed\":true}}', '{\"kind\":\"HUMAN\",\"actorId\":\"fictional-officer\"}', now())",
+      "INSERT INTO authorizations (workspace_id, id, software_id, version, status, valid_from, expires_at, scope, attested_by, attested_at) VALUES ($1, $2, $3, 1, 'ACTIVE', now(), now() + interval '1 day', '{\"reviewAt\":\"2099-01-01T00:00:00.000Z\",\"allowedActions\":[\"NAVIGATE\"],\"prohibitedActions\":[\"MESSAGE\"],\"attestation\":{\"authorityConfirmed\":true,\"syntheticAccountsOnlyConfirmed\":true}}', '{\"kind\":\"HUMAN\",\"actorId\":\"fictional-officer\"}', now())",
       [workspace, authorization, software],
     );
     await database.query(
       "INSERT INTO agreement_versions (workspace_id, id, software_id, version, source_object_key, source_sha256, source_mime_type, source_file_name, source_byte_length, normalized_text, page_map, created_at, created_by) VALUES ($1, $2, $3, 1, ('agreements/sha256/' || $4 || '.pdf'), $4, 'application/pdf', 'Fictional Agreement.pdf', 1, 'Fixture', jsonb_build_array(jsonb_build_object('pageNumber', 1, 'startOffset', 0, 'endOffset', 7, 'text', 'Fixture', 'textSha256', repeat('b', 64))), now(), jsonb_build_object('kind', 'HUMAN', 'actorId', 'fixture-officer'))",
       [workspace, agreement, software, "a".repeat(64)],
     );
-    await database.query(
-      "INSERT INTO journey_versions (workspace_id, id, journey_id, version, authorization_id, payload, created_at, created_by) VALUES ($1, $2, $3, 1, $4, '{}', now(), '{}')",
-      [
-        workspace,
-        journey,
-        "45454545-4545-4545-8545-454545454545",
-        authorization,
-      ],
-    );
+    await insertRunnableJourneyFixture(database, {
+      workspaceId: workspace,
+      softwareId: software,
+      agreementVersionId: agreement,
+      authorizationId: authorization,
+      journeyVersionId: journey,
+      journeyId: "45454545-4545-4545-8545-454545454545",
+      personaId: "46464646-4646-4646-8646-464646464646",
+      proposalRunId: "47474747-4747-4747-8747-474747474747",
+      proposedRequirementId: "48484848-4848-4848-8848-484848484848",
+      confirmedRequirementId: "49494949-4949-4949-8949-494949494949",
+    });
 
     await expect(
       database.query(
@@ -431,7 +563,7 @@ describe("core domain migrations", () => {
       [workspace, softwareA, softwareB],
     );
     await database.query(
-      "INSERT INTO authorizations (workspace_id, id, software_id, version, status, valid_from, expires_at, scope, attested_by, attested_at) VALUES ($1, $2, $3, 1, 'ACTIVE', now(), now() + interval '1 day', '{\"reviewAt\":\"2099-01-01T00:00:00.000Z\",\"attestation\":{\"authorityConfirmed\":true,\"syntheticAccountsOnlyConfirmed\":true}}', '{\"kind\":\"HUMAN\",\"actorId\":\"fictional-officer\"}', now())",
+      "INSERT INTO authorizations (workspace_id, id, software_id, version, status, valid_from, expires_at, scope, attested_by, attested_at) VALUES ($1, $2, $3, 1, 'ACTIVE', now(), now() + interval '1 day', '{\"reviewAt\":\"2099-01-01T00:00:00.000Z\",\"allowedActions\":[\"NAVIGATE\"],\"prohibitedActions\":[\"MESSAGE\"],\"attestation\":{\"authorityConfirmed\":true,\"syntheticAccountsOnlyConfirmed\":true}}', '{\"kind\":\"HUMAN\",\"actorId\":\"fictional-officer\"}', now())",
       [workspace, authorizationA, softwareA],
     );
     await database.query(
@@ -445,15 +577,18 @@ describe("core domain migrations", () => {
         softwareB,
       ],
     );
-    await database.query(
-      "INSERT INTO journey_versions (workspace_id, id, journey_id, version, authorization_id, payload, created_at, created_by) VALUES ($1, $2, $3, 1, $4, '{}', now(), '{}')",
-      [
-        workspace,
-        journeyA,
-        "60606060-6060-4060-8060-606060606060",
-        authorizationA,
-      ],
-    );
+    await insertRunnableJourneyFixture(database, {
+      workspaceId: workspace,
+      softwareId: softwareA,
+      agreementVersionId: agreementA,
+      authorizationId: authorizationA,
+      journeyVersionId: journeyA,
+      journeyId: "60606060-6060-4060-8060-606060606060",
+      personaId: "67676767-6767-4767-8767-676767676767",
+      proposalRunId: "68686868-6868-4868-8868-686868686868",
+      proposedRequirementId: "69696969-6969-4969-8969-696969696969",
+      confirmedRequirementId: "70707070-7070-4070-8070-707070707070",
+    });
     await expect(
       database.query(
         "INSERT INTO runs (workspace_id, id, software_id, state, agreement_version_id, journey_version_id, authorization_id, runner_config_version, snapshot_hash, queued_at) VALUES ($1, $2, $3, 'QUEUED', $4, $5, $6, 'runner-v1', $7, now())",
