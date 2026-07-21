@@ -1,3 +1,8 @@
+import { EventEmitter } from "node:events";
+
+// One durable JSON report is emitted per implemented task evidence directory.
+EventEmitter.defaultMaxListeners = 32;
+
 export default {
   format: [
     "progress",
@@ -9,6 +14,7 @@ export default {
     "json:artifacts/verification/AGR-01/reports/cucumber.json",
     "json:artifacts/verification/AGR-02/reports/cucumber.json",
     "json:artifacts/verification/AGR-03/reports/cucumber.json",
+    "json:artifacts/verification/FIX-01/reports/cucumber.json",
   ],
   import: ["tests/bdd/**/*.steps.mjs"],
   paths: ["tests/bdd/**/*.feature"],

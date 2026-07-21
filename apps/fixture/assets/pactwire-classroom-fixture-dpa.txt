@@ -1,0 +1,11 @@
+PACTWIRE CLASSROOM FIXTURE DATA USE AGREEMENT
+
+Fictional demonstration only. This agreement describes no real student, district, school, or software vendor.
+
+The classroom service may collect the synthetic student email and fictional submission only to deliver the assignment.
+
+The classroom service must not send the synthetic student email to the fixture analytics company.
+
+The fixture analytics company may receive only an aggregate submission-completed event that contains no synthetic student email or fictional submission.
+
+The district may use this controlled fixture only with reserved .invalid identities and synthetic content.

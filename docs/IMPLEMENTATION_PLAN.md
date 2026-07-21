@@ -194,6 +194,8 @@ Property tests use generated inputs and event sequences with reproducible seeds.
 | PROP-20 | Browser contexts share no cookies, local storage, downloads, clipboard, or credentials |
 | PROP-21 | A positive witnessed conflict remains bounded to its named observed scope even when unrelated paths are partial |
 | PROP-22 | Event ordering and hashing remain deterministic under arbitrary safe retry sequences |
+| PROP-23 | The same controlled-fixture seed and version produce identical public facts and seeded behavior |
+| PROP-24 | Switching a controlled-fixture version preserves every stable fictional fact and changes only declared behavior |
 
 Every discovered counterexample becomes a permanent example-based regression test before the fix is merged.
 
@@ -237,7 +239,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | AGR-03 | P0 + P1 follow-on | AGR-01, AGR-02, AUT-01 | Human review and requirement versions | COMPLETE (P0) |
 | JRN-01 | P0 | AUT-01, AUT-04 | Fictional personas and canaries | COMPLETE |
 | JRN-02 | P0 | AGR-03, JRN-01 | Named journey editor | NOT STARTED |
-| FIX-01 | P0 | FND-01, FND-03 | Controlled classroom fixture | NOT STARTED |
+| FIX-01 | P0 | FND-01, FND-03 | Controlled classroom fixture | COMPLETE |
 | JRN-03 | P0 | JRN-02, FIX-01 | Deterministic replay baseline | NOT STARTED |
 | RUN-01 | P0 | AUT-03, AUT-04, FIX-01 | Isolated browser runner | NOT STARTED |
 | RUN-02 | P0 + P1 follow-on | RUN-01, JRN-01 | Deterministic recorder and visibility | NOT STARTED |
@@ -452,12 +454,13 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### FIX-01 — Build the controlled classroom fixture
 
+- **Status:** COMPLETE — all nine deterministic modes, independent hidden oracle, exact fictional DPA, real reserved-host browser traffic, seeded properties, BDD stories, optimized-production visual evidence, and Ubuntu/Windows verification passed at implementation commit `6c9657f3fadb1721a6816327b6d30eb94fafc4ae`.
 - **Deliver:** fictional teacher/student app and DPA with baseline, regression, repaired, ambiguous, invisible, interface-drift, prompt-injection, risky-action, and failure modes.
 - **PRD:** Section 18.
 - **Depends on:** FND-01 and FND-03.
 - **Red first:** fixture contract tests cannot distinguish the declared versions and seeded events.
 - **Tests:** fixture unit/API/browser tests and a hidden ground-truth manifest unavailable to the application evaluator.
-- **Property:** version switches alter only the declared seeded behavior; generated fixture cases remain reproducible from a seed.
+- **Properties:** PROP-23 and PROP-24; version switches alter only the declared seeded behavior, and generated fixture cases remain reproducible from a seed.
 - **BDD:** baseline-observation, witnessed-conflict, repaired-rerun, visibility-loss, ambiguity, prompt-injection, and failure-recovery features.
 - **Evidence:** screenshots of each visible version/state and a fixture behavior map.
 - **Complete when:** every P0 positive, negative, ambiguity, visibility, and safety scenario has independent fixture ground truth.
