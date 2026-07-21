@@ -30,9 +30,18 @@ const roleValues = Object.freeze({
 });
 
 function isExpectedAuthorizationFailure(response) {
-  const pathname = new URL(response.url()).pathname;
+  const responseUrl = new URL(response.url());
+  const pathname = responseUrl.pathname;
   const method = response.request().method();
   return (
+    (responseUrl.hostname === "classroom.pactwire.test" &&
+      ((method === "GET" && pathname === "/student" && response.status() === 410) ||
+        (method === "POST" &&
+          pathname === "/api/submissions" &&
+          response.status() === 503) ||
+        (method === "POST" &&
+          pathname === "/api/risky-actions" &&
+          response.status() === 409))) ||
     (method === "GET" &&
       pathname === "/api/demo/session" &&
       response.status() === 401) ||
@@ -75,7 +84,9 @@ class AccessWorld {
   unexpectedPopupCount = 0;
 
   async openBrowser() {
-    this.browser = await chromium.launch();
+    this.browser = await chromium.launch({
+      args: ["--host-resolver-rules=MAP *.pactwire.test 127.0.0.1"],
+    });
     this.context = await this.browser.newContext({
       baseURL: baseUrl,
       viewport: { width: 1440, height: 1100 },
@@ -124,8 +135,10 @@ After(async function ({ result, pickle }) {
   try {
     if (result?.status === "FAILED" && this.page) {
       const slug = pickle.name.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-");
-      const taskId = pickle.tags.some((tag) => tag.name === "@AUT-02")
-        ? "AUT-02"
+      const taskId = pickle.tags.some((tag) => tag.name === "@FIX-01")
+        ? "FIX-01"
+        : pickle.tags.some((tag) => tag.name === "@AUT-02")
+          ? "AUT-02"
         : pickle.tags.some((tag) => tag.name === "@AUT-03")
           ? "AUT-03"
           : pickle.tags.some((tag) => tag.name === "@AUT-04")

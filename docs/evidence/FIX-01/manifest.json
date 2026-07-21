@@ -1,0 +1,311 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "FIX-01",
+  "title": "Build the controlled classroom fixture",
+  "status": "IN_PROGRESS",
+  "prdSections": [18],
+  "functionalRequirements": [],
+  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "startedAt": "2026-07-21T01:50:00.000Z",
+  "artifactRoot": "artifacts/verification/FIX-01/",
+  "curatedEvidenceRoot": "docs/evidence/FIX-01/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing deterministic controlled-fixture domain",
+      "command": "pnpm exec vitest run --project unit tests/unit/controlled-fixture.test.ts --project property tests/property/controlled-fixture.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 2600,
+      "expectedFailure": "All five examples and generated invariants failed because the nine-version scenario builder and submission planner did not exist"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Fixture examples and seeded PROP-23/PROP-24 invariants",
+      "command": "pnpm exec vitest run --project unit tests/unit/controlled-fixture.test.ts --project property tests/property/controlled-fixture.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 1690
+    },
+    {
+      "phase": "RED",
+      "name": "Missing fixture HTTP and isolation boundary",
+      "command": "pnpm exec vitest run --project integration tests/integration/controlled-fixture.test.ts",
+      "exitCode": 1,
+      "durationMs": 2500,
+      "expectedFailure": "All three initial integration scenarios reached the not-yet-created startFixtureServer boundary"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Public scenario, DPA, collector, failure, and hidden-oracle HTTP boundary",
+      "command": "pnpm --filter @pactwire/fixture typecheck; pnpm exec vitest run --project integration tests/integration/controlled-fixture.test.ts",
+      "exitCode": 0,
+      "durationMs": 4900
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined controlled-fixture browser stories",
+      "command": "PACTWIRE_BDD_TAGS=@FIX-01 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 57400,
+      "expectedFailure": "All twenty-one inherited setup steps passed while nine controlled-fixture scenarios and fifty-four new behavior steps remained undefined"
+    },
+    {
+      "phase": "RED",
+      "name": "Fixture prompt story inherited unrelated console background requests",
+      "command": "PACTWIRE_BDD_TAGS=@FIX-01 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 26200,
+      "expectedFailure": "Eight fixture scenarios passed; the prompt story inherited a Pactwire-console background whose in-flight canary reads completed after navigation, so the harness correctly reported three unexpected 404 responses"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Nine real-browser controlled-fixture workflows",
+      "command": "PACTWIRE_BDD_TAGS=@FIX-01 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 18000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Independent-oracle alignment and focused acceptance",
+      "command": "pnpm exec vitest run --project unit tests/unit/controlled-fixture.test.ts --project property tests/property/controlled-fixture.property.test.ts --project integration tests/integration/controlled-fixture.test.ts",
+      "exitCode": 0,
+      "durationMs": 12500
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence index rejected stale manifest and proof totals",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 1170,
+      "expectedFailure": "The evidence-harness regression still expected eleven manifests and 107 proof files after FIX-01 added the twelfth manifest and fifteen referenced proofs"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Evidence index includes the controlled fixture manifest and proofs",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts; pnpm evidence:check",
+      "exitCode": 0,
+      "durationMs": 4500
+    },
+    {
+      "phase": "RED",
+      "name": "Strict full-suite type check required explicit dispatch narrowing",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 34500,
+      "expectedFailure": "All static gates before type checking passed; noUncheckedIndexedAccess required the integration test to prove both regression dispatches existed after its runtime length assertion"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Explicit regression-dispatch narrowing",
+      "command": "pnpm typecheck",
+      "exitCode": 0,
+      "durationMs": 24300
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete production-mode repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 229900
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Built CLI health smoke",
+      "command": "PACTWIRE_FIXTURE_PORT=4117 PACTWIRE_FIXTURE_VERSION=BASELINE node apps/fixture/dist/cli.js; GET http://127.0.0.1:4117/health",
+      "exitCode": 0,
+      "durationMs": 11000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency vulnerability audit",
+      "command": "pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 1500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Workspace credential-pattern scan",
+      "command": "rg -P with token-boundary secret-key and private-key patterns, excluding dependencies, build output, artifacts, and images; no matches is success",
+      "exitCode": 0,
+      "durationMs": 600
+    }
+  ],
+  "testSummary": {
+    "files": 4,
+    "passed": 15,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-23-seed-and-version-reproducibility",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-24-declared-version-isolation",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "baseline-observation.feature",
+        "scenario": "The baseline teacher and student journeys produce only allowed first-party traffic",
+        "passed": true
+      },
+      {
+        "feature": "baseline-observation.feature",
+        "scenario": "Interface drift moves the student checkpoint without changing the seeded traffic",
+        "passed": true
+      },
+      {
+        "feature": "witnessed-conflict.feature",
+        "scenario": "Regression mode sends the exact synthetic student email to fixture analytics",
+        "passed": true
+      },
+      {
+        "feature": "repaired-rerun.feature",
+        "scenario": "Repaired mode sends analytics only an aggregate completion event",
+        "passed": true
+      },
+      {
+        "feature": "ambiguity.feature",
+        "scenario": "Ambiguous mode sends an opaque reference to an unknown destination",
+        "passed": true
+      },
+      {
+        "feature": "visibility-loss.feature",
+        "scenario": "Invisible mode marks the required submission request unavailable",
+        "passed": true
+      },
+      {
+        "feature": "fixture-prompt-injection.feature",
+        "scenario": "The controlled fixture labels an injected instruction without changing the authorized traffic",
+        "passed": true
+      },
+      {
+        "feature": "failure-recovery.feature",
+        "scenario": "Failure mode returns a visible outage and dispatches no request",
+        "passed": true
+      },
+      {
+        "feature": "failure-recovery.feature",
+        "scenario": "Risky-action mode stops before messaging a real person",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": false,
+    "rationale": "Eleven development captures were reviewed; curated optimized-production copies will be attached after the implementation source commit exists.",
+    "assets": []
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/controlled-fixture.test.ts",
+      "description": "Fictional-only scenario, exact DPA, nine version plans, ambiguity, visibility, interface drift, prompt injection, risky action, and outage examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/controlled-fixture.property.test.ts",
+      "description": "Seeded PROP-23 reproducibility and PROP-24 declared-version isolation over generated fixture seeds"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/controlled-fixture.test.ts",
+      "description": "HTTP, reserved destinations, collector ledger, DPA asset, hidden-oracle isolation and alignment, risky stop, outage, and visibility proof"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/evidence-harness.test.ts",
+      "description": "Repository evidence index includes the FIX-01 manifest and every referenced proof without orphans"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/baseline-observation.feature",
+      "description": "Teacher/student baseline and interface-drift journeys"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/witnessed-conflict.feature",
+      "description": "Exact student-email regression to fictional analytics"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/repaired-rerun.feature",
+      "description": "Aggregate-only repaired analytics behavior"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/ambiguity.feature",
+      "description": "Unknown destination with unsupported opaque transform"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/visibility-loss.feature",
+      "description": "Declared required-capture loss"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/fixture-prompt-injection.feature",
+      "description": "Untrusted instruction remains page content and cannot change seeded traffic"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/failure-recovery.feature",
+      "description": "Seeded submission outage and real-person risky-action stop"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/controlled-fixture.steps.mjs",
+      "description": "Playwright journeys, reserved-host traffic assertions, independent hidden-manifest checks, and visual capture"
+    },
+    {
+      "kind": "config",
+      "path": "apps/fixture/src/index.ts",
+      "description": "Deterministic scenario domain, traffic plans, hardened HTTP server, fictional UI, collectors, and event ledger"
+    },
+    {
+      "kind": "config",
+      "path": "apps/fixture/ground-truth/fixture-ground-truth.json",
+      "description": "Non-exported independent oracle for journey, bounded result, destination, canary, transform, visibility, and real-world-action facts"
+    },
+    {
+      "kind": "config",
+      "path": "apps/fixture/assets/pactwire-classroom-fixture-dpa.txt",
+      "description": "Fictional source agreement with exact allowed and prohibited recipient language"
+    },
+    {
+      "kind": "config",
+      "path": "apps/fixture/src/cli.ts",
+      "description": "Local controlled-fixture launcher with explicit mode, seed, address, and Chromium host mapping"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T02:15:00.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "A controlled fixture proves seeded mechanism behavior only; it is not evidence about a real vendor, legal meaning, safety, compliance, adoption, or market impact.",
+    "The oracle is absent from package exports and HTTP routes, but repository administrators can read its file; blinded evaluations must withhold it from the application evaluator.",
+    "Reserved destination hosts require the documented controlled-Chromium resolver rule and are not public DNS names.",
+    "The fixture records actual seeded requests in memory; RUN-02 owns the independent recorder, DET-03 owns findings, and DET-05 owns approval holds.",
+    "Fixture process state is intentionally ephemeral and resets on restart."
+  ],
+  "reviewer": "codex-agent"
+}
