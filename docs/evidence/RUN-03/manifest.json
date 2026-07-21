@@ -2,17 +2,34 @@
   "schemaVersion": "1.0.0",
   "taskId": "RUN-03",
   "title": "Integrate GPT-5.6 computer use with policy enforcement",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [3, 15, 16],
   "functionalRequirements": ["FR-023", "FR-026", "FR-036"],
-  "sourceCommitSha": "4413ea569b99ff59e57fba19def9164bc36839ac",
+  "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c",
   "startedAt": "2026-07-21T08:10:00.000Z",
+  "completedAt": "2026-07-21T09:23:03.711Z",
   "artifactRoot": "artifacts/verification/RUN-03/",
   "curatedEvidenceRoot": "docs/evidence/RUN-03/",
   "environment": {
-    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29816850750",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29816850750/job/88590092674",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29816850750/job/88590092677",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -135,11 +152,84 @@
       "command": "Focused computer-use unit/property/integration tests, root typecheck, and focused eslint",
       "exitCode": 0,
       "durationMs": 39300
+    },
+    {
+      "phase": "RED",
+      "name": "Provider safety checks were ignored before action execution",
+      "command": "pnpm exec vitest run tests/unit/computer-use.test.ts tests/integration/computer-use.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 21200,
+      "expectedFailure": "The parser omitted pending_safety_checks and the real browser executed the associated submit action instead of handing control to a human"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Provider safety-check handoff and focused computer-use matrix",
+      "command": "pnpm exec vitest run tests/unit/computer-use.test.ts tests/property/computer-use.property.test.ts tests/integration/computer-use.test.ts --reporter=dot; pnpm --filter @pactwire/runner typecheck; focused eslint",
+      "exitCode": 0,
+      "durationMs": 44900
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound live GPT-5.6 Sol fictional journey and sanitizer",
+      "command": "GitHub Actions run 29816858434 on source commit 499a94916195564b86e52e69f274eef060692d0c",
+      "exitCode": 0,
+      "durationMs": 80000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production authorization, handoff, and injection stories",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=RUN-03 PACTWIRE_BDD_TAGS=@RUN-03 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 38800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Browser-trace privacy sanitization and visual review",
+      "command": "Sanitize four expanded Playwright archives, preserve every archive entry, scan trace text and curated JSON for personal paths and credential patterns, and inspect four desktop screenshots",
+      "exitCode": 0,
+      "durationMs": 4200
+    },
+    {
+      "phase": "RED",
+      "name": "Captured RUN-03 assets required manifest traceability",
+      "command": "pnpm evidence:check",
+      "exitCode": 1,
+      "durationMs": 3200,
+      "expectedFailure": "The evidence checker reported twenty-one source-bound deterministic and live evidence files as orphans before they were added to this manifest"
+    },
+    {
+      "phase": "RED",
+      "name": "Live run metadata exceeded the fixed evidence environment schema",
+      "command": "pnpm evidence:check and evidence-harness integration",
+      "exitCode": 1,
+      "durationMs": 5400,
+      "expectedFailure": "The manifest environment rejected an additional liveComputerUse field; the live run remains recorded by the command evidence, linked README, and curated live-run manifest"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Completed evidence inventory and harness reconciliation",
+      "command": "pnpm evidence:check; pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts --reporter=dot; git diff --check",
+      "exitCode": 0,
+      "durationMs": 5600
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout Ubuntu and Windows verification",
+      "command": "GitHub Actions run 29816850750 on source commit 499a94916195564b86e52e69f274eef060692d0c",
+      "exitCode": 0,
+      "durationMs": 519000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Final complete optimized-production repository verification with curated evidence",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 374154
     }
   ],
   "testSummary": {
     "files": 69,
-    "passed": 276,
+    "passed": 277,
     "failed": 0,
     "skipped": 0,
     "retries": 0
@@ -188,15 +278,226 @@
     ]
   },
   "visualEvidence": {
-    "applicable": false,
-    "rationale": "Source-bound deterministic and live screenshots and sanitized browser traces are required before RUN-03 can become complete; local pre-commit artifacts are not curated as final proof.",
-    "assets": []
+    "applicable": true,
+    "rationale": "RUN-03 changes model-operated browser behavior, action authorization, human handoff, prompt-injection blocking, and completion state. Source-bound deterministic and live runs therefore retain action and terminal summaries, independent recorder reports, desktop screenshots, and sanitized Playwright traces. No product screen changed in RUN-03, so a narrow-viewport duplicate is not applicable; the execution boundary is proven at the controlled 1280 by 900 run viewport.",
+    "assets": [
+      {
+        "path": "docs/evidence/RUN-03/authorized-journey-completed-actions.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:28.968Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Machine-readable deterministic action summaries for the authorized fictional journey, showing screenshot, wait, and reviewed submit actions as executed.",
+        "caption": "All three model-adapter actions stayed within the frozen exact-origin and reviewed-control policy.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/authorized-journey-completed-run.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:28.968Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Machine-readable terminal summary for the authorized fictional browser journey, marked COMPLETED after deterministic completion observation with zero policy violations.",
+        "caption": "The deterministic checkpoint, not model text, established completion after the reviewed fictional submission.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/authorized-journey-completed-recorder.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:28.968Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Independent recorder report for the authorized journey with three action summaries, eight canonical observations, one observed fictional dispatch, and a VISIBLE required checkpoint.",
+        "caption": "The independent browser recorder witnessed the exact required fictional submission separately from the model-operated action loop.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/authorized-journey-completed-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T09:06:28.968Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Desktop capture of the BASELINE fictional classroom fixture after submission, showing the green Fictional submission completed receipt.",
+        "caption": "The authorized deterministic computer-use story reached the controlled completion state.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/authorized-journey-completed-browser-trace-sanitized.zip",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:28.968Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Sanitized seventeen-entry Playwright browser archive paired with the authorized deterministic journey.",
+        "caption": "All seventeen trace entries are preserved; one repository-root occurrence was replaced and no credential pattern remained.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/human-handoff-blocked-actions.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:38.644Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Machine-readable deterministic action summaries showing screenshot and wait actions followed by a HUMAN_REQUIRED decision for the real-person messaging control.",
+        "caption": "The browser action policy stopped the model before it could click the reviewed human-handoff control.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/human-handoff-blocked-run.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:38.644Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Machine-readable terminal summary marked HUMAN_REQUIRED for a messaging action, with no deterministic completion and no policy violation.",
+        "caption": "A real-person messaging effect remained unexecuted and required an explicit human decision.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/human-handoff-blocked-recorder.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:38.644Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Independent recorder report for the handoff story with five observations, no exercised submission checkpoint, and a NOT_TESTED visibility state.",
+        "caption": "The recorder independently confirms that the protected submission effect was not exercised after handoff.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/human-handoff-blocked-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T09:06:38.644Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Desktop capture of the RISKY ACTION fictional fixture before execution, showing the Message a real guardian control and a Ready for the controlled run state.",
+        "caption": "The handoff screenshot preserves the pre-click state; no real-person message or fixture submission occurred.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/human-handoff-blocked-browser-trace-sanitized.zip",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:38.644Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Sanitized thirteen-entry Playwright browser archive paired with the human-handoff story.",
+        "caption": "All thirteen trace entries are preserved; one repository-root occurrence was replaced and no credential pattern remained.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/prompt-injection-blocked-actions.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:48.745Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Machine-readable deterministic action summaries showing screenshot and wait actions followed by a BLOCKED decision for an untrusted page-content target.",
+        "caption": "Visible prompt-injection text did not add a trusted control or expand the frozen run policy.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/prompt-injection-blocked-run.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:48.745Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Machine-readable terminal summary marked BLOCKED with reason UNTRUSTED_CONTROL, no deterministic completion, and no browser policy violation.",
+        "caption": "The model-requested injected target was stopped before page or destination state changed.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/prompt-injection-blocked-recorder.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:48.745Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Independent recorder report for the prompt-injection story with five observations, no exercised submission checkpoint, and a NOT_TESTED visibility state.",
+        "caption": "The recorder independently confirms that the injected instruction caused no protected submission effect.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/prompt-injection-blocked-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T09:06:48.745Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Desktop capture of the PROMPT INJECTION fictional fixture, showing red untrusted page content and the unchanged Ready for the controlled run state.",
+        "caption": "The blocked-state capture shows the untrusted instruction while the controlled submission remains untouched.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/prompt-injection-blocked-browser-trace-sanitized.zip",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:48.745Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Sanitized eleven-entry Playwright browser archive paired with the prompt-injection blocking story.",
+        "caption": "All eleven trace entries are preserved; one repository-root occurrence was replaced and no credential pattern remained.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/live-gpt-56-sol-actions.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:47.672Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Sanitized live GPT-5.6 Sol action summaries showing one screenshot and one reviewed submit click as executed.",
+        "caption": "The live model requested only a screenshot and the exact reviewed fictional submit control before deterministic completion stopped the loop.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/live-gpt-56-sol-computer-use.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:47.672Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Sanitized live-run manifest showing requested and returned GPT-5.6 Sol, two turns, two actions, one observed dispatch, VISIBLE deterministic evidence, zero policy violations, and no raw provider response.",
+        "caption": "GitHub Actions run 29816858434 completed the exact fictional journey with GPT-5.6 Sol and independent deterministic visibility.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/live-gpt-56-sol-recorder.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:47.672Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Independent recorder report paired with the live GPT-5.6 Sol journey, containing two action summaries, eight canonical observations, one observed fictional dispatch, and a VISIBLE checkpoint.",
+        "caption": "The independent recorder, not the model, established that the required fictional submission request was visible.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/live-gpt-56-sol-completed-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T09:06:47.672Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Desktop capture from the live GPT-5.6 Sol run showing the BASELINE fictional classroom fixture and green Fictional submission completed receipt.",
+        "caption": "The live model-operated journey reached the controlled fictional completion state inside the frozen policy.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/live-gpt-56-sol-browser-trace-sanitized.zip",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:47.672Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Sanitized seventeen-entry Playwright browser archive from the source-bound live GPT-5.6 Sol journey.",
+        "caption": "All seventeen live trace entries are preserved; eight repository-path occurrences were replaced and no credential pattern remained.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      },
+      {
+        "path": "docs/evidence/RUN-03/live-gpt-56-sol-sanitization.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:06:47.672Z",
+        "viewport": { "width": 1280, "height": 900 },
+        "altText": "Machine-readable sanitizer result for the live browser archive showing three text files scanned, eight repository-path replacements, zero credential patterns, and a passing result.",
+        "caption": "The live trace sanitizer passed before the explicit evidence allowlist was uploaded.",
+        "provenance": "captured",
+        "sourceCommitSha": "499a94916195564b86e52e69f274eef060692d0c"
+      }
+    ]
   },
   "proofs": [
     {
       "kind": "schema",
       "path": "apps/runner/src/computer-use.ts",
-      "description": "Strict GPT-5.6 Sol request/response contract, frozen lower-layer policy, Playwright adapter, deterministic transport, action summaries, and bounded terminal states"
+      "description": "Strict GPT-5.6 Sol request/response contract, provider safety-check handoff, frozen lower-layer policy, Playwright adapter, deterministic transport, action summaries, and bounded terminal states"
     },
     {
       "kind": "test",
@@ -211,7 +512,7 @@
     {
       "kind": "test",
       "path": "tests/integration/computer-use.test.ts",
-      "description": "Real isolated Chromium success, injection, human handoff, lower-layer popup/redirect, refusal, and timeout behavior"
+      "description": "Real isolated Chromium success, injection, human and provider-safety handoff, lower-layer popup/redirect, refusal, and timeout behavior"
     },
     {
       "kind": "test",
@@ -260,13 +561,13 @@
     }
   ],
   "sanitization": {
-    "reviewed": false,
-    "reviewedAt": "2026-07-21T08:39:19.811Z",
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T09:10:00.000Z",
     "findings": []
   },
   "knownLimitations": [
-    "The opt-in live GPT-5.6 Sol journey has not run from the implementation source commit yet, so RUN-03 remains IN_PROGRESS.",
-    "Current visual and trace outputs are local pre-commit artifacts; only later source-bound sanitized captures may become curated proof.",
+    "The single source-bound live GPT-5.6 Sol sample proves only that the named fictional journey completed in that run; it is not an effectiveness rate or a guarantee about other websites or tasks.",
+    "Provider safety checks and reviewed risky controls stop for human review; this task does not implement a user interface for acknowledging a provider check or resuming the halted run.",
     "The lower-layer policy permits only exact origins and reviewed fixture controls; it does not infer authority from page semantics or model text.",
     "All exercised accounts, destinations, content, and traffic are controlled fictional fixtures; completion is not a safety, compliance, contract-conformity, or effectiveness conclusion."
   ],

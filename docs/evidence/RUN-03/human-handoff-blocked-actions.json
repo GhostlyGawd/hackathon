@@ -1,0 +1,29 @@
+[
+  {
+    "sequence": 0,
+    "actionType": "screenshot",
+    "outcome": "EXECUTED",
+    "reason": "SAFE_NON_MUTATING_ACTION",
+    "summary": "The screenshot action stayed inside the authorized browser.",
+    "controlId": null,
+    "authorizationAction": null
+  },
+  {
+    "sequence": 1,
+    "actionType": "move",
+    "outcome": "EXECUTED",
+    "reason": "SAFE_NON_MUTATING_ACTION",
+    "summary": "The move action stayed inside the authorized browser.",
+    "controlId": null,
+    "authorizationAction": null
+  },
+  {
+    "sequence": 2,
+    "actionType": "click",
+    "outcome": "HUMAN_REQUIRED",
+    "reason": "HUMAN_REVIEW_REQUIRED",
+    "summary": "The reviewed MESSAGE control requires a person before execution.",
+    "controlId": "risky-action",
+    "authorizationAction": "MESSAGE"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "sequence": 0,
+    "actionType": "screenshot",
+    "outcome": "EXECUTED",
+    "reason": "SAFE_NON_MUTATING_ACTION",
+    "summary": "The screenshot action stayed inside the authorized browser.",
+    "controlId": null,
+    "authorizationAction": null
+  },
+  {
+    "sequence": 1,
+    "actionType": "click",
+    "outcome": "EXECUTED",
+    "reason": "TRUSTED_CONTROL",
+    "summary": "The reviewed SUBMIT control is allowed by this run.",
+    "controlId": "submit-assignment",
+    "authorizationAction": "SUBMIT"
+  }
+]

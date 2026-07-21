@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0.0",
+  "workspaceId": "11111111-1111-4111-8111-111111111111",
+  "runId": "63636363-6363-4363-8363-636363636363",
+  "model": "gpt-5.6-sol",
+  "status": "HUMAN_REQUIRED",
+  "reason": "HUMAN_REVIEW_REQUIRED",
+  "turns": 2,
+  "transportAttempts": 2,
+  "actionCount": 3,
+  "completionObserved": false,
+  "policyViolationCount": 0,
+  "responseIds": [
+    "resp_run03_01",
+    "resp_run03_02"
+  ],
+  "actionSummaries": [
+    {
+      "sequence": 0,
+      "actionType": "screenshot",
+      "outcome": "EXECUTED",
+      "reason": "SAFE_NON_MUTATING_ACTION",
+      "summary": "The screenshot action stayed inside the authorized browser.",
+      "controlId": null,
+      "authorizationAction": null
+    },
+    {
+      "sequence": 1,
+      "actionType": "move",
+      "outcome": "EXECUTED",
+      "reason": "SAFE_NON_MUTATING_ACTION",
+      "summary": "The move action stayed inside the authorized browser.",
+      "controlId": null,
+      "authorizationAction": null
+    },
+    {
+      "sequence": 2,
+      "actionType": "click",
+      "outcome": "HUMAN_REQUIRED",
+      "reason": "HUMAN_REVIEW_REQUIRED",
+      "summary": "The reviewed MESSAGE control requires a person before execution.",
+      "controlId": "risky-action",
+      "authorizationAction": "MESSAGE"
+    }
+  ]
+}

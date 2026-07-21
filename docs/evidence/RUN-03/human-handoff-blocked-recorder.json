@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "1.0.0",
+  "recorderVersion": "pactwire-browser-cdp-recorder-v1",
+  "captureMode": "BROWSER_CDP",
+  "workspaceId": "11111111-1111-4111-8111-111111111111",
+  "runId": "63636363-6363-4363-8363-636363636363",
+  "startedAt": "2026-07-21T09:06:33.717Z",
+  "stoppedAt": "2026-07-21T09:06:38.724Z",
+  "actions": [
+    {
+      "sequence": 0,
+      "actionId": "computer-use-0000",
+      "actor": "MODEL",
+      "kind": "CHECKPOINT",
+      "summary": "EXECUTED: The screenshot action stayed inside the authorized browser.",
+      "pageUrl": "http://classroom.pactwire.test:53619/student",
+      "occurredAt": "2026-07-21T09:06:33.849Z"
+    },
+    {
+      "sequence": 1,
+      "actionId": "computer-use-0001",
+      "actor": "MODEL",
+      "kind": "CHECKPOINT",
+      "summary": "EXECUTED: The move action stayed inside the authorized browser.",
+      "pageUrl": "http://classroom.pactwire.test:53619/student",
+      "occurredAt": "2026-07-21T09:06:36.266Z"
+    },
+    {
+      "sequence": 2,
+      "actionId": "computer-use-0002",
+      "actor": "MODEL",
+      "kind": "HANDOFF",
+      "summary": "HUMAN_REQUIRED: The reviewed MESSAGE control requires a person before execution.",
+      "pageUrl": "http://classroom.pactwire.test:53619/student",
+      "occurredAt": "2026-07-21T09:06:38.393Z"
+    }
+  ],
+  "screenshots": [
+    {
+      "sequence": 0,
+      "checkpointId": "computer-use-blocked",
+      "artifactName": "screenshot-0000-computer-use-blocked.png",
+      "sha256": "601460638f13a64f052ac2e600ef99709b903d3c5b49beb2816680e49cbc0206",
+      "pageUrl": "http://classroom.pactwire.test:53619/student",
+      "capturedAt": "2026-07-21T09:06:38.644Z",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      }
+    }
+  ],
+  "observations": [
+    {
+      "id": "52081500-d55f-5cdc-a604-eec00da01487",
+      "workspaceId": "11111111-1111-4111-8111-111111111111",
+      "runId": "63636363-6363-4363-8363-636363636363",
+      "source": "RECORDER",
+      "recorderVersion": "pactwire-browser-cdp-recorder-v1",
+      "sequence": 0,
+      "observedAt": "2026-07-21T09:06:33.720Z",
+      "payloadHash": "967d44ec47211ec34b9f4f2e5606ec9b5b208b1e7fc171fca59f213d9d1c5d0c",
+      "facts": {
+        "captureMode": "BROWSER_CDP",
+        "kind": "RECORDER_STARTED",
+        "recorderVersion": "pactwire-browser-cdp-recorder-v1"
+      }
+    },
+    {
+      "id": "304f553a-bf2b-58c9-a97b-b030128d416a",
+      "workspaceId": "11111111-1111-4111-8111-111111111111",
+      "runId": "63636363-6363-4363-8363-636363636363",
+      "source": "NETWORK",
+      "recorderVersion": "pactwire-browser-cdp-recorder-v1",
+      "sequence": 1,
+      "observedAt": "2026-07-21T09:06:33.729Z",
+      "payloadHash": "0b1ef525c51092cf83e130564e5faf5430142a5c615601c17e49276afa0de30f",
+      "facts": {
+        "checkpointIds": [],
+        "kind": "NETWORK_REQUEST",
+        "loadingState": "COMPLETED",
+        "request": {
+          "authorizedFieldCapture": "CAPTURED",
+          "authorizedFields": [],
+          "host": "classroom.pactwire.test",
+          "initiator": {
+            "type": "other"
+          },
+          "method": "GET",
+          "path": "/student",
+          "resourceType": "Document",
+          "url": "http://classroom.pactwire.test:53619/student",
+          "urlSha256": "57caf45591853c18a3a060226478a44bf5021cd45fbc1b9f0e28dfebf55bca18"
+        },
+        "requestOrdinal": 1,
+        "response": {
+          "encodedDataLength": 12530,
+          "fromDiskCache": false,
+          "fromServiceWorker": false,
+          "mimeType": "text/html",
+          "protocol": "http/1.1",
+          "status": 200
+        }
+      }
+    },
+    {
+      "id": "bff8463f-1ba6-55ee-87f9-6d61d3f690b7",
+      "workspaceId": "11111111-1111-4111-8111-111111111111",
+      "runId": "63636363-6363-4363-8363-636363636363",
+      "source": "BROWSER",
+      "recorderVersion": "pactwire-browser-cdp-recorder-v1",
+      "sequence": 2,
+      "observedAt": "2026-07-21T09:06:33.744Z",
+      "payloadHash": "4c6b3f8ada9d785a4ae0d2df926d80074616e6bb2674d8ba56aed96bcfdd6690",
+      "facts": {
+        "frame": "MAIN",
+        "kind": "NAVIGATION",
+        "pageUrl": "http://classroom.pactwire.test:53619/student"
+      }
+    },
+    {
+      "id": "2577444c-657d-54de-a516-69c7c4594b63",
+      "workspaceId": "11111111-1111-4111-8111-111111111111",
+      "runId": "63636363-6363-4363-8363-636363636363",
+      "source": "BROWSER",
+      "recorderVersion": "pactwire-browser-cdp-recorder-v1",
+      "sequence": 3,
+      "observedAt": "2026-07-21T09:06:38.644Z",
+      "payloadHash": "fc7fc547d8cb4291a77b88483ed0c9c56d7f857f73609584516828cc50cbd36a",
+      "facts": {
+        "artifactName": "screenshot-0000-computer-use-blocked.png",
+        "checkpointId": "computer-use-blocked",
+        "kind": "SCREENSHOT",
+        "pageUrl": "http://classroom.pactwire.test:53619/student",
+        "sha256": "601460638f13a64f052ac2e600ef99709b903d3c5b49beb2816680e49cbc0206",
+        "viewport": {
+          "height": 900,
+          "width": 1280
+        }
+      }
+    },
+    {
+      "id": "5b858367-f6c9-549f-bf7c-23164df0c952",
+      "workspaceId": "11111111-1111-4111-8111-111111111111",
+      "runId": "63636363-6363-4363-8363-636363636363",
+      "source": "RECORDER",
+      "recorderVersion": "pactwire-browser-cdp-recorder-v1",
+      "sequence": 4,
+      "observedAt": "2026-07-21T09:06:38.721Z",
+      "payloadHash": "36b3400dece23c8658d1f078cbb64e8af1fe3afefd6a0513f18966f9a7c5c574",
+      "facts": {
+        "kind": "RECORDER_STOPPED",
+        "recorderVersion": "pactwire-browser-cdp-recorder-v1"
+      }
+    }
+  ],
+  "visibility": {
+    "state": "NOT_TESTED",
+    "allRequiredVisible": false,
+    "checkpoints": [
+      {
+        "checkpointId": "student-submission-request",
+        "required": true,
+        "exercised": false,
+        "visible": false,
+        "observationIds": [],
+        "gapReasons": []
+      }
+    ]
+  },
+  "limitations": [
+    "BROWSER_CDP records browser-visible facts only; encrypted payload semantics and traffic outside the instrumented browser remain outside P0 visibility.",
+    "FR-038 proxy capture is deferred and no proxy evidence is represented by this BROWSER_CDP report."
+  ]
+}
