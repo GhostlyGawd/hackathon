@@ -2242,6 +2242,14 @@ button:disabled {
   border: 1px solid var(--line);
   border-radius: 9px;
   background: #0d141b;
+  scroll-margin: 24px;
+}
+
+.source-pages article:focus,
+.source-pages article[data-citation-active="true"] {
+  border-color: rgba(99, 216, 229, 0.72);
+  outline: 2px solid rgba(99, 216, 229, 0.18);
+  outline-offset: 3px;
 }
 
 .source-pages header,
@@ -2274,6 +2282,31 @@ button:disabled {
   font-size: 10px;
   line-height: 1.65;
   white-space: pre-wrap;
+}
+
+.active-citation-return {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px;
+  border-bottom: 1px solid rgba(99, 216, 229, 0.2);
+  background: rgba(99, 216, 229, 0.07);
+}
+
+.active-citation-return > div {
+  display: grid;
+  gap: 3px;
+}
+
+.active-citation-return strong {
+  color: #d3f1f3;
+  font-size: 10px;
+}
+
+.active-citation-return span {
+  color: var(--muted);
+  font-size: 8px;
 }
 
 .source-pages footer {
@@ -2684,11 +2717,94 @@ button:disabled {
   line-height: 1.5;
 }
 
+.review-authority-legend {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(6, 12, 17, 0.72);
+}
+
+.requirement-review-panel .review-authority-legend {
+  margin-top: 13px;
+}
+
+.review-authority-legend > header {
+  padding: 13px 15px;
+  border-bottom: 1px solid var(--line);
+}
+
+.review-authority-legend .eyebrow {
+  margin: 0 0 4px;
+}
+
+.review-authority-legend h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 560;
+  letter-spacing: -0.015em;
+}
+
+.review-authority-lanes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.review-authority-lanes article {
+  min-width: 0;
+  padding: 13px 15px 15px;
+  border-right: 1px solid var(--line);
+}
+
+.review-authority-lanes article:last-child {
+  border-right: 0;
+}
+
+.review-authority-lanes article > span {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--faint);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 7px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.review-authority-lanes article > strong {
+  display: block;
+  color: var(--text);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.review-authority-lanes article > p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.review-authority-lanes [data-authority="model"] {
+  box-shadow: inset 0 2px #8acbd2;
+}
+
+.review-authority-lanes [data-authority="human"] {
+  box-shadow: inset 0 2px var(--green);
+}
+
+.review-authority-lanes [data-authority="browser"] {
+  box-shadow: inset 0 2px #eccb96;
+}
+
 .requirement-review-grid {
   display: grid;
   grid-template-columns: minmax(220px, 0.78fr) minmax(340px, 1.22fr);
   border-top: 1px solid rgba(99, 216, 229, 0.2);
   background: #080e13;
+}
+
+.requirement-review-grid:focus {
+  outline: 2px solid rgba(99, 216, 229, 0.5);
+  outline-offset: 3px;
 }
 
 .requirement-source-pane,
@@ -2735,6 +2851,25 @@ button:disabled {
   color: var(--faint);
   font-size: 8px;
   line-height: 1.5;
+}
+
+.citation-review-button {
+  width: 100%;
+  margin-top: 13px;
+}
+
+.citation-review-state {
+  margin: 8px 0 0;
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.citation-review-state.required {
+  color: #eccb96;
+}
+
+.citation-review-state.complete {
+  color: var(--green);
 }
 
 .requirement-review-fields {
@@ -2787,6 +2922,36 @@ button:disabled {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid var(--line);
+}
+
+.requirement-decision-gate {
+  display: grid;
+  gap: 3px;
+  margin-top: 12px;
+  padding: 10px 11px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: rgba(7, 13, 18, 0.7);
+}
+
+.requirement-decision-gate strong {
+  color: #eccb96;
+  font-size: 9px;
+}
+
+.requirement-decision-gate span {
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.requirement-decision-gate.ready {
+  border-color: rgba(125, 226, 184, 0.26);
+  background: rgba(125, 226, 184, 0.055);
+}
+
+.requirement-decision-gate.ready strong {
+  color: var(--green);
 }
 
 .current-requirements {
@@ -4440,6 +4605,11 @@ footer {
   border: 0;
 }
 
+.journey-checkpoint-card:focus-within {
+  border-color: rgba(99, 216, 229, 0.7);
+  box-shadow: 0 0 0 2px rgba(99, 216, 229, 0.12);
+}
+
 .journey-checkpoint-card legend {
   margin-bottom: 8px;
   color: var(--faint);
@@ -4715,21 +4885,47 @@ footer {
   font-size: 9px;
 }
 
-.journey-history footer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  padding: 13px 22px;
+.journey-execution-history {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
   background: rgba(13, 21, 28, 0.7);
 }
 
-.journey-history footer span {
-  color: var(--muted);
-  font-size: 8px;
+.journey-execution-history > article {
+  display: grid;
+  gap: 5px;
+  padding: 16px 22px;
+  border-right: 1px solid var(--line);
 }
 
-.journey-history footer small {
-  flex: 1 0 100%;
+.journey-execution-history > article:nth-child(2) {
+  border-right: 0;
+}
+
+.journey-execution-history article > span {
+  color: var(--cyan);
+  font: 600 8px/1.3 var(--font-geist-mono), ui-monospace, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.journey-execution-history article > strong {
+  color: var(--text);
+  font-size: 10px;
+}
+
+.journey-execution-history article > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.journey-execution-history > footer {
+  grid-column: 1 / -1;
+  padding: 11px 22px;
+  border-top: 1px solid var(--line);
   color: var(--faint);
   font-size: 8px;
 }
@@ -5038,6 +5234,28 @@ footer {
     text-align: left;
   }
 
+  .review-authority-lanes {
+    grid-template-columns: 1fr;
+  }
+
+  .review-authority-lanes article,
+  .review-authority-lanes article:last-child {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .review-authority-lanes article:last-child {
+    border-bottom: 0;
+  }
+
+  .active-citation-return {
+    display: grid;
+  }
+
+  .active-citation-return .secondary-button {
+    width: 100%;
+  }
+
   .requirement-review-grid,
   .requirement-review-fields,
   .confirmed-rule-pane dl,
@@ -5102,8 +5320,19 @@ footer {
   .journey-scope-grid,
   .journey-proof-column,
   .journey-current dl,
-  .journey-history-list article {
+  .journey-history-list article,
+  .journey-execution-history {
     grid-template-columns: 1fr;
+  }
+
+  .journey-execution-history > article,
+  .journey-execution-history > article:nth-child(2) {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .journey-execution-history > footer {
+    grid-column: auto;
   }
 
   .journey-prerequisite-bar .secondary-button,

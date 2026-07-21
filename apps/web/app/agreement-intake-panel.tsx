@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { canSubmitRequirementDecision } from "../lib/review-experience";
+import { ReviewAuthorityLegend } from "./review-authority-legend";
 
 interface SoftwareOption {
   readonly software: { readonly id: string; readonly name: string };
@@ -192,11 +194,13 @@ function reviewTime(version: HumanReviewedRequirement): string {
 interface AgreementIntakePanelProps {
   readonly workspaceId: string;
   readonly principalUserId: string;
+  readonly canReviewRequirements: boolean;
 }
 
 export function AgreementIntakePanel({
   workspaceId,
   principalUserId,
+  canReviewRequirements,
 }: AgreementIntakePanelProps) {
   const [software, setSoftware] = useState<readonly SoftwareOption[]>([]);
   const [softwareId, setSoftwareId] = useState("");
@@ -214,6 +218,13 @@ export function AgreementIntakePanel({
   const [reviewDrafts, setReviewDrafts] = useState<
     Readonly<Record<string, RequirementReviewDraft>>
   >({});
+  const [viewedProposalIds, setViewedProposalIds] = useState<
+    ReadonlySet<string>
+  >(new Set());
+  const [activeCitation, setActiveCitation] = useState<{
+    readonly proposalId: string;
+    readonly pageNumber: number;
+  }>();
   const [reviewSubmittingId, setReviewSubmittingId] = useState<string>();
   const [reviewNotice, setReviewNotice] = useState<{
     readonly tone: "success" | "danger";
@@ -375,6 +386,8 @@ export function AgreementIntakePanel({
         active = false;
       };
     }
+    setViewedProposalIds(new Set());
+    setActiveCitation(undefined);
     setProposalLoading(true);
     setProposalNotice(undefined);
     void loadProposalHistory(selectedAgreementId)
@@ -523,12 +536,47 @@ export function AgreementIntakePanel({
     }));
   }
 
+  function openCitedPage(proposal: RequirementProposal): void {
+    const page = document.getElementById(
+      `agreement-source-page-${proposal.citation.page}`,
+    );
+    if (!page) return;
+    setViewedProposalIds((current) => {
+      const next = new Set(current);
+      next.add(proposal.id);
+      return next;
+    });
+    setActiveCitation({
+      proposalId: proposal.id,
+      pageNumber: proposal.citation.page,
+    });
+    page.scrollIntoView({ block: "center" });
+    page.focus({ preventScroll: true });
+  }
+
+  function returnToReviewedDraft(proposalId: string): void {
+    const editor = document.getElementById(
+      `requirement-review-editor-${proposalId}`,
+    );
+    editor?.scrollIntoView({ block: "center" });
+    editor?.focus({ preventScroll: true });
+  }
+
   async function submitRequirementReview(
     proposal: RequirementProposal,
     decision: "CONFIRM" | "AMBIGUOUS" | "REJECT",
   ): Promise<void> {
     if (!selectedAgreement) return;
     const draft = reviewDrafts[proposal.id] ?? reviewDraftFor(proposal);
+    if (
+      !canSubmitRequirementDecision({
+        canReview: canReviewRequirements,
+        citationViewed: viewedProposalIds.has(proposal.id),
+        ...draft,
+      })
+    ) {
+      return;
+    }
     setReviewSubmittingId(proposal.id);
     setReviewNotice(undefined);
     const path = `/api/workspaces/${workspaceId}/software/${softwareId}/agreements/${selectedAgreement.id}/requirements`;
@@ -786,6 +834,11 @@ export function AgreementIntakePanel({
                     <p>It does not accept a model&apos;s legal interpretation, prove the software is safe, or change district approval.</p>
                   </div>
 
+                  <ReviewAuthorityLegend
+                    headingId="requirement-review-authority-heading"
+                    observedState="NOT_RUN"
+                  />
+
                   {reviewNotice ? (
                     <div className={`proposal-notice ${reviewNotice.tone}`} data-testid="requirement-review-notice" role="status" aria-live="polite">
                       <span aria-hidden="true">{reviewNotice.tone === "success" ? "✓" : "!"}</span>
@@ -801,13 +854,14 @@ export function AgreementIntakePanel({
                     <div className="proposal-list" data-testid="requirement-proposal-list">
                       {currentProposals.map((proposal) => {
                         const draft = reviewDrafts[proposal.id] ?? reviewDraftFor(proposal);
+                        const citationViewed = viewedProposalIds.has(proposal.id);
+                        const decisionReady = canSubmitRequirementDecision({
+                          canReview: canReviewRequirements,
+                          citationViewed,
+                          ...draft,
+                        });
                         const reviewDisabled =
-                          reviewSubmittingId === proposal.id ||
-                          !draft.rationale.trim() ||
-                          !draft.dataField.trim() ||
-                          !draft.action.trim() ||
-                          !draft.recipientRestriction.trim() ||
-                          !draft.suggestedObservableTest.trim();
+                          reviewSubmittingId === proposal.id || !decisionReady;
                         return (
                           <article className="proposal-card" data-testid="requirement-proposal" key={proposal.id}>
                             <div className="proposal-card-heading">
@@ -831,12 +885,36 @@ export function AgreementIntakePanel({
                               <code>{proposal.citation.quotedTextSha256}</code>
                             </footer>
 
-                            <div className="requirement-review-grid" data-testid="requirement-review-editor">
+                            <div
+                              className="requirement-review-grid"
+                              data-testid="requirement-review-editor"
+                              id={`requirement-review-editor-${proposal.id}`}
+                              tabIndex={-1}
+                            >
                               <aside className="requirement-source-pane">
                                 <span className="review-pane-label">Exact stored source</span>
                                 <strong>Page {proposal.citation.page}</strong>
                                 <blockquote data-testid="review-source-quote">“{proposal.details.sourceText}”</blockquote>
                                 <small>Offsets {proposal.citation.startOffset}–{proposal.citation.endOffset} · citation preserved in every later version</small>
+                                <button
+                                  className="secondary-button citation-review-button"
+                                  data-testid="open-cited-page"
+                                  type="button"
+                                  onClick={() => openCitedPage(proposal)}
+                                >
+                                  {citationViewed
+                                    ? `Reopen cited page ${proposal.citation.page}`
+                                    : `Open cited page ${proposal.citation.page}`}
+                                </button>
+                                <p
+                                  className={`citation-review-state ${citationViewed ? "complete" : "required"}`}
+                                  data-testid="citation-review-state"
+                                  aria-live="polite"
+                                >
+                                  {citationViewed
+                                    ? "Cited source page opened for this draft."
+                                    : "Required: open the cited source page before recording a decision."}
+                                </p>
                               </aside>
                               <div className="requirement-rule-editor">
                                 <span className="review-pane-label">Human-reviewed rule</span>
@@ -861,6 +939,33 @@ export function AgreementIntakePanel({
                                     Decision rationale <span>required</span>
                                     <textarea data-testid="review-rationale" rows={3} placeholder="Explain what you checked in the cited source." value={draft.rationale} onChange={(event) => updateReviewDraft(proposal, { rationale: event.target.value })} />
                                   </label>
+                                </div>
+                                <div
+                                  className={`requirement-decision-gate ${decisionReady ? "ready" : "blocked"}`}
+                                  data-testid="requirement-decision-gate"
+                                  role="status"
+                                >
+                                  {!canReviewRequirements ? (
+                                    <>
+                                      <strong>Read-only access</strong>
+                                      <span>Your workspace role can inspect this review but cannot record requirement decisions.</span>
+                                    </>
+                                  ) : !citationViewed ? (
+                                    <>
+                                      <strong>Source inspection required</strong>
+                                      <span>Open the cited agreement page, return here, and explain what you checked.</span>
+                                    </>
+                                  ) : !decisionReady ? (
+                                    <>
+                                      <strong>Complete the human review</strong>
+                                      <span>All rule fields and a decision rationale are required.</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <strong>Decision ready</strong>
+                                      <span>Your name, decision time, rationale, edits, and citation will be recorded.</span>
+                                    </>
+                                  )}
                                 </div>
                                 <div className="requirement-review-actions">
                                   <button className="primary-button" data-testid="confirm-requirement" type="button" disabled={reviewDisabled} onClick={() => void submitRequirementReview(proposal, "CONFIRM")}>{reviewSubmittingId === proposal.id ? "Saving decision…" : "Confirm as test rule"}</button>
@@ -950,13 +1055,39 @@ export function AgreementIntakePanel({
                   <span>{selectedAgreement.pageMap.length} {selectedAgreement.pageMap.length === 1 ? "page" : "pages"}</span>
                 </div>
                 <div className="source-pages">
-                  {selectedAgreement.pageMap.map((page) => (
-                    <article key={page.pageNumber} data-testid={`agreement-page-${page.pageNumber}`}>
-                      <header><strong>Page {page.pageNumber}</strong><span>Offsets {page.startOffset}–{page.endOffset}</span></header>
-                      <pre>{page.text}</pre>
-                      <footer><span>Page text SHA-256</span><code>{page.textSha256}</code></footer>
-                    </article>
-                  ))}
+                  {selectedAgreement.pageMap.map((page) => {
+                    const active = activeCitation?.pageNumber === page.pageNumber;
+                    return (
+                      <article
+                        key={page.pageNumber}
+                        id={`agreement-source-page-${page.pageNumber}`}
+                        data-testid={`agreement-page-${page.pageNumber}`}
+                        data-citation-active={active ? "true" : "false"}
+                        tabIndex={-1}
+                        aria-label={`Stored agreement page ${page.pageNumber}${active ? ", cited by the reviewed draft" : ""}`}
+                      >
+                        <header><strong>Page {page.pageNumber}</strong><span>Offsets {page.startOffset}–{page.endOffset}</span></header>
+                        {activeCitation && active ? (
+                          <div className="active-citation-return" data-testid="active-citation-return">
+                            <div>
+                              <strong>Source page for the reviewed draft</strong>
+                              <span>Read the stored page, then return to record a decision.</span>
+                            </div>
+                            <button
+                              className="secondary-button"
+                              data-testid="return-to-reviewed-draft"
+                              type="button"
+                              onClick={() => returnToReviewedDraft(activeCitation.proposalId)}
+                            >
+                              Return to reviewed draft
+                            </button>
+                          </div>
+                        ) : null}
+                        <pre>{page.text}</pre>
+                        <footer><span>Page text SHA-256</span><code>{page.textSha256}</code></footer>
+                      </article>
+                    );
+                  })}
                 </div>
               </div>
             </article>

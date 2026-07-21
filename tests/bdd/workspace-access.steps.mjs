@@ -139,7 +139,9 @@ After(async function ({ result, pickle }) {
   try {
     if (result?.status === "FAILED" && this.page) {
       const slug = pickle.name.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-");
-      const taskId = pickle.tags.some((tag) => tag.name === "@UX-01")
+      const taskId = pickle.tags.some((tag) => tag.name === "@UX-02")
+        ? "UX-02"
+        : pickle.tags.some((tag) => tag.name === "@UX-01")
         ? "UX-01"
         : pickle.tags.some((tag) => tag.name === "@JRN-02")
         ? "JRN-02"
@@ -1984,6 +1986,107 @@ When("I edit the proposed action to {string}", async function (action) {
   await editor.getByTestId("review-action").fill(action);
 });
 
+Then(
+  "requirement decisions are blocked until I inspect the cited source page",
+  async function () {
+    const editor = this.page.getByTestId("requirement-review-editor").first();
+    await editor
+      .getByTestId("review-rationale")
+      .fill("I completed every review field but have not opened the cited page.");
+    for (const testId of [
+      "confirm-requirement",
+      "ambiguous-requirement",
+      "reject-requirement",
+    ]) {
+      assert.equal(await editor.getByTestId(testId).isDisabled(), true);
+    }
+    await editor
+      .getByTestId("citation-review-state")
+      .getByText(
+        "Required: open the cited source page before recording a decision.",
+        { exact: true },
+      )
+      .waitFor();
+    await editor
+      .getByTestId("requirement-decision-gate")
+      .getByText("Source inspection required", { exact: true })
+      .waitFor();
+  },
+);
+
+When("I open the cited agreement page using only the keyboard", async function () {
+  const button = this.page.getByTestId("open-cited-page").first();
+  await button.focus();
+  assert.equal(
+    await button.evaluate(
+      (element) => element === element.ownerDocument.activeElement,
+    ),
+    true,
+  );
+  await this.page.keyboard.press("Enter");
+  await this.page.locator('[data-citation-active="true"]').waitFor();
+});
+
+Then(
+  "the cited agreement page has keyboard focus and identifies the reviewed draft",
+  async function () {
+    const page = this.page.locator('[data-citation-active="true"]');
+    assert.equal(
+      await page.evaluate(
+        (element) => element === element.ownerDocument.activeElement,
+      ),
+      true,
+    );
+    assert.equal(
+      (await page.getAttribute("aria-label"))?.includes(
+        "cited by the reviewed draft",
+      ),
+      true,
+    );
+    await page
+      .getByText("Source page for the reviewed draft", { exact: true })
+      .waitFor();
+  },
+);
+
+When("I return to the reviewed draft using only the keyboard", async function () {
+  const button = this.page.getByTestId("return-to-reviewed-draft");
+  await button.focus();
+  assert.equal(
+    await button.evaluate(
+      (element) => element === element.ownerDocument.activeElement,
+    ),
+    true,
+  );
+  await this.page.keyboard.press("Enter");
+});
+
+Then("the reviewed draft has keyboard focus", async function () {
+  const editor = this.page.getByTestId("requirement-review-editor").first();
+  await editor.waitFor();
+  assert.equal(
+    await editor.evaluate(
+      (element) => element === element.ownerDocument.activeElement,
+    ),
+    true,
+  );
+});
+
+When("I inspect the proposal's exact cited source", async function () {
+  await this.page.getByTestId("open-cited-page").first().click();
+  const page = this.page.locator('[data-citation-active="true"]');
+  await page.waitFor();
+  await page.getByTestId("return-to-reviewed-draft").click();
+  const editor = this.page.getByTestId("requirement-review-editor").first();
+  await editor.waitFor();
+  assert.equal(
+    await editor.evaluate(
+      (element) => element === element.ownerDocument.activeElement,
+    ),
+    true,
+  );
+});
+
 async function submitRequirementReview(world, buttonTestId, rationale) {
   const editor = world.page.getByTestId("requirement-review-editor").first();
   await editor.getByTestId("review-rationale").fill(rationale);
@@ -2131,6 +2234,87 @@ Then(
   },
 );
 
+async function assertReviewAuthorityLegend(root) {
+  const legend = root.getByTestId("review-authority-legend");
+  await legend
+    .getByText("A suggestion to review", { exact: true })
+    .waitFor();
+  await legend
+    .getByText("A person-checked test instruction", { exact: true })
+    .waitFor();
+  await legend.getByText("Nothing observed yet", { exact: true }).waitFor();
+  assert.equal(
+    await legend.locator('[data-authority="model"]').count(),
+    1,
+  );
+  assert.equal(
+    await legend.locator('[data-authority="human"]').count(),
+    1,
+  );
+  assert.equal(
+    await legend.locator('[data-authority="browser"]').count(),
+    1,
+  );
+}
+
+Then(
+  "the review explains model proposals, human-confirmed rules, and observed browser facts",
+  async function () {
+    await assertReviewAuthorityLegend(
+      this.page.getByTestId("requirement-review-panel"),
+    );
+  },
+);
+
+Then(
+  "requirement decision controls explain that requirement-review authority is missing",
+  async function () {
+    const editor = this.page.getByTestId("requirement-review-editor").first();
+    await editor.waitFor();
+    const gate = editor.getByTestId("requirement-decision-gate");
+    await gate.getByText("Read-only access", { exact: true }).waitFor();
+    await gate
+      .getByText(
+        "Your workspace role can inspect this review but cannot record requirement decisions.",
+        { exact: true },
+      )
+      .waitFor();
+    for (const testId of [
+      "confirm-requirement",
+      "ambiguous-requirement",
+      "reject-requirement",
+    ]) {
+      assert.equal(await editor.getByTestId(testId).isDisabled(), true);
+    }
+  },
+);
+
+async function assertNoAxeViolations(world, selector) {
+  const popupCountBeforeAxe = world.unexpectedPopupCount;
+  const results = await new AxeBuilder({ page: world.page })
+    .include(selector)
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  assert.equal(world.context.pages().length, 1);
+  assert.equal(world.unexpectedPopupCount, popupCountBeforeAxe + 1);
+  world.unexpectedPopupCount = popupCountBeforeAxe;
+  assert.deepEqual(
+    results.violations.map((violation) => ({
+      id: violation.id,
+      impact: violation.impact,
+      nodes: violation.nodes.map((node) => node.target),
+    })),
+    [],
+  );
+}
+
+Then(
+  "agreement review has no automatically detectable WCAG A or AA violations",
+  async function () {
+    await assertNoAxeViolations(this, '[data-testid="requirement-review-panel"]');
+  },
+);
+
 async function captureRequirementEvidence(world, name, narrow, historyOnly) {
   if (narrow) await world.page.setViewportSize({ width: 390, height: 844 });
   const target = world.page.getByTestId(
@@ -2173,6 +2357,116 @@ Then(
   "I capture the {string} requirement-history evidence",
   async function (evidenceName) {
     await captureRequirementEvidence(this, evidenceName, false, true);
+  },
+);
+
+async function captureUx02(world, name, target, narrow) {
+  if (narrow) await world.page.setViewportSize({ width: 390, height: 844 });
+  await target.scrollIntoViewIfNeeded();
+  const roots = [
+    path.join(
+      process.cwd(),
+      "artifacts",
+      "verification",
+      "UX-02",
+      "screenshots",
+    ),
+  ];
+  if (shouldCaptureCurated("UX-02")) {
+    roots.push(path.join(process.cwd(), "docs", "evidence", "UX-02"));
+  }
+  for (const root of roots) {
+    await target.screenshot({ path: path.join(root, `${name}.png`) });
+  }
+  if (narrow) await world.page.setViewportSize({ width: 1440, height: 1100 });
+}
+
+Then(
+  "I capture the {string} UX-02 requirement-review evidence",
+  async function (evidenceName) {
+    await captureUx02(
+      this,
+      evidenceName,
+      this.page.getByTestId("requirement-review-panel"),
+      false,
+    );
+  },
+);
+
+Then(
+  "I capture the {string} narrow UX-02 requirement-review evidence",
+  async function (evidenceName) {
+    await captureUx02(
+      this,
+      evidenceName,
+      this.page.getByTestId("requirement-review-panel"),
+      true,
+    );
+  },
+);
+
+Then(
+  "I capture the {string} UX-02 requirement-history evidence",
+  async function (evidenceName) {
+    await captureUx02(
+      this,
+      evidenceName,
+      this.page.getByTestId("requirement-version-history"),
+      false,
+    );
+  },
+);
+
+Then(
+  "I capture the {string} UX-02 citation-navigation evidence",
+  async function (evidenceName) {
+    await captureUx02(
+      this,
+      evidenceName,
+      this.page.locator('[data-citation-active="true"]'),
+      false,
+    );
+  },
+);
+
+When(
+  "I complete the requirement rationale for keyboard review",
+  async function () {
+    const rationale = this.page
+      .getByTestId("requirement-review-editor")
+      .first()
+      .getByTestId("review-rationale");
+    await rationale.fill(
+      "I checked the exact cited page and completed this keyboard review.",
+    );
+    await rationale.focus();
+  },
+);
+
+Then(
+  "I can reach and capture each requirement decision control using only the keyboard",
+  async function () {
+    const controls = [
+      ["confirm-requirement", "requirement-confirm-keyboard-focus-desktop"],
+      ["ambiguous-requirement", "requirement-ambiguous-keyboard-focus-desktop"],
+      ["reject-requirement", "requirement-reject-keyboard-focus-desktop"],
+    ];
+    for (const [testId, evidenceName] of controls) {
+      await this.page.keyboard.press("Tab");
+      const control = this.page.getByTestId(testId).first();
+      assert.equal(
+        await control.evaluate(
+          (element) => element === element.ownerDocument.activeElement,
+        ),
+        true,
+      );
+      await captureUx02(
+        this,
+        evidenceName,
+        this.page.getByTestId("requirement-review-panel"),
+        false,
+      );
+    }
   },
 );
 
@@ -2268,6 +2562,15 @@ Then(
   },
 );
 
+Then(
+  "the journey review explains model proposals, human-confirmed rules, and observed browser facts",
+  async function () {
+    await assertReviewAuthorityLegend(
+      this.page.getByTestId("journey-authoring-panel"),
+    );
+  },
+);
+
 When("I change the named journey goal to {string}", async function (goal) {
   await this.page.getByTestId("journey-goal").fill(goal);
 });
@@ -2290,10 +2593,31 @@ Then(
   async function () {
     const future = this.page.getByTestId("journey-future-state");
     await future
-      .getByText("No successful run recorded yet.", { exact: true })
+      .getByText("No replay run recorded for this journey.", { exact: true })
       .waitFor();
     await future
-      .getByText("No repair history recorded yet.", { exact: true })
+      .getByText("No repair draft recorded for this journey.", { exact: true })
+      .waitFor();
+  },
+);
+
+Then(
+  "deterministic replay and model-assisted repair have separate honest history states",
+  async function () {
+    const future = this.page.getByTestId("journey-future-state");
+    await future
+      .getByTestId("deterministic-replay-history")
+      .getByText("Deterministic replay history", { exact: true })
+      .waitFor();
+    await future
+      .getByTestId("model-repair-history")
+      .getByText("Model-assisted repair history", { exact: true })
+      .waitFor();
+    await future
+      .getByText(
+        "No successful browser run is recorded. These empty histories do not mean the journey passed.",
+        { exact: true },
+      )
       .waitFor();
   },
 );
@@ -2331,6 +2655,51 @@ Then(
   "I capture the {string} narrow journey-editor evidence",
   async function (evidenceName) {
     await captureJourneyEvidence(this, evidenceName, true);
+  },
+);
+
+Then(
+  "I capture the {string} UX-02 journey-editor evidence",
+  async function (evidenceName) {
+    await captureUx02(
+      this,
+      evidenceName,
+      this.page.getByTestId("journey-authoring-panel"),
+      false,
+    );
+  },
+);
+
+Then(
+  "I capture the {string} narrow UX-02 journey-editor evidence",
+  async function (evidenceName) {
+    await captureUx02(
+      this,
+      evidenceName,
+      this.page.getByTestId("journey-authoring-panel"),
+      true,
+    );
+  },
+);
+
+Then(
+  "journey review has no automatically detectable WCAG A or AA violations",
+  async function () {
+    await assertNoAxeViolations(this, '[data-testid="journey-authoring-panel"]');
+  },
+);
+
+When(
+  "I focus the required journey checkpoint using only the keyboard",
+  async function () {
+    const checkbox = this.page.getByTestId("journey-required-visibility");
+    await checkbox.focus();
+    assert.equal(
+      await checkbox.evaluate(
+        (element) => element === element.ownerDocument.activeElement,
+      ),
+      true,
+    );
   },
 );
 
