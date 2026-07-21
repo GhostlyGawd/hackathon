@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0.0",
+  "workspaceId": "11111111-1111-4111-8111-111111111111",
+  "runId": "32323232-3232-4232-8232-323232323232",
+  "model": "gpt-5.6-sol",
+  "status": "COMPLETED",
+  "reason": "DETERMINISTIC_COMPLETION_OBSERVED",
+  "turns": 3,
+  "transportAttempts": 3,
+  "actionCount": 3,
+  "completionObserved": true,
+  "policyViolationCount": 0,
+  "responseIds": [
+    "resp_run04_01",
+    "resp_run04_02",
+    "resp_run04_03"
+  ],
+  "actionSummaries": [
+    {
+      "sequence": 0,
+      "actionType": "screenshot",
+      "outcome": "EXECUTED",
+      "reason": "SAFE_NON_MUTATING_ACTION",
+      "summary": "The screenshot action stayed inside the authorized browser.",
+      "controlId": null,
+      "authorizationAction": null
+    },
+    {
+      "sequence": 1,
+      "actionType": "click",
+      "outcome": "EXECUTED",
+      "reason": "TRUSTED_CONTROL",
+      "summary": "The reviewed NAVIGATE control is allowed by this run.",
+      "controlId": "moved-student-link",
+      "authorizationAction": "NAVIGATE"
+    },
+    {
+      "sequence": 2,
+      "actionType": "click",
+      "outcome": "EXECUTED",
+      "reason": "TRUSTED_CONTROL",
+      "summary": "The reviewed SUBMIT control is allowed by this run.",
+      "controlId": "turn-in-response",
+      "authorizationAction": "SUBMIT"
+    }
+  ]
+}

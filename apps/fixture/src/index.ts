@@ -846,7 +846,7 @@ export async function startFixtureServer(
               lede:
                 "This controlled interface-drift mode requires a repaired journey before replay can continue.",
               content:
-                '<div class="notice warning"><strong>Old route unavailable.</strong> The seeded student workspace now lives at <a href="/learner">/learner</a>.</div>',
+                '<div class="notice warning"><strong>Old route unavailable.</strong> The seeded student workspace now lives at <a data-testid="moved-student-link" href="/learner">/learner</a>.</div>',
             }),
             "text/html; charset=utf-8",
             htmlHeaders,

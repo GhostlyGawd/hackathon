@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 10,
-  "totalTables": 26,
+  "migrationCount": 11,
+  "totalTables": 29,
   "migrations": [
     {
       "version": "0001",
@@ -127,6 +127,21 @@
       ],
       "immutableTables": [
         "deterministic_replay_versions"
+      ]
+    },
+    {
+      "version": "0011",
+      "name": "journey_repairs",
+      "sha256": "2e7a0a91a0e2e16c7ca1f7c7fef5566315d693ef4fb0ebc53772b628b66f25bf",
+      "tables": [
+        "journey_repair_drafts",
+        "journey_repair_verifications",
+        "journey_repair_promotions"
+      ],
+      "immutableTables": [
+        "journey_repair_drafts",
+        "journey_repair_verifications",
+        "journey_repair_promotions"
       ]
     }
   ]

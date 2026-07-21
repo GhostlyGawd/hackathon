@@ -1,0 +1,68 @@
+name: Live GPT-5.6 journey repair
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - live/run-04-journey-repair
+
+permissions:
+  contents: read
+
+jobs:
+  run-04-live-journey-repair:
+    name: RUN-04 interface drift repair on GPT-5.6 Sol
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Configure Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install isolated browser runtime
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build controlled fixture, core, and runner
+        run: pnpm --filter @pactwire/fixture build && pnpm --filter @pactwire/core build && pnpm --filter @pactwire/runner build
+
+      - name: Run required live GPT-5.6 journey repair
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: pnpm test:live-journey-repair
+
+      - name: Sanitize recordings and stage an explicit upload set
+        shell: bash
+        run: |
+          mkdir -p artifacts/verification/RUN-04/live-upload
+          for trace in source discovery verification; do
+            expanded="artifacts/verification/RUN-04/live-${trace}-trace-expanded"
+            mkdir -p "$expanded"
+            unzip -q "artifacts/verification/RUN-04/live-raw/live-${trace}-trace-raw.zip" -d "$expanded"
+            node scripts/sanitize-extracted-playwright-trace.mjs "$expanded" "$GITHUB_WORKSPACE"
+            (cd "$expanded" && zip -q -r "../live-upload/live-${trace}-trace-sanitized.zip" .)
+            cp "$expanded/sanitization.json" "artifacts/verification/RUN-04/live-upload/live-${trace}-sanitization.json"
+          done
+          cp artifacts/verification/RUN-04/live-raw/live-*.json artifacts/verification/RUN-04/live-upload/
+          cp artifacts/verification/RUN-04/live-raw/live-*.png artifacts/verification/RUN-04/live-upload/
+
+      - name: Upload only sanitized live evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-04-live-journey-repair-${{ github.run_id }}
+          path: artifacts/verification/RUN-04/live-upload/
+          if-no-files-found: error
+          retention-days: 14

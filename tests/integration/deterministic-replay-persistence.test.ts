@@ -2,12 +2,16 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   applyCoreMigrations,
   InMemoryDeterministicReplayRepository,
+  InMemoryJourneyRepairRepository,
+  PostgresJourneyRepairRepository,
   PostgresDeterministicReplayRepository,
   PostgresJourneyAuthoringRepository,
   ReplayVersionConflictError,
   type AuditEvent,
   type DeterministicReplayVersion,
   type JourneyVersion,
+  buildJourneyRepairPromotion,
+  buildPromotedRepairReplayVersion,
 } from "../../packages/core/src/index";
 import {
   createDatabaseTestService,
@@ -25,6 +29,12 @@ import {
   makeReplayJourney,
   makeReplayVersion,
 } from "../helpers/deterministic-replay-fixtures";
+import {
+  makePromotedRepairInput,
+  makeRepairDraft,
+  makeVerifiedRepair,
+  repairFixtureIds,
+} from "../helpers/journey-repair-fixtures";
 
 const databases: DatabaseTestService[] = [];
 
@@ -290,5 +300,144 @@ describe("deterministic replay persistence", () => {
         actor: { kind: "HUMAN", actorId: journeyPrincipal.userId },
       },
     ]);
+  });
+
+  it("stores append-only model draft, deterministic verification, and human promotion history", async () => {
+    const databaseService = await createDatabaseTestService();
+    databases.push(databaseService);
+    const database = databaseService.database;
+    await applyCoreMigrations(database);
+    await seedExactJourney(database);
+    const replayRepository = new PostgresDeterministicReplayRepository(database);
+    const repairRepository = new PostgresJourneyRepairRepository(database);
+    const sourceReplay = makeReplayVersion();
+    const repair = makeRepairDraft();
+    const verification = makeVerifiedRepair(repair);
+    const promotedReplay = buildPromotedRepairReplayVersion(
+      makePromotedRepairInput(repair, verification),
+    );
+    const promotion = buildJourneyRepairPromotion({
+      id: repairFixtureIds.promotion,
+      repair,
+      verification,
+      sourceReplay,
+      promotedReplay,
+      rationale:
+        "I reviewed the same authorized actions and exact frozen checkpoint.",
+      reviewedAt: promotedReplay.createdAt,
+      reviewedBy: promotedReplay.createdBy,
+    });
+
+    await replayRepository.appendVersion(sourceReplay, replayAudit(sourceReplay));
+    await repairRepository.appendDraft(repair);
+    const fabricatedVerificationId =
+      "31313131-3131-4131-8131-313131313131";
+    const fabricatedVerification = {
+      ...structuredClone(verification),
+      id: fabricatedVerificationId,
+      checkpoints: [],
+    };
+    await expect(
+      database.query(
+        "INSERT INTO journey_repair_verifications (workspace_id, id, repair_id, source_replay_version_id, status, repair_hash, payload, verified_at, verified_by) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+        [
+          fabricatedVerification.workspaceId,
+          fabricatedVerification.id,
+          fabricatedVerification.repairId,
+          fabricatedVerification.sourceReplayVersionId,
+          fabricatedVerification.status,
+          fabricatedVerification.repairHash,
+          fabricatedVerification,
+          fabricatedVerification.verifiedAt,
+          fabricatedVerification.verifiedBy,
+        ],
+      ),
+    ).rejects.toThrow(/every frozen checkpoint/i);
+    await repairRepository.appendVerification(verification);
+    await replayRepository.appendVersion(
+      promotedReplay,
+      replayAudit(
+        promotedReplay,
+        "30303030-3030-4030-8030-303030303030",
+      ),
+    );
+    const fabricatedPromotionId = "32323232-3232-4232-8232-323232323232";
+    const fabricatedPromotion = {
+      ...structuredClone(promotion),
+      id: fabricatedPromotionId,
+      repairHash: "a".repeat(64),
+    };
+    await expect(
+      database.query(
+        "INSERT INTO journey_repair_promotions (workspace_id, id, repair_id, verification_id, promoted_replay_version_id, repair_hash, rationale, payload, reviewed_at, reviewed_by) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+        [
+          fabricatedPromotion.workspaceId,
+          fabricatedPromotion.id,
+          fabricatedPromotion.repairId,
+          fabricatedPromotion.verificationId,
+          fabricatedPromotion.promotedReplayVersionId,
+          fabricatedPromotion.repairHash,
+          fabricatedPromotion.rationale,
+          fabricatedPromotion,
+          fabricatedPromotion.reviewedAt,
+          fabricatedPromotion.reviewedBy,
+        ],
+      ),
+    ).rejects.toThrow(/exact verified draft/i);
+    await repairRepository.appendPromotion(promotion, promotedReplay);
+
+    await expect(
+      repairRepository.listHistory(
+        repair.workspaceId,
+        repair.softwareId,
+        repair.journeyVersionId,
+      ),
+    ).resolves.toEqual([
+      { draft: repair, verification, promotion },
+    ]);
+    await expect(
+      database.query(
+        "UPDATE journey_repair_drafts SET status = 'UNRESOLVED' WHERE workspace_id = $1 AND id = $2",
+        [repair.workspaceId, repair.id],
+      ),
+    ).rejects.toThrow(/immutable/i);
+    await expect(
+      database.query(
+        "UPDATE journey_repair_promotions SET rationale = 'Changed' WHERE workspace_id = $1 AND id = $2",
+        [promotion.workspaceId, promotion.id],
+      ),
+    ).rejects.toThrow(/immutable/i);
+  });
+
+  it("enforces repair history links in memory before any record can be presented as promoted", async () => {
+    const repository = new InMemoryJourneyRepairRepository();
+    const repair = makeRepairDraft();
+    const sourceReplay = makeReplayVersion();
+    const verification = makeVerifiedRepair(repair);
+    const promotedReplay = buildPromotedRepairReplayVersion(
+      makePromotedRepairInput(repair, verification),
+    );
+    const promotion = buildJourneyRepairPromotion({
+      id: repairFixtureIds.promotion,
+      repair,
+      verification,
+      sourceReplay,
+      promotedReplay,
+      rationale: "I reviewed the frozen checkpoint and bounded selector diff.",
+      reviewedAt: promotedReplay.createdAt,
+      reviewedBy: promotedReplay.createdBy,
+    });
+
+    await expect(
+      repository.appendPromotion(promotion, promotedReplay),
+    ).rejects.toThrow(/draft/i);
+    await repository.appendDraft(repair);
+    await expect(repository.appendVerification(verification)).resolves.toEqual(
+      verification,
+    );
+    await expect(
+      repository.appendPromotion(promotion, promotedReplay),
+    ).resolves.toEqual(promotion);
+    await expect(repository.appendDraft(repair)).rejects.toThrow(/conflict/i);
   });
 });
