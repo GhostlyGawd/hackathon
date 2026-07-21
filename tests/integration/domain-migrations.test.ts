@@ -163,6 +163,7 @@ describe("core domain migrations", () => {
       "0008",
       "0009",
       "0010",
+      "0011",
       "0012",
       "0013",
     ]);
@@ -183,6 +184,7 @@ describe("core domain migrations", () => {
       "0008",
       "0009",
       "0010",
+      "0011",
       "0012",
       "0013",
     ]);
@@ -205,6 +207,9 @@ describe("core domain migrations", () => {
         "requirement_versions",
         "deterministic_replay_versions",
         "destination_record_versions",
+        "journey_repair_drafts",
+        "journey_repair_verifications",
+        "journey_repair_promotions",
         "runs",
         "run_events",
         "run_execution_scopes",
@@ -218,7 +223,7 @@ describe("core domain migrations", () => {
         "audit_events",
       ]),
     );
-    expect(tables.rows).toHaveLength(33);
+    expect(tables.rows).toHaveLength(36);
   });
 
   it("requires immutable, latest-source lineage for human requirement reviews", async () => {
