@@ -10,7 +10,15 @@ const project = (name: string, include: string[]) => ({
     name,
     passWithNoTests: true,
     ...(name === "integration"
-      ? { hookTimeout: 30_000, testTimeout: 30_000 }
+      ? {
+          hookTimeout: 30_000,
+          maxWorkers: 4,
+          testTimeout: 30_000,
+        }
+      : name === "property"
+        ? {
+            maxWorkers: 1,
+          }
       : {}),
   },
 });

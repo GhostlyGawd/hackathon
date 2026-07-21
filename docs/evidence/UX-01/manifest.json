@@ -5,7 +5,7 @@
   "status": "IN_PROGRESS",
   "prdSections": [5, 9, 12],
   "functionalRequirements": ["FR-002", "FR-003", "FR-006", "FR-010", "FR-012", "FR-020", "FR-022"],
-  "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5",
+  "sourceCommitSha": "edee755bb681fa3f8d1e3ed1d6dbe8545fd149ab",
   "startedAt": "2026-07-21T13:54:00.000Z",
   "artifactRoot": "artifacts/verification/UX-01/",
   "curatedEvidenceRoot": "docs/evidence/UX-01/",
@@ -95,11 +95,41 @@
       "command": "pnpm verify",
       "exitCode": 0,
       "durationMs": 449138
+    },
+    {
+      "phase": "RED",
+      "name": "Latest-main property matrix exceeded existing test deadlines under parallel load",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 170800,
+      "expectedFailure": "DET-04 PROP-10 crossed its five-second deadline and DET-05 PROP-02 crossed its twenty-second deadline while 24 property files competed for the default worker pool; neither invariant produced a counterexample"
+    },
+    {
+      "phase": "RED",
+      "name": "Four property workers still starved the longest generated sequence",
+      "command": "pnpm test:property",
+      "exitCode": 1,
+      "durationMs": 40900,
+      "expectedFailure": "DET-05 PROP-02 reached 25.9 seconds with four property workers, proving that a partial worker cap did not make the unchanged 500-run property deterministic"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Two complete serial property matrices with unchanged seeds, run counts, and deadlines",
+      "command": "Repeat 2x: pnpm test:property",
+      "exitCode": 0,
+      "durationMs": 128100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete security-patched latest-main optimized-production repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 567200
     }
   ],
   "testSummary": {
-    "files": 73,
-    "passed": 289,
+    "files": 101,
+    "passed": 390,
     "failed": 0,
     "skipped": 0,
     "retries": 0

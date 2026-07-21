@@ -218,9 +218,13 @@ export const humanApprovalSetterSchema = humanActorSchema
 export const importedApprovalSetterSchema = importedSystemActorSchema
   .extend({ displayName: nonEmpty })
   .strict();
+export const automatedApprovalSetterSchema = automationActorSchema
+  .extend({ displayName: nonEmpty })
+  .strict();
 export const approvalSetterSchema = z.discriminatedUnion("kind", [
   humanApprovalSetterSchema,
   importedApprovalSetterSchema,
+  automatedApprovalSetterSchema,
 ]);
 export type ApprovalSetter = z.infer<typeof approvalSetterSchema>;
 
@@ -264,7 +268,7 @@ export const approvalOriginSchema = z
     setBy: approvalSetterSchema,
     reason: nonEmpty,
     sourceReference: nonEmpty.optional(),
-    recordedBy: humanActorSchema,
+    recordedBy: z.union([humanActorSchema, automationActorSchema]),
     recordedAt: timestamp,
   })
   .strict()
@@ -277,6 +281,32 @@ export const approvalOriginSchema = z
         code: "custom",
         path: ["setBy"],
         message: `${value.state} must identify the human who set it`,
+      });
+    }
+    if (
+      value.setBy.kind === "AUTOMATION" &&
+      (value.state !== "HOLD" ||
+        !["WITNESSED_CONFLICT", "REQUIRED_VISIBILITY_LOSS"].includes(
+          value.reason,
+        ) ||
+        !value.sourceReference ||
+        value.recordedBy.kind !== "AUTOMATION")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["setBy"],
+        message:
+          "Automation may only record a receipt-linked deterministic HOLD",
+      });
+    }
+    if (
+      value.setBy.kind !== "AUTOMATION" &&
+      value.recordedBy.kind !== "HUMAN"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["recordedBy"],
+        message: "Human or imported approval provenance must be human-recorded",
       });
     }
   });
@@ -1367,6 +1397,8 @@ export const approvalEventSchema = z
     from: approvalStateSchema,
     to: approvalStateSchema,
     reason: approvalReasonSchema,
+    receiptId: uuid.optional(),
+    idempotencyKey: nonEmpty.optional(),
     humanDecisionId: uuid.optional(),
     actor: actorSchema,
     occurredAt: timestamp,

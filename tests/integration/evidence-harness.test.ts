@@ -122,8 +122,8 @@ describe("evidence harness integration", () => {
         requirements: 43,
         sections: 26,
         tasks: 35,
-        manifests: 19,
-        proofFiles: 187,
+        manifests: 27,
+        proofFiles: 278,
       }),
     );
   });

@@ -143,8 +143,18 @@ After(async function ({ result, pickle }) {
         ? "UX-02"
         : pickle.tags.some((tag) => tag.name === "@UX-01")
         ? "UX-01"
+        : pickle.tags.some((tag) => tag.name === "@DET-05")
+          ? "DET-05"
+        : pickle.tags.some((tag) => tag.name === "@DET-04")
+          ? "DET-04"
+        : pickle.tags.some((tag) => tag.name === "@DET-03")
+          ? "DET-03"
+        : pickle.tags.some((tag) => tag.name === "@RUN-05")
+          ? "RUN-05"
         : pickle.tags.some((tag) => tag.name === "@JRN-02")
-        ? "JRN-02"
+          ? "JRN-02"
+          : pickle.tags.some((tag) => tag.name === "@DET-01")
+            ? "DET-01"
         : pickle.tags.some((tag) => tag.name === "@FIX-01")
           ? "FIX-01"
         : pickle.tags.some((tag) => tag.name === "@AUT-02")
@@ -2467,6 +2477,206 @@ Then(
         false,
       );
     }
+  },
+);
+
+const destinationSchedule = Object.freeze({
+  name: "fictional-destination-schedule.txt",
+  text: [
+    "Fictional Cedar Ridge destination schedule.",
+    "classroom-service.pactwire.test is operated by Northstar Learning Systems (Fictional) and is an allowed instructional recipient.",
+    "fixture-analytics.pactwire.test is operated by Signal Quarry Analytics (Fictional) and is a prohibited advertising recipient.",
+  ].join("\n"),
+});
+
+When("I upload the fictional destination schedule", async function () {
+  const bytes = Buffer.from(destinationSchedule.text, "utf8");
+  this.destinationScheduleHash = sha256(bytes);
+  await uploadAgreementFixture(this, bytes, 201, {
+    name: destinationSchedule.name,
+    mimeType: "text/plain",
+  });
+  await this.page.getByTestId("destination-refresh").click();
+});
+
+function destinationCard(world, hostname) {
+  return world.page
+    .getByTestId("destination-card")
+    .filter({ has: world.page.getByRole("heading", { name: hostname, exact: true }) });
+}
+
+When("I record the observed destination {string}", async function (hostname) {
+  this.currentDestinationHostname = hostname;
+  const panel = this.page.getByTestId("destination-registry-panel");
+  await panel.scrollIntoViewIfNeeded();
+  await this.page.getByTestId("destination-refresh").click();
+  const observationHash = sha256(
+    Buffer.from(`deterministic-recorder:${hostname}`, "utf8"),
+  );
+  await this.page.getByTestId("destination-hostname").fill(hostname);
+  await this.page
+    .getByTestId("destination-observation-hash")
+    .fill(observationHash);
+  await this.page
+    .getByTestId("destination-observation-locator")
+    .fill(`run://fictional-det-01/observation/${hostname}`);
+  const responsePromise = this.page.waitForResponse((response) => {
+    const request = response.request();
+    return (
+      request.method() === "POST" &&
+      /\/api\/workspaces\/[^/]+\/destinations$/u.test(
+        new URL(response.url()).pathname,
+      )
+    );
+  });
+  await this.page.getByTestId("observe-destination").click();
+  const response = await responsePromise;
+  assert.equal(response.status(), 201);
+  this.currentDestination = JSON.parse(await response.text());
+  await destinationCard(this, hostname).waitFor();
+});
+
+Then(
+  "the destination remains {string} until a person reviews it",
+  async function (status) {
+    assert.equal(status, "UNKNOWN");
+    const card = destinationCard(this, this.currentDestinationHostname);
+    await card.getByTestId("destination-status").getByText(status, { exact: true }).waitFor();
+    await card
+      .getByText(
+        "No company or agreement status assigned. A person has not confirmed the entity mapping.",
+        { exact: true },
+      )
+      .waitFor();
+    assert.equal(this.currentDestination.ownership.status, "UNKNOWN");
+    assert.deepEqual(this.currentDestination.classifications, []);
+  },
+);
+
+Then(
+  "no company or agreement status is inferred for the destination",
+  async function () {
+    const card = destinationCard(this, this.currentDestinationHostname);
+    assert.equal(await card.getByText(/Human-confirmed by/u).count(), 0);
+    assert.equal(await card.getByText(/Exact agreement version:/u).count(), 0);
+    assert.deepEqual(this.currentDestination.classifications, []);
+  },
+);
+
+When(
+  "I confirm {string} as entity {string} with status {string}",
+  async function (hostname, entityName, status) {
+    assert.ok(["ALLOWED", "PROHIBITED"].includes(status));
+    const card = destinationCard(this, hostname);
+    await card.getByTestId("select-destination").click();
+    const agreementSelect = this.page.getByTestId("destination-agreement-select");
+    const scheduleOption = agreementSelect
+      .locator("option")
+      .filter({ hasText: destinationSchedule.name });
+    await scheduleOption.waitFor({ state: "attached" });
+    const agreementVersionId = await scheduleOption.getAttribute("value");
+    assert.ok(agreementVersionId, "An exact agreement version is selected");
+    await agreementSelect.selectOption(agreementVersionId);
+    this.selectedDestinationAgreementVersionId = agreementVersionId;
+    const entityId = entityName
+      .toLowerCase()
+      .replaceAll(/[^a-z0-9]+/gu, "-")
+      .replaceAll(/^-|-$/gu, "");
+    const relation = `${hostname} is operated by ${entityName}`;
+    const agreementQuote =
+      status === "ALLOWED"
+        ? `${relation} and is an allowed instructional recipient.`
+        : `${relation} and is a prohibited advertising recipient.`;
+    const fields = [
+      ["destination-entity-id", entityId],
+      ["destination-entity-name", entityName],
+      ["destination-mapping-title", destinationSchedule.name],
+      [
+        "destination-mapping-locator",
+        `agreement://${agreementVersionId}/page/1`,
+      ],
+      ["destination-mapping-hash", this.destinationScheduleHash],
+      ["destination-mapping-excerpt", relation],
+      ["destination-agreement-quote", agreementQuote],
+      [
+        "destination-review-rationale",
+        "I checked the exact hostname, fictional company, and recipient rule in the selected stored agreement version.",
+      ],
+    ];
+    for (const [testId, value] of fields) {
+      await this.page.getByTestId(testId).fill(value);
+    }
+    await this.page.getByTestId("destination-classification").selectOption(status);
+    await this.page.getByTestId("destination-mapping-kind").selectOption("SIGNED_AGREEMENT");
+    const responsePromise = this.page.waitForResponse((response) => {
+      const request = response.request();
+      return (
+        request.method() === "POST" &&
+        /\/api\/workspaces\/[^/]+\/destinations\/[^/]+\/review$/u.test(
+          new URL(response.url()).pathname,
+        )
+      );
+    });
+    await this.page.getByTestId("confirm-destination").click();
+    const response = await responsePromise;
+    assert.equal(response.status(), 201);
+    this.currentDestination = JSON.parse(await response.text());
+    this.currentDestinationHostname = hostname;
+  },
+);
+
+Then(
+  "the destination shows human-confirmed status {string} for the selected agreement",
+  async function (status) {
+    const card = destinationCard(this, this.currentDestinationHostname);
+    await card.getByTestId("destination-status").getByText(status, { exact: true }).waitFor();
+    await card
+      .getByText("Human-confirmed by fictional-officer-a", { exact: true })
+      .waitFor();
+    await card
+      .getByText(
+        `Exact agreement version: ${this.selectedDestinationAgreementVersionId}`,
+        { exact: true },
+      )
+      .waitFor();
+    assert.equal(this.currentDestination.ownership.status, "CONFIRMED");
+    assert.equal(this.currentDestination.classifications.at(-1).status, status);
+  },
+);
+
+async function captureDestinationEvidence(world, name, narrow) {
+  if (narrow) await world.page.setViewportSize({ width: 390, height: 844 });
+  const target = destinationCard(world, world.currentDestinationHostname);
+  await target.scrollIntoViewIfNeeded();
+  const capture = async (root) => {
+    await target.screenshot({ path: path.join(root, `${name}.png`) });
+  };
+  await capture(
+    path.join(
+      process.cwd(),
+      "artifacts",
+      "verification",
+      "DET-01",
+      "screenshots",
+    ),
+  );
+  if (shouldCaptureCurated("DET-01")) {
+    await capture(path.join(process.cwd(), "docs", "evidence", "DET-01"));
+  }
+  if (narrow) await world.page.setViewportSize({ width: 1440, height: 1100 });
+}
+
+Then(
+  "I capture the {string} destination-registry evidence",
+  async function (evidenceName) {
+    await captureDestinationEvidence(this, evidenceName, false);
+  },
+);
+
+Then(
+  "I capture the {string} narrow destination-registry evidence",
+  async function (evidenceName) {
+    await captureDestinationEvidence(this, evidenceName, true);
   },
 );
 

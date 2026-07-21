@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "1.0.0",
+  "replayVersionId": "13131313-1313-4313-8313-131313131313",
+  "replayHash": "6d74b2b0e91966917e571d0d59374c3674a8ecdf11c128f2a620b18135a5b5f7",
+  "snapshot": {
+    "agreementVersionId": "33333333-3333-4333-8333-333333333333",
+    "journeyVersionId": "66666666-6666-4666-8666-666666666666",
+    "authorizationId": "44444444-4444-4444-8444-444444444444",
+    "runnerConfigVersion": "deterministic-replay-v1",
+    "snapshotHash": "6bdd4848753a7e4645d5dd1a8332db9e64a01581521cd93e72636359b3726789"
+  },
+  "arm": "HUMAN_AUTHORED_DETERMINISTIC",
+  "modelInvocationCount": 0,
+  "state": "DRIFTED",
+  "startedAt": "2026-07-21T11:17:58.012Z",
+  "completedAt": "2026-07-21T11:17:58.099Z",
+  "trace": [
+    {
+      "sequence": 1,
+      "operationId": "open-student-workspace",
+      "kind": "NAVIGATE",
+      "status": "DRIFTED",
+      "observedAt": "2026-07-21T11:17:58.099Z",
+      "reasonCode": "NAVIGATION_STATUS_MISMATCH"
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpointId": "submission-request",
+      "required": true,
+      "status": "NOT_REACHED"
+    }
+  ],
+  "limitations": [
+    "Execution checkpoints control replay outcome; RUN-02 owns independent observed browser and network evidence."
+  ]
+}

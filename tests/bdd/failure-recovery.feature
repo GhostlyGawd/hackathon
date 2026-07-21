@@ -25,3 +25,53 @@ Feature: Controlled failure and risky-action stops
     When isolated run "recovered" starts against the same authorized origin
     Then isolated run "recovered" sees no state from "crashed"
     And I capture the RUN-01 "crash-recovery" trace
+
+  @RUN-04 @FR-025 @PROP-05
+  Scenario: A bounded model repair stays draft until the original checkpoint is verified and a person promotes it
+    Given a frozen student replay encounters the seeded interface drift
+    When the RUN-04 model adapter follows the reviewed moved route and submit control
+    Then the proposed repair changes only the moved path and selector
+    And the model-proposed repair remains inactive
+    When deterministic replay verifies the RUN-04 repair in a fresh isolated browser
+    Then the original "submission-request" checkpoint is verified by the shared recorder
+    When the fictional privacy officer promotes the verified RUN-04 repair
+    Then replay version 2 appends to the human-owned source version
+    And I capture the RUN-04 "bounded-repair" evidence
+
+  @RUN-04 @FR-025 @PROP-05
+  Scenario: An unrepairable path remains not tested and cannot be promoted
+    Given a frozen student replay encounters the seeded unrepairable outage
+    When the RUN-04 model adapter attempts the reviewed submit control
+    Then the repair attempt is "UNRESOLVED" and the path is "NOT_TESTED"
+    And no RUN-04 replay version can be promoted
+    And I capture the RUN-04 "unresolved-repair" evidence
+
+  @RUN-05 @FR-037 @PROP-19 @PROP-22
+  Scenario: Terminal run history distinguishes captured and missing coverage
+    Given the fictional workspace access fixture is reset
+    And I start a signed session as the "Privacy officer"
+    When I open the immutable run history
+    Then the completed run has a manifest with every required checkpoint
+    And the partial run preserves captured evidence and names missing coverage
+    And the failed run names every checkpoint it could not complete
+    And I capture the "terminal-run-history" RUN-05 evidence
+
+  @RUN-05 @FR-037 @PROP-18 @PROP-19
+  Scenario: A worker failure and completed retry keep exact configuration lineage
+    Given the fictional workspace access fixture is reset
+    And I start a signed session as the "Privacy officer"
+    When I open the immutable run history
+    Then the crashed run shows an explicit worker lease integrity failure
+    And its completed retry links to the source run with the same frozen configuration
+    And I capture the "retry-lineage" RUN-05 evidence
+
+  @DET-04 @FR-044 @FR-045 @PROP-09 @PROP-10
+  Scenario: A changed exported artifact invalidates verification without changing the stored receipt
+    Given the fictional workspace access fixture is reset
+    And I start a signed session as the "Reviewer"
+    When I export the witnessed-conflict evidence receipt
+    And I change one byte in an exported receipt artifact
+    Then independent receipt verification reports "INVALID"
+    And the verifier names "ARTIFACT_HASH_MISMATCH"
+    And the original stored receipt still verifies as "VALID"
+    And I record the DET-04 valid and corrupted verifier reports

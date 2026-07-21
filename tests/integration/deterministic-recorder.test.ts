@@ -14,6 +14,7 @@ import {
   networkObservationFactsSchema,
   type DeterministicRecorderReport,
 } from "../../apps/runner/src/deterministic-recorder";
+import type { Canary } from "../../packages/core/src/domain";
 import {
   BrowserIsolationManager,
   type IsolatedBrowserSession,
@@ -56,7 +57,10 @@ function isolationManager() {
 async function runContext(
   version: FixtureVersion,
   runId: string,
-  options: { readonly includeOptionalAuthorizedField?: boolean } = {},
+  options: {
+    readonly includeOptionalAuthorizedField?: boolean;
+    readonly canaries?: readonly Canary[];
+  } = {},
 ) {
   const server = await fixture(version, `run-02-${version.toLowerCase()}-20260721`);
   const manager = isolationManager();
@@ -110,6 +114,7 @@ async function runContext(
         },
       ],
       secrets: ["FICTIONAL-RUNNER-SECRET-123456"],
+      canaries: options.canaries ?? [],
     },
   });
   return { artifactRoot, manager, recorder, server, session };
@@ -229,6 +234,69 @@ describe("real Chromium deterministic recording", () => {
     expect(createHash("sha256").update(await readFile(screenshotPath)).digest("hex"))
       .toBe(screenshot.sha256);
     expect(context.server.readEvents()).toHaveLength(1);
+
+    await context.session.finalizeArtifacts(() => Promise.resolve());
+  });
+
+  it("matches a transient authorized field before redaction and retains only hashed lineage", async () => {
+    const runId = "27272727-2727-4727-8727-272727272727";
+    const sourceCanary: Canary = {
+      id: "28282828-2828-4828-8828-282828282828",
+      workspaceId,
+      runId,
+      personaId: "29292929-2929-4929-8929-292929292929",
+      sourceField: "email",
+      value: "pw-0123456789abcdef0123456789abcdef@canary.pactwire.invalid",
+      generatedAt: "2026-07-20T12:00:00.000Z",
+    };
+    const context = await runContext("BASELINE", runId, {
+      canaries: [sourceCanary],
+    });
+    await context.session.page.goto(`${context.server.classroomOrigin}/student`);
+    const fixturePort = new URL(context.server.classroomOrigin).port;
+    await context.session.page.evaluate(
+      async ({ url, studentEmail }) => {
+        await fetch(url, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ studentEmail }),
+        }).catch(() => undefined);
+      },
+      {
+        url: `http://classroom-service.pactwire.test:${fixturePort}/collect`,
+        studentEmail: sourceCanary.value,
+      },
+    );
+    const report = await context.recorder.stop();
+
+    expect(report.canaryMatcherReports).toHaveLength(1);
+    expect(report.canaryMatcherReports[0]).toMatchObject({
+      workspaceId,
+      runId,
+      observationSource: "NETWORK",
+      counts: { matched: 1, noMatch: 0, unsupported: 0, collisions: 0 },
+      outcomes: [
+        expect.objectContaining({
+          status: "MATCHED",
+          canaryId: sourceCanary.id,
+          canarySourceField: "email",
+          transform: "EXACT",
+          candidateLocation: "BODY",
+          candidatePath: "studentEmail",
+        }),
+      ],
+    });
+    const matcherOutcome = report.canaryMatcherReports[0]?.outcomes[0];
+    const matchedObservation = report.observations.find(
+      ({ id }) => id === report.canaryMatcherReports[0]?.observationId,
+    );
+    const matchedFacts = networkObservationFactsSchema.parse(
+      matchedObservation?.facts,
+    );
+    expect(matchedFacts.request.authorizedFields[0]?.valueSha256).toBe(
+      matcherOutcome?.candidateValueSha256,
+    );
+    expect(JSON.stringify(report)).not.toContain(sourceCanary.value);
 
     await context.session.finalizeArtifacts(() => Promise.resolve());
   });

@@ -63,6 +63,31 @@ const migrationFiles = [
     name: "deterministic_replay_versions",
     fileName: "0010_deterministic_replay_versions.sql",
   },
+  {
+    version: "0011",
+    name: "journey_repairs",
+    fileName: "0011_journey_repairs.sql",
+  },
+  {
+    version: "0012",
+    name: "run_orchestration",
+    fileName: "0012_run_orchestration.sql",
+  },
+  {
+    version: "0013",
+    name: "destination_registry",
+    fileName: "0013_destination_registry.sql",
+  },
+  {
+    version: "0014",
+    name: "evidence_receipts",
+    fileName: "0014_evidence_receipts.sql",
+  },
+  {
+    version: "0015",
+    name: "approval_authority",
+    fileName: "0015_approval_authority.sql",
+  },
 ] as const;
 
 export async function loadCoreMigrations(): Promise<readonly CoreMigration[]> {

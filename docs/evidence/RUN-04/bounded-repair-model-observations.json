@@ -1,0 +1,22 @@
+[
+  {
+    "sequence": 1,
+    "actionType": "click",
+    "controlId": "moved-student-link",
+    "authorizationAction": "NAVIGATE",
+    "origin": "http://classroom.pactwire.test:57759",
+    "hrefPath": "/learner",
+    "beforePath": "/student",
+    "afterPath": "/learner"
+  },
+  {
+    "sequence": 2,
+    "actionType": "click",
+    "controlId": "turn-in-response",
+    "authorizationAction": "SUBMIT",
+    "origin": "http://classroom.pactwire.test:57759",
+    "hrefPath": null,
+    "beforePath": "/learner",
+    "afterPath": "/learner"
+  }
+]

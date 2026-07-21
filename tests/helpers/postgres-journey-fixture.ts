@@ -14,6 +14,7 @@ interface PostgresJourneyFixtureInput {
   readonly actorId: string;
   readonly allowedActions: readonly string[];
   readonly prohibitedActions: readonly string[];
+  readonly checkpointIds?: readonly string[];
 }
 
 export async function insertPostgresJourneyFixture(
@@ -21,12 +22,27 @@ export async function insertPostgresJourneyFixture(
   input: PostgresJourneyFixtureInput,
 ): Promise<void> {
   const actor = { kind: "HUMAN", actorId: input.actorId } as const;
+  const checkpointIds = input.checkpointIds ?? ["controlled-page"];
+  const testFields = checkpointIds.map((checkpointId, index) => ({
+    fieldId: `field-${index + 1}-${checkpointId}`,
+    sourceField: index === 0 ? "email" : `fictionalField${index + 1}`,
+    requirementVersionId: input.confirmedRequirementId,
+  }));
+  const personaFields = Object.fromEntries(
+    testFields
+      .filter(({ sourceField }) => sourceField !== "email")
+      .map(({ sourceField }, index) => [
+        sourceField,
+        `Fictional seeded value ${index + 1}`,
+      ]),
+  );
   await database.query(
-    "INSERT INTO personas (workspace_id, id, role, fictional, display_name, email, fields, fictional_confirmation, scan_result, created_at, created_by) VALUES ($1, $2, 'STUDENT', true, 'Run Seed Student (Fictional)', $3, jsonb_build_object('submissionPhrase', 'Fictional seeded response'), $4, jsonb_build_object('scannerVersion', 'likely-real-v1', 'outcome', 'CLEAR', 'findings', jsonb_build_array()), now(), $5)",
+    "INSERT INTO personas (workspace_id, id, role, fictional, display_name, email, fields, fictional_confirmation, scan_result, created_at, created_by) VALUES ($1, $2, 'STUDENT', true, 'Run Seed Student (Fictional)', $3, $4, $5, jsonb_build_object('scannerVersion', 'likely-real-v1', 'outcome', 'CLEAR', 'findings', jsonb_build_array()), now(), $6)",
     [
       input.workspaceId,
       input.personaId,
       `run-seed-${input.personaId.slice(0, 8)}@pactwire.invalid`,
+      { submissionPhrase: "Fictional seeded response", ...personaFields },
       {
         statementVersion: "fictional-only-v1",
         confirmedAt: new Date().toISOString(),
@@ -94,26 +110,18 @@ export async function insertPostgresJourneyFixture(
     requirementVersionIds: [input.confirmedRequirementId],
     authorizationId: input.authorizationId,
     personaId: input.personaId,
-    testFields: [
-      {
-        fieldId: "student-email",
-        sourceField: "email",
-        requirementVersionId: input.confirmedRequirementId,
-      },
-    ],
+    testFields,
     allowedActions: input.allowedActions,
     prohibitedActions: input.prohibitedActions,
-    checkpoints: [
-      {
-        checkpointId: "controlled-page",
+    checkpoints: checkpointIds.map((checkpointId, index) => ({
+        checkpointId,
         required: true,
-        description: "Observe the fictional controlled page.",
-        observationSource: "SCREENSHOT",
+        description: `Observe fictional checkpoint ${checkpointId}.`,
+        observationSource: index === 0 ? "NETWORK" : "SCREENSHOT",
         requiredVisibility: true,
         requirementVersionIds: [input.confirmedRequirementId],
-        testFieldIds: ["student-email"],
-      },
-    ],
+        testFieldIds: [testFields[index]!.fieldId],
+      })),
     steps: [
       {
         stepId: "open-controlled-page",

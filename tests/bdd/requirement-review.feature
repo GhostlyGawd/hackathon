@@ -57,3 +57,16 @@ Feature: A person decides which agreement proposals become test rules
     When I inspect the proposal's exact cited source
     And I complete the requirement rationale for keyboard review
     Then I can reach and capture each requirement decision control using only the keyboard
+
+  @DET-01 @FR-034
+  Scenario: The privacy officer confirms allowed and prohibited destinations from exact sources
+    When I upload the fictional destination schedule
+    And I record the observed destination "classroom-service.pactwire.test"
+    Then the destination remains "UNKNOWN" until a person reviews it
+    When I confirm "classroom-service.pactwire.test" as entity "Northstar Learning Systems (Fictional)" with status "ALLOWED"
+    Then the destination shows human-confirmed status "ALLOWED" for the selected agreement
+    And I capture the "known-allowed-destination-desktop" destination-registry evidence
+    When I record the observed destination "fixture-analytics.pactwire.test"
+    And I confirm "fixture-analytics.pactwire.test" as entity "Signal Quarry Analytics (Fictional)" with status "PROHIBITED"
+    Then the destination shows human-confirmed status "PROHIBITED" for the selected agreement
+    And I capture the "known-prohibited-destination-desktop" destination-registry evidence

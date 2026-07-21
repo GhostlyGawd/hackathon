@@ -247,16 +247,16 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | RUN-03 | P0 | RUN-01, AUT-03, AUT-04, FIX-01 | Policy-bounded GPT-5.6 computer use | COMPLETE |
 | RUN-04 | P0 | RUN-03, JRN-02, JRN-03 | Model-assisted journey repair | NOT STARTED |
 | RUN-05 | P0 | FND-03, RUN-01, RUN-02 | Run orchestration and manifests | NOT STARTED |
-| DET-01 | P0 | AGR-03, RUN-02 | Human-confirmed destination registry | NOT STARTED |
-| DET-02 | P0 | JRN-01, RUN-02 | Deterministic canary matcher | NOT STARTED |
-| DET-03 | P0 | AGR-03, DET-01, DET-02, RUN-05 | Bounded finding evaluator | NOT STARTED |
-| DET-04 | P0 | DET-03, AGR-01, RUN-05 | Verifiable evidence receipts | NOT STARTED |
-| DET-05 | P0 + P1 follow-on | AUT-02, DET-03, DET-04 | Hold, human restore, and approval audit | NOT STARTED |
+| DET-01 | P0 | AGR-03, RUN-02 | Human-confirmed destination registry | IN PROGRESS |
+| DET-02 | P0 | JRN-01, RUN-02 | Deterministic canary matcher | IN PROGRESS |
+| DET-03 | P0 | AGR-03, DET-01, DET-02, RUN-05 | Bounded finding evaluator | IN PROGRESS |
+| DET-04 | P0 | DET-03, AGR-01, RUN-05 | Verifiable evidence receipts | IN PROGRESS |
+| DET-05 | P0 + P1 follow-on | AUT-02, DET-03, DET-04 | Hold, human restore, and approval audit | COMPLETE (P0) |
 | UX-01 | P0 | AUT-02, AUT-03, FND-03, AGR-01, JRN-01 | Inventory and setup experience | IN PROGRESS |
 | UX-02 | P0 | AGR-03, JRN-02, UX-01 | Agreement and journey review | IN PROGRESS |
 | UX-03 | P0 | RUN-05, DET-04, DET-05, UX-01 | Run, finding, receipt, and hold experience | NOT STARTED |
 | QLT-01 | P0 | UX-01, UX-02, UX-03, RUN-05 | Quality and observability gates | NOT STARTED |
-| SEC-01 | P0 | AUT-04, RUN-03, DET-05, UX-03 | Security and privacy threat suite | NOT STARTED |
+| SEC-01 | P0 | AUT-04, RUN-03, DET-05, UX-03 | Security and privacy threat suite | IN PROGRESS |
 | VAL-01 | P0 | FIX-01, DET-05, SEC-01 | Blinded mechanism corpus | NOT STARTED |
 | VAL-02 | P0 claim gate | JRN-03, RUN-03, RUN-04, VAL-01 | Model-ablation decision | NOT STARTED |
 | VAL-03 | P0 claim gate | UX-03, VAL-01 | Workflow and comprehension validation | NOT STARTED |
@@ -597,6 +597,8 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### DET-05 — Implement hold, human restoration, approval audit, and P1 notifications
 
+- **Status:** COMPLETE (P0) — receipt-linked conflict holds, retry-gated visibility-loss holds, human-only restoration, append-only history, source-bound browser evidence, and clean-checkout Ubuntu/Windows verification pass at completion head `9c925a72ae4da3cec31854bf0ca589aec3864e5b`. FR-056 remains DEFERRED (P1).
+
 - **Deliver:** idempotent witnessed-conflict hold; retry-gated visibility-loss hold with distinct reason; append-only history; human restore/reject/retire decision; P1 bounded webhooks.
 - **PRD:** FR-050, FR-051, FR-052, FR-053, FR-054, FR-055, and FR-056; Sections 10.1 and 12.7.
 - **Depends on:** AUT-02, DET-03, and DET-04.
@@ -662,6 +664,8 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 - **Complete when:** all PRD quality thresholds pass or a changed PRD records an honest revised threshold before implementation claims success.
 
 #### SEC-01 — Execute the security, privacy, and prompt-injection threat suite
+
+- **Status:** IN PROGRESS — the production dependency audit prerequisite is green locally with exact lockfile regressions; the adversarial threat matrix, safe-recovery evidence, and clean-checkout CI remain outstanding.
 
 - **Deliver:** executable cases for real-data entry, prompt injection, credential leakage, egress, harmful actions, cross-workspace access, tampering, false attribution, incomplete capture, publication permission, and retention/deletion.
 - **PRD:** Section 16 and the security cases in Section 17.

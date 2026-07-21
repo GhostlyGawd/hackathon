@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
-import { mkdir, readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { After, Given, Then, When } from "@cucumber/cucumber";
 import { startFixtureServer } from "../../apps/fixture/dist/index.js";
+import { matchCanaryObservation } from "../../packages/core/dist/index.js";
 
 const desktopViewport = { width: 1440, height: 1100 };
 const narrowViewport = { width: 390, height: 844 };
@@ -192,6 +194,91 @@ Then(
       serialized.includes(this.fixtureServer.scenario.submission.response),
       false,
     );
+  },
+);
+
+Then(
+  "the deterministic matcher records the unsupported transform without a positive match",
+  async function () {
+    const unknown = this.fixtureEvents.find(
+      (event) => event.destinationHost === "unknown-destination.pactwire.test",
+    );
+    const dispatch = this.fixtureSubmissionResponse.dispatches.find(
+      (candidate) =>
+        candidate.destinationHost === "unknown-destination.pactwire.test",
+    );
+    const opaqueReference = unknown?.body.opaqueStudentReference;
+    assert.equal(typeof opaqueReference, "string");
+    assert.equal(dispatch?.transform, "UNSUPPORTED_OPAQUE");
+    const matcherReport = matchCanaryObservation({
+      observation: {
+        id: "d2020202-0202-4202-8202-020202020202",
+        workspaceId: "11111111-1111-4111-8111-111111111111",
+        runId: "22222222-2222-4222-8222-222222222222",
+        source: "NETWORK",
+        recorderVersion: "pactwire-browser-cdp-recorder-v1",
+        sequence: unknown.sequence,
+        observedAt: "2026-07-20T12:00:00.000Z",
+        payloadHash: createHash("sha256")
+          .update(JSON.stringify(unknown.body))
+          .digest("hex"),
+        facts: {
+          destinationHost: unknown.destinationHost,
+          method: unknown.method,
+          path: unknown.path,
+        },
+      },
+      canaries: [],
+      candidates: [
+        {
+          location: "BODY",
+          path: "opaqueStudentReference",
+          value: opaqueReference,
+          requestedTransform: dispatch.transform,
+        },
+      ],
+    });
+    assert.deepEqual(matcherReport.counts, {
+      matched: 0,
+      noMatch: 0,
+      unsupported: 1,
+      collisions: 0,
+    });
+    assert.equal(matcherReport.outcomes[0]?.status, "UNSUPPORTED_TRANSFORM");
+    assert.equal("match" in matcherReport.outcomes[0], false);
+    assert.equal(JSON.stringify(matcherReport).includes(opaqueReference), false);
+    this.canaryMatcherReport = matcherReport;
+
+    const artifactRoot = path.join(
+      process.cwd(),
+      "artifacts",
+      "verification",
+      "DET-02",
+      "reports",
+    );
+    await mkdir(artifactRoot, { recursive: true });
+    await writeFile(
+      path.join(artifactRoot, "ambiguity-matcher-report.json"),
+      `${JSON.stringify(matcherReport, null, 2)}\n`,
+      "utf8",
+    );
+    if (
+      process.env.PACTWIRE_CAPTURE_CURATED_EVIDENCE === "1" &&
+      process.env.PACTWIRE_EVIDENCE_TASK === "DET-02"
+    ) {
+      const curatedRoot = path.join(
+        process.cwd(),
+        "docs",
+        "evidence",
+        "DET-02",
+      );
+      await mkdir(curatedRoot, { recursive: true });
+      await writeFile(
+        path.join(curatedRoot, "ambiguity-matcher-report.json"),
+        `${JSON.stringify(matcherReport, null, 2)}\n`,
+        "utf8",
+      );
+    }
   },
 );
 

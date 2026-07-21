@@ -1,0 +1,330 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "DET-03",
+  "title": "Implement bounded finding evaluation",
+  "status": "IN_PROGRESS",
+  "prdSections": [10, 15],
+  "functionalRequirements": ["FR-040", "FR-041", "FR-046"],
+  "sourceCommitSha": "614182176d3848d53c0b0d5dcff143ea1c8ee533",
+  "startedAt": "2026-07-21T13:55:00.000-04:00",
+  "artifactRoot": "artifacts/verification/DET-03/",
+  "curatedEvidenceRoot": "docs/evidence/DET-03/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing bounded evaluator",
+      "command": "pnpm exec vitest run --project unit tests/unit/finding-evaluation.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 438,
+      "expectedFailure": "The decision-table suite failed to import the not-yet-created finding-evaluation module"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing bounded evaluator properties",
+      "command": "pnpm exec vitest run --project property tests/property/finding-evaluation.property.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 450,
+      "expectedFailure": "The fixed-seed property suite failed to import the not-yet-created finding-evaluation module"
+    },
+    {
+      "phase": "RED",
+      "name": "Shrunk whitespace counterexamples",
+      "command": "pnpm exec vitest run --project property tests/property/finding-evaluation.property.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 3900,
+      "expectedFailure": "Fast-check shrank invalid model narrative and missing-coverage text to a single whitespace character; both cases were preserved as permanent rejection examples"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Decision table and four bounded properties",
+      "command": "pnpm exec vitest run --project unit tests/unit/finding-evaluation.test.ts --project property tests/property/finding-evaluation.property.test.ts --reporter=dot",
+      "exitCode": 0,
+      "durationMs": 3910
+    },
+    {
+      "phase": "RED",
+      "name": "Missing immutable finding repositories",
+      "command": "pnpm exec vitest run --project integration tests/integration/finding-evaluation.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 5200,
+      "expectedFailure": "The in-memory repository did not exist and the first PostgreSQL fixture attempted to bypass the run state machine before persistence was implemented"
+    },
+    {
+      "phase": "GREEN",
+      "name": "In-memory and PostgreSQL append-only finding persistence",
+      "command": "pnpm exec vitest run --project integration tests/integration/finding-evaluation.test.ts --reporter=dot",
+      "exitCode": 0,
+      "durationMs": 3360
+    },
+    {
+      "phase": "RED",
+      "name": "Missing authenticated findings API",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/finding-evaluation-routes.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 3300,
+      "expectedFailure": "The focused HTTP suite failed to import the not-yet-created workspace findings route"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Authenticated and workspace-isolated findings API",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/finding-evaluation-routes.test.ts --reporter=dot",
+      "exitCode": 0,
+      "durationMs": 3900
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined finding-state browser stories",
+      "command": "PACTWIRE_BDD_TAGS=@DET-03 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 17700,
+      "expectedFailure": "Five scenarios exposed twenty-six undefined finding-matrix steps before the API, UI, and browser bindings existed; the stale core build also made the first fixture reset fail until the package was rebuilt"
+    },
+    {
+      "phase": "GREEN",
+      "name": "All bounded outcomes through the real browser and API",
+      "command": "PACTWIRE_BDD_TAGS=@DET-03 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 52000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Focused evaluator, repository, route, and run-fixture matrix",
+      "command": "pnpm exec vitest run --project unit tests/unit/finding-evaluation.test.ts --project property tests/property/finding-evaluation.property.test.ts --project integration tests/integration/finding-evaluation.test.ts apps/web/tests/integration/finding-evaluation-routes.test.ts tests/integration/run-orchestration.test.ts --reporter=dot",
+      "exitCode": 0,
+      "durationMs": 9450
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Repository lint, type, optimized build, and production dependency audit",
+      "command": "pnpm lint; pnpm typecheck; pnpm build; pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 101000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production finding matrix capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=DET-03 PACTWIRE_BDD_TAGS='@DET-03 and @FR-046' pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 16600
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory recognized DET-03 proof",
+      "command": "pnpm evidence:check; pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 4600,
+      "expectedFailure": "Traceability accepted the new manifest at twenty-one manifests and 206 proof files while the explicit inventory regression still expected the previous twenty manifests and 196 proof files"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Completed DET-03 evidence traceability and inventory",
+      "command": "pnpm evidence:check; pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts --reporter=dot",
+      "exitCode": 0,
+      "durationMs": 4400
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete evidence-bound optimized-production repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 398400
+    }
+  ],
+  "testSummary": {
+    "files": 82,
+    "passed": 331,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-04-unknown-destination-never-conflicts",
+        "seed": 20260721,
+        "numRuns": 500,
+        "passed": true
+      },
+      {
+        "id": "PROP-05-incomplete-coverage-never-looks-clean",
+        "seed": 20260721,
+        "numRuns": 500,
+        "passed": true
+      },
+      {
+        "id": "PROP-07-model-prose-cannot-change-deterministic-output",
+        "seed": 20260721,
+        "numRuns": 500,
+        "passed": true
+      },
+      {
+        "id": "PROP-21-positive-conflict-stays-bounded-under-partial-unrelated-coverage",
+        "seed": 20260721,
+        "numRuns": 500,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "baseline-observation.feature",
+        "scenario": "A complete named run reports only what its deterministic evidence supports",
+        "passed": true
+      },
+      {
+        "feature": "witnessed-conflict.feature",
+        "scenario": "A confirmed prohibited flow is shown as a bounded recorded conflict",
+        "passed": true
+      },
+      {
+        "feature": "repaired-rerun.feature",
+        "scenario": "A repaired rerun stays linked to its prior conflict without claiming approval",
+        "passed": true
+      },
+      {
+        "feature": "visibility-loss.feature",
+        "scenario": "Missing visibility remains distinct from a clean named run",
+        "passed": true
+      },
+      {
+        "feature": "ambiguity.feature",
+        "scenario": "Unsupported traffic to an unknown destination requires human review",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/DET-03/finding-state-matrix-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T18:28:58.654Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop Pactwire finding-state matrix showing all six bounded results beside a selected recorded-conflict detail with named scope, path coverage, deterministic evidence, separated model explanation, and limitations.",
+        "caption": "Direct-language state cards lead with meaning rather than internal tokens; the selected detail identifies exactly what controlled the result and what the result does not establish.",
+        "provenance": "captured",
+        "sourceCommitSha": "614182176d3848d53c0b0d5dcff143ea1c8ee533"
+      },
+      {
+        "path": "docs/evidence/DET-03/finding-state-matrix-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T18:28:58.919Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow Pactwire finding-state matrix stacking all six bounded results and the same selected recorded-conflict evidence without horizontal overflow or hidden scope.",
+        "caption": "The narrow layout preserves every state, scope boundary, deterministic evidence reference, model disclaimer, and limitation in reading order.",
+        "provenance": "captured",
+        "sourceCommitSha": "614182176d3848d53c0b0d5dcff143ea1c8ee533"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "schema",
+      "path": "packages/core/src/finding-evaluation.ts",
+      "description": "Strict input and output schemas, ordered deterministic evaluator, six bounded states, direct copy, immutable repositories, and exact run-manifest binding"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/finding-evaluation.test.ts",
+      "description": "Decision-table examples for every state and uncertainty class, bounded positive scope, prohibited-copy guard, and preserved shrunk regressions"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/finding-evaluation.property.test.ts",
+      "description": "Fixed-seed PROP-04, PROP-05, PROP-07, and PROP-21 invariants with 500 runs each"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/finding-evaluation.test.ts",
+      "description": "In-memory and PostgreSQL exact-payload persistence, finalized-manifest lineage, duplicate rejection, and database mutation guards"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/finding-evaluation-routes.test.ts",
+      "description": "Authenticated all-state API, machine-readable decision table, direct-copy boundary, unsigned denial, and cross-workspace concealment"
+    },
+    {
+      "kind": "schema",
+      "path": "apps/web/app/api/workspaces/[workspaceId]/findings/route.ts",
+      "description": "No-store workspace-authorized endpoint returning only stored evaluations and the deterministic decision table"
+    },
+    {
+      "kind": "evidence",
+      "path": "apps/web/app/finding-evaluation-panel.tsx",
+      "description": "Selectable six-state matrix with named scope, coverage, deterministic basis, model separation, prior finding, reason codes, and limitations"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/baseline-observation.feature",
+      "description": "Complete named-scope and all-state interpretation story tagged DET-03, FR-040, and FR-046"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/witnessed-conflict.feature",
+      "description": "Confirmed prohibited-flow and deterministic-basis browser story tagged DET-03"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/repaired-rerun.feature",
+      "description": "Prior-conflict linkage and forbidden approval-copy browser story tagged DET-03"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/visibility-loss.feature",
+      "description": "Distinct NOT_VISIBLE and NOT_TESTED paths through the browser tagged DET-03 and PROP-05"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/ambiguity.feature",
+      "description": "Unsupported transform and unknown destination remain NEEDS_REVIEW through the browser tagged DET-03, FR-041, and PROP-04"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/finding-evaluation.steps.mjs",
+      "description": "Real browser and authenticated API assertions plus source-bound desktop, narrow, and machine-table capture"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/evidence-harness.test.ts",
+      "description": "Explicit repository inventory regression for twenty-one manifests and 206 unique proof files"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/DET-03/decision-table.json",
+      "description": "Source-bound ordered evaluator conditions and controlled example output for every finding state"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/DET-03/README.md",
+      "description": "DET-03 evidence description, provenance, responsibility boundary, and non-claim"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T18:31:00.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "The committed matrix uses controlled fictional identities, reserved domains, and synthetic observations; it does not establish effectiveness or adoption on real school software.",
+    "Purpose meaning, legal interpretation, unknown ownership, unsupported transforms, collisions, and incomplete evidence lineage remain NEEDS_REVIEW rather than being inferred by a model.",
+    "A positive conflict is limited to its deterministically matched observation and confirmed prohibited destination; unrelated partial coverage remains visible in the named scope.",
+    "The model-explanation boundary is exercised with controlled fixture prose and makes no claim about model explanation quality.",
+    "GitHub Actions clean-checkout verification is pending because the current account billing rejection prevents jobs from starting before checkout."
+  ],
+  "reviewer": "codex-agent"
+}

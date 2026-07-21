@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 10,
-  "totalTables": 26,
+  "migrationCount": 15,
+  "totalTables": 35,
   "migrations": [
     {
       "version": "0001",
@@ -127,6 +127,67 @@
       ],
       "immutableTables": [
         "deterministic_replay_versions"
+      ]
+    },
+    {
+      "version": "0011",
+      "name": "journey_repairs",
+      "sha256": "2e7a0a91a0e2e16c7ca1f7c7fef5566315d693ef4fb0ebc53772b628b66f25bf",
+      "tables": [
+        "journey_repair_drafts",
+        "journey_repair_verifications",
+        "journey_repair_promotions"
+      ],
+      "immutableTables": [
+        "journey_repair_drafts",
+        "journey_repair_verifications",
+        "journey_repair_promotions"
+      ]
+    },
+    {
+      "version": "0012",
+      "name": "run_orchestration",
+      "sha256": "1ee0264bc7386b020fe0c0589cd7f05ed7d56d0f97724dc1c725aee90713c870",
+      "tables": [
+        "run_execution_scopes",
+        "run_worker_leases",
+        "run_manifests",
+        "run_orchestration_commands"
+      ],
+      "immutableTables": [
+        "run_execution_scopes",
+        "run_worker_leases",
+        "run_manifests",
+        "run_orchestration_commands"
+      ]
+    },
+    {
+      "version": "0013",
+      "name": "destination_registry",
+      "sha256": "861c3160a5310326192ea440e1f97b480a8001b9babc1bd16cab21b28b532f6f",
+      "tables": [
+        "destination_record_versions"
+      ],
+      "immutableTables": [
+        "destination_record_versions"
+      ]
+    },
+    {
+      "version": "0014",
+      "name": "evidence_receipts",
+      "sha256": "fe2106c5a32b4f46ae46c3bc9d79da7f5d99838cbce248c91cac2b13e88526d2",
+      "tables": [],
+      "immutableTables": []
+    },
+    {
+      "version": "0015",
+      "name": "approval_authority",
+      "sha256": "f6b9e1d18b6214f878a68112ca0789717fb9692f12de886e6c8caac6a4e03ff0",
+      "tables": [
+        "approval_hold_receipts"
+      ],
+      "immutableTables": [
+        "approval_hold_receipts"
       ]
     }
   ]

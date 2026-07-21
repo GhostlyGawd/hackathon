@@ -38,9 +38,13 @@ export function describeApprovalOrigin(
   const heading =
     origin.setBy.kind === "IMPORTED_SYSTEM"
       ? `Imported from ${origin.setBy.displayName}`
-      : `Set by ${origin.setBy.displayName}`;
+      : origin.setBy.kind === "AUTOMATION"
+        ? "Placed on hold by Pactwire's deterministic rule"
+        : `Set by ${origin.setBy.displayName}`;
   const reference = origin.sourceReference
-    ? `District record ${origin.sourceReference}`
+    ? origin.setBy.kind === "AUTOMATION"
+      ? `Receipt ${origin.sourceReference}`
+      : `District record ${origin.sourceReference}`
     : "District record";
   return Object.freeze({
     heading,
@@ -134,7 +138,16 @@ const approvalInputSchema = z
     reason: nonEmpty,
     sourceReference: nonEmpty.optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    if (value.setBy.kind === "AUTOMATION") {
+      context.addIssue({
+        code: "custom",
+        path: ["setBy"],
+        message: "Automation cannot create an initial district approval record",
+      });
+    }
+  });
 
 const createSoftwareInputSchema = z
   .object({
@@ -332,6 +345,32 @@ export class InMemorySoftwareInventoryRepository
   ): Promise<SoftwareRecord | undefined> {
     const record = this.#records.get(`${uuid.parse(workspaceId)}:${uuid.parse(softwareId)}`);
     return Promise.resolve(record ? immutableClone(record) : undefined);
+  }
+
+  recordApprovalTransition(
+    workspaceId: string,
+    softwareId: string,
+    approvalOriginCandidate: ApprovalOrigin,
+  ): Promise<SoftwareRecord> {
+    const scope = uuid.parse(workspaceId);
+    const id = uuid.parse(softwareId);
+    const key = `${scope}:${id}`;
+    const current = this.#records.get(key);
+    if (!current) throw new Error("Software does not exist in this workspace");
+    const approvalOrigin = approvalOriginSchema.parse(approvalOriginCandidate);
+    if (
+      approvalOrigin.workspaceId !== scope ||
+      approvalOrigin.softwareId !== id
+    ) {
+      throw new Error("Approval provenance must belong to the same software");
+    }
+    const next = softwareRecordSchema.parse({
+      ...current,
+      approvalState: approvalOrigin.state,
+      approvalOrigin,
+    });
+    this.#records.set(key, immutableClone(next));
+    return Promise.resolve(immutableClone(next));
   }
 
   listSoftware(

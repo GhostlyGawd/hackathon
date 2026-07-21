@@ -2,10 +2,16 @@ import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
+  canaryMatchCandidateSchema,
+  canaryMatcherReportSchema,
+  canarySchema,
+  matchCanaryObservation,
   observationSchema,
   redactSecretText,
   SECRET_SCREENSHOT_MASK_SELECTORS,
   secretValueSchema,
+  type CanaryMatchCandidate,
+  type CanaryMatcherReport,
 } from "@pactwire/core";
 import type { CDPSession, Page } from "playwright-core";
 import { z } from "zod";
@@ -112,6 +118,7 @@ export const deterministicRecorderConfigSchema = z
     authorizedRequestRules: z.array(authorizedRequestRuleSchema).max(128),
     requiredCheckpoints: z.array(requiredNetworkCheckpointSchema).min(1).max(128),
     secrets: z.array(secretValueSchema).max(64),
+    canaries: z.array(canarySchema).max(10_000).default([]),
   })
   .strict()
   .superRefine((value, context) => {
@@ -145,6 +152,18 @@ export const deterministicRecorderConfigSchema = z
         code: "custom",
         path: ["secrets"],
         message: "Recorder secrets must be unique",
+      });
+    }
+    if (
+      value.canaries.some(
+        (canary) =>
+          canary.workspaceId !== value.workspaceId || canary.runId !== value.runId,
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["canaries"],
+        message: "Recorder canaries must belong to its workspace and run",
       });
     }
     for (const checkpoint of value.requiredCheckpoints) {
@@ -426,9 +445,14 @@ function valueType(value: unknown): AuthorizedRequestFieldSummary["valueType"] {
   return "object";
 }
 
-export function summarizeAuthorizedRequestFields(
+interface AuthorizedRequestFieldInspection {
+  readonly summary: AuthorizedRequestFieldsResult;
+  readonly transientCanaryCandidates: readonly CanaryMatchCandidate[];
+}
+
+function inspectAuthorizedRequestFields(
   candidate: unknown,
-): AuthorizedRequestFieldsResult {
+): AuthorizedRequestFieldInspection {
   const input = z
     .object({
       postData: z.string(),
@@ -444,16 +468,27 @@ export function summarizeAuthorizedRequestFields(
     body = undefined;
   }
   if (!body) {
-    return deepFreeze(
-      authorizedRequestFieldsResultSchema.parse({
+    return deepFreeze({
+      summary: authorizedRequestFieldsResultSchema.parse({
         status: "UNINSPECTABLE",
         fields: [],
       }),
-    );
+      transientCanaryCandidates: [],
+    });
   }
+  const transientCanaryCandidates: CanaryMatchCandidate[] = [];
   const fields = input.fieldNames.map((name) => {
     const nested = nestedField(body, name);
     if (!nested.present) return { name, present: false };
+    if (typeof nested.value === "string") {
+      transientCanaryCandidates.push(
+        canaryMatchCandidateSchema.parse({
+          location: "BODY",
+          path: name,
+          value: nested.value,
+        }),
+      );
+    }
     return {
       name,
       present: true,
@@ -462,14 +497,21 @@ export function summarizeAuthorizedRequestFields(
     };
   });
   void input.secrets;
-  return deepFreeze(
-    authorizedRequestFieldsResultSchema.parse({
+  return deepFreeze({
+    summary: authorizedRequestFieldsResultSchema.parse({
       status: fields.every(({ present }) => present)
         ? "CAPTURED"
         : "MISSING_FIELDS",
       fields,
     }),
-  );
+    transientCanaryCandidates,
+  });
+}
+
+export function summarizeAuthorizedRequestFields(
+  candidate: unknown,
+): AuthorizedRequestFieldsResult {
+  return inspectAuthorizedRequestFields(candidate).summary;
 }
 
 const initiatorSchema = z
@@ -551,6 +593,7 @@ export const deterministicRecorderReportSchema = z
     actions: z.array(actionRecordSchema),
     screenshots: z.array(screenshotRecordSchema),
     observations: z.array(observationSchema),
+    canaryMatcherReports: z.array(canaryMatcherReportSchema),
     visibility: recorderVisibilitySchema,
     limitations: z.array(z.string().min(1)).min(1),
   })
@@ -628,6 +671,24 @@ export const deterministicRecorderReportSchema = z
         code: "custom",
         path: ["visibility"],
         message: "Recorder visibility can reference only included observations",
+      });
+    }
+    if (
+      value.canaryMatcherReports.some(
+        (report) =>
+          report.workspaceId !== value.workspaceId ||
+          report.runId !== value.runId ||
+          report.observationSource !== "NETWORK" ||
+          !observationIds.has(report.observationId),
+      ) ||
+      new Set(value.canaryMatcherReports.map(({ observationId }) => observationId))
+        .size !== value.canaryMatcherReports.length
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["canaryMatcherReports"],
+        message:
+          "Matcher reports must reference unique network observations from this recorder run",
       });
     }
   });
@@ -768,6 +829,10 @@ export class DeterministicBrowserRecorder {
   readonly #page: Page;
   readonly #pending = new Map<string, PendingRequest>();
   readonly #screenshots: z.infer<typeof screenshotRecordSchema>[] = [];
+  readonly #transientCanaryCandidates = new Map<
+    number,
+    readonly CanaryMatchCandidate[]
+  >();
   readonly #tasks = new Set<Promise<void>>();
   readonly #startedAt: string;
   readonly #storage = new Map<string, string>();
@@ -967,21 +1032,34 @@ export class DeterministicBrowserRecorder {
         postData = undefined;
       }
     }
-    const fields = rule
+    const inspection = rule
       ? postData === undefined
-        ? authorizedRequestFieldsResultSchema.parse({
-            status: "UNINSPECTABLE",
-            fields: [],
-          })
-        : summarizeAuthorizedRequestFields({
+        ? {
+            summary: authorizedRequestFieldsResultSchema.parse({
+              status: "UNINSPECTABLE",
+              fields: [],
+            }),
+            transientCanaryCandidates: [],
+          }
+        : inspectAuthorizedRequestFields({
             postData,
             fieldNames: rule.fields,
             secrets: this.#config.secrets,
           })
-      : authorizedRequestFieldsResultSchema.parse({
-          status: "CAPTURED",
-          fields: [],
-        });
+      : {
+          summary: authorizedRequestFieldsResultSchema.parse({
+            status: "CAPTURED",
+            fields: [],
+          }),
+          transientCanaryCandidates: [],
+        };
+    const fields = inspection.summary;
+    if (inspection.transientCanaryCandidates.length > 0) {
+      this.#transientCanaryCandidates.set(
+        ordinal,
+        inspection.transientCanaryCandidates,
+      );
+    }
     const checkpointIds = this.#matchingCheckpointIds(event.request);
     const impactedFieldCheckpoints = this.#config.requiredCheckpoints
       .filter(({ id }) => checkpointIds.includes(id))
@@ -1290,6 +1368,26 @@ export class DeterministicBrowserRecorder {
       recorderVersion: this.#config.recorderVersion,
       candidates: this.#candidates,
     });
+    const canaryMatcherReports: CanaryMatcherReport[] = [];
+    if (this.#config.canaries.length > 0) {
+      for (const observation of observations) {
+        const facts = networkObservationFactsSchema.safeParse(observation.facts);
+        if (!facts.success) continue;
+        const candidates = this.#transientCanaryCandidates.get(
+          facts.data.requestOrdinal,
+        );
+        if (!candidates || candidates.length === 0) continue;
+        canaryMatcherReports.push(
+          matchCanaryObservation({
+            observation,
+            canaries: this.#config.canaries,
+            candidates,
+          }),
+        );
+      }
+    }
+    // Raw authorized values exist only for the in-memory comparison window.
+    this.#transientCanaryCandidates.clear();
     const signals = observations.flatMap((observation) => {
       const result = networkObservationFactsSchema.safeParse(observation.facts);
       if (!result.success) return [];
@@ -1330,6 +1428,7 @@ export class DeterministicBrowserRecorder {
       actions: this.#actions,
       screenshots: this.#screenshots,
       observations,
+      canaryMatcherReports,
       visibility,
       limitations: [
         "BROWSER_CDP records browser-visible facts only; encrypted payload semantics and traffic outside the instrumented browser remain outside P0 visibility.",
