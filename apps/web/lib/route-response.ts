@@ -8,6 +8,9 @@ import {
   CanaryGenerationExhaustedError,
   CanarySourceUnavailableError,
   LikelyRealDataError,
+  JourneyPrerequisiteError,
+  JourneyVersionConflictError,
+  JourneyVersionUnavailableError,
   PersonaUnavailableError,
   PolicyDeniedError,
   PermissionDeniedError,
@@ -42,7 +45,9 @@ export function authorizationErrorResponse(error: unknown): NextResponse {
   }
   if (
     error instanceof RequirementReviewConflictError ||
-    error instanceof RequirementVersionUnavailableError
+    error instanceof RequirementVersionUnavailableError ||
+    error instanceof JourneyVersionConflictError ||
+    error instanceof JourneyVersionUnavailableError
   ) {
     return NextResponse.json(
       {
@@ -50,6 +55,19 @@ export function authorizationErrorResponse(error: unknown): NextResponse {
           code: error.code,
           message: error.publicMessage,
           auditRecorded: false,
+        },
+      },
+      { status: error.status },
+    );
+  }
+  if (error instanceof JourneyPrerequisiteError) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: error.publicMessage,
+          auditRecorded: false,
+          blockers: error.blockers,
         },
       },
       { status: error.status },

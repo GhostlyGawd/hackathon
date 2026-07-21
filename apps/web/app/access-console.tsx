@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { SecretIsolationPanel } from "./secret-isolation-panel";
 import { AgreementIntakePanel } from "./agreement-intake-panel";
+import { JourneyAuthoringPanel } from "./journey-authoring-panel";
 import { SoftwareInventory } from "./software-inventory";
 import { SyntheticDataPanel } from "./synthetic-data-panel";
 import { TestAuthorizationPanel } from "./test-authorization-panel";
@@ -550,6 +551,10 @@ export function AccessConsole() {
                 key={`synthetic:${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
                 principalUserId={principal.userId}
+              />
+              <JourneyAuthoringPanel
+                key={`journey:${principal.activeWorkspaceId}:${principal.userId}`}
+                workspaceId={principal.activeWorkspaceId}
               />
               <div className="workspace-grid">
               <div className="workspace-column">

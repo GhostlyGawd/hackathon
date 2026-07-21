@@ -196,6 +196,7 @@ Property tests use generated inputs and event sequences with reproducible seeds.
 | PROP-22 | Event ordering and hashing remain deterministic under arbitrary safe retry sequences |
 | PROP-23 | The same controlled-fixture seed and version produce identical public facts and seeded behavior |
 | PROP-24 | Switching a controlled-fixture version preserves every stable fictional fact and changes only declared behavior |
+| PROP-25 | A runnable journey has a complete current prerequisite and causal-link chain, and appending later versions cannot mutate historical journey bytes |
 
 Every discovered counterexample becomes a permanent example-based regression test before the fix is merged.
 
@@ -238,7 +239,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | AGR-02 | P0 | AGR-01, FND-02 | GPT-5.6 structured proposals | COMPLETE |
 | AGR-03 | P0 + P1 follow-on | AGR-01, AGR-02, AUT-01 | Human review and requirement versions | COMPLETE (P0) |
 | JRN-01 | P0 | AUT-01, AUT-04 | Fictional personas and canaries | COMPLETE |
-| JRN-02 | P0 | AGR-03, JRN-01 | Named journey editor | NOT STARTED |
+| JRN-02 | P0 | AGR-03, JRN-01 | Named journey editor | IN PROGRESS |
 | FIX-01 | P0 | FND-01, FND-03 | Controlled classroom fixture | COMPLETE |
 | JRN-03 | P0 | JRN-02, FIX-01 | Deterministic replay baseline | NOT STARTED |
 | RUN-01 | P0 | AUT-03, AUT-04, FIX-01 | Isolated browser runner | NOT STARTED |
@@ -442,12 +443,13 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### JRN-02 — Implement named journey schema and editor
 
+- **Status:** IN PROGRESS — TDD implementation is scoped to FR-022 and its causal prerequisite/version boundary.
 - **Deliver:** role, goal, start state, linked requirement, test fields, allowed/prohibited actions, checkpoints, required visibility, steps, and immutable versions.
 - **PRD:** FR-022; Sections 9 and 12.4.
 - **Depends on:** AGR-03 and JRN-01.
 - **Red first:** a journey without a confirmed requirement, authorization, role, or required checkpoint is runnable.
 - **Tests:** schema/reducer/API/component tests and version persistence.
-- **Property:** runnable journeys always reference current immutable prerequisites and cannot mutate a historical run.
+- **Property:** PROP-25; runnable journeys always reference current immutable prerequisites and cannot mutate a historical run.
 - **BDD:** journey-authoring.feature.
 - **Evidence:** teacher and student journey editor screenshots.
 - **Complete when:** every runnable journey has an inspectable causal link from agreement rule through synthetic field to checkpoint.

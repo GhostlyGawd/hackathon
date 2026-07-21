@@ -803,11 +803,36 @@ export const personaSchema = z
   .strict();
 export type Persona = z.infer<typeof personaSchema>;
 
-const checkpointSchema = z
+export const journeyTestFieldSchema = z
+  .object({
+    fieldId: nonEmpty,
+    sourceField: nonEmpty,
+    requirementVersionId: uuid,
+  })
+  .strict();
+
+export const journeyCheckpointSchema = z
   .object({
     checkpointId: nonEmpty,
     required: z.boolean(),
     description: nonEmpty,
+    observationSource: z.enum([
+      "NETWORK",
+      "SCREENSHOT",
+      "BROWSER_STORAGE",
+      "ACTION",
+    ]),
+    requiredVisibility: z.boolean(),
+    requirementVersionIds: z.array(uuid),
+    testFieldIds: z.array(nonEmpty),
+  })
+  .strict();
+
+export const journeyStepSchema = z
+  .object({
+    stepId: nonEmpty,
+    instruction: nonEmpty,
+    action: authorizationActionSchema,
   })
   .strict();
 
@@ -815,15 +840,23 @@ export const journeyVersionSchema = z
   .object({
     id: uuid,
     workspaceId: uuid,
+    softwareId: uuid,
+    agreementVersionId: uuid,
     journeyId: uuid,
     version: z.number().int().positive(),
+    sourceVersionId: uuid.nullable(),
     name: nonEmpty,
     role: z.enum(["TEACHER", "STUDENT"]),
+    goal: nonEmpty,
+    startState: nonEmpty,
     requirementVersionIds: z.array(uuid).min(1),
     authorizationId: uuid,
-    allowedActions: z.array(nonEmpty).min(1),
-    prohibitedActions: z.array(nonEmpty),
-    checkpoints: z.array(checkpointSchema).min(1),
+    personaId: uuid,
+    testFields: z.array(journeyTestFieldSchema).min(1),
+    allowedActions: z.array(authorizationActionSchema).min(1),
+    prohibitedActions: z.array(authorizationActionSchema),
+    checkpoints: z.array(journeyCheckpointSchema).min(1),
+    steps: z.array(journeyStepSchema).min(1),
     createdAt: timestamp,
     createdBy: humanActorSchema,
   })
@@ -834,14 +867,28 @@ export const journeyVersionSchema = z
   })
   .superRefine((value, context) => {
     if (
-      hasDuplicates(value.requirementVersionIds) ||
-      hasDuplicates(value.allowedActions) ||
-      hasDuplicates(value.prohibitedActions) ||
-      hasDuplicates(value.checkpoints.map((checkpoint) => checkpoint.checkpointId))
+      (value.version === 1 && value.sourceVersionId !== null) ||
+      (value.version > 1 && value.sourceVersionId === null)
     ) {
       context.addIssue({
         code: "custom",
-        message: "Journey requirements, actions, and checkpoint IDs must be unique",
+        path: ["sourceVersionId"],
+        message: "Journey version lineage must start at null and append to a source",
+      });
+    }
+    if (
+      hasDuplicates(value.requirementVersionIds) ||
+      hasDuplicates(value.allowedActions) ||
+      hasDuplicates(value.prohibitedActions) ||
+      hasDuplicates(value.testFields.map((field) => field.fieldId)) ||
+      hasDuplicates(value.testFields.map((field) => field.sourceField)) ||
+      hasDuplicates(value.checkpoints.map((checkpoint) => checkpoint.checkpointId)) ||
+      hasDuplicates(value.steps.map((step) => step.stepId))
+    ) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "Journey requirements, actions, fields, checkpoints, and steps must be unique",
       });
     }
     if (hasOverlap(value.allowedActions, value.prohibitedActions)) {
@@ -850,7 +897,73 @@ export const journeyVersionSchema = z
         message: "A journey action cannot be both allowed and prohibited",
       });
     }
+    const requirementIds = new Set(value.requirementVersionIds);
+    const fieldIds = new Set(value.testFields.map((field) => field.fieldId));
+    const requiredRequirementIds = new Set<string>();
+    const requiredFieldIds = new Set<string>();
+    for (const field of value.testFields) {
+      if (!requirementIds.has(field.requirementVersionId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["testFields"],
+          message: "Every fictional field must link to a journey requirement",
+        });
+      }
+    }
+    for (const checkpoint of value.checkpoints) {
+      if (
+        hasDuplicates(checkpoint.requirementVersionIds) ||
+        hasDuplicates(checkpoint.testFieldIds) ||
+        checkpoint.requirementVersionIds.some((id) => !requirementIds.has(id)) ||
+        checkpoint.testFieldIds.some((id) => !fieldIds.has(id))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["checkpoints"],
+          message:
+            "Checkpoint requirement and fictional-field links must be unique members of this journey",
+        });
+      }
+      if (
+        checkpoint.required &&
+        (!checkpoint.requiredVisibility ||
+          checkpoint.requirementVersionIds.length === 0 ||
+          checkpoint.testFieldIds.length === 0)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["checkpoints"],
+          message:
+            "Every required checkpoint needs required visibility, a requirement, and a fictional field",
+        });
+      }
+      if (checkpoint.required) {
+        for (const id of checkpoint.requirementVersionIds) {
+          requiredRequirementIds.add(id);
+        }
+        for (const id of checkpoint.testFieldIds) requiredFieldIds.add(id);
+      }
+    }
+    if (
+      value.requirementVersionIds.some((id) => !requiredRequirementIds.has(id)) ||
+      value.testFields.some((field) => !requiredFieldIds.has(field.fieldId))
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["checkpoints"],
+        message:
+          "Every journey requirement and fictional field needs a required checkpoint",
+      });
+    }
+    if (value.steps.some((step) => !value.allowedActions.includes(step.action))) {
+      context.addIssue({
+        code: "custom",
+        path: ["steps"],
+        message: "Every deterministic step action must be allowed by the journey",
+      });
+    }
   });
+export type JourneyVersion = z.infer<typeof journeyVersionSchema>;
 
 export const runSnapshotSchema = z
   .object({

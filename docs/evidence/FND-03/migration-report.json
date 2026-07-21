@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 8,
+  "migrationCount": 9,
   "totalTables": 25,
   "migrations": [
     {
@@ -108,6 +108,13 @@
       "version": "0008",
       "name": "requirement_review",
       "sha256": "230f851ea71094b5a2c1eebb640703fdea20ff7cdcbe9221635ab6af878372ae",
+      "tables": [],
+      "immutableTables": []
+    },
+    {
+      "version": "0009",
+      "name": "named_journey_versions",
+      "sha256": "3ae1707f95d61a403727595282ffa10313295a3cf6c30f40625ffae022102b2d",
       "tables": [],
       "immutableTables": []
     }
