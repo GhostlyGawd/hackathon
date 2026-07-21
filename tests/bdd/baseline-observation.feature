@@ -24,3 +24,12 @@ Feature: Controlled baseline and interface-drift fixture
     Then only the classroom service receives the exact student canaries
     And the hidden fixture manifest independently expects "REPLAY_REPAIR_REQUIRED"
     And I capture the "fixture-interface-drift-desktop" fixture evidence
+
+  @RUN-02 @FR-031 @FR-035
+  Scenario: The independent recorder witnesses the required fictional submission request
+    Given the RUN-02 recorder runs the controlled fixture in "BASELINE" mode
+    When the independent recorder captures the seeded student submission
+    Then the required recorder checkpoint is "VISIBLE"
+    And the recorder contains the authorized request hashes and response metadata
+    And no raw fictional request body appears in recorder data
+    And I capture the RUN-02 "baseline-observation" evidence

@@ -10,3 +10,12 @@ Feature: Controlled visibility loss
     Then the fixture event ledger marks the required request not visible
     And the hidden fixture manifest independently expects "NOT_VISIBLE"
     And I capture the "fixture-invisible-narrow" narrow fixture evidence
+
+  @RUN-02 @FR-031 @FR-035 @PROP-05
+  Scenario: A known required recorder gap cannot become a clean result
+    Given the RUN-02 recorder runs the controlled fixture in "INVISIBLE" mode
+    When the controlled harness cuts the required recorder stream before submission
+    Then the required recorder checkpoint is "NOT_VISIBLE"
+    And the recorder preserves the capture gap independently of page content
+    And no clean recorder state is available
+    And I capture the RUN-02 "visibility-loss" evidence
