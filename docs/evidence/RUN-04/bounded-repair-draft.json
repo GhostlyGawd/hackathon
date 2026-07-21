@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "23232323-2323-4323-8323-232323232323",
+  "workspaceId": "11111111-1111-4111-8111-111111111111",
+  "softwareId": "22222222-2222-4222-8222-222222222222",
+  "journeyVersionId": "66666666-6666-4666-8666-666666666666",
+  "authorizationId": "44444444-4444-4444-8444-444444444444",
+  "sourceReplayVersionId": "13131313-1313-4313-8313-131313131313",
+  "sourceReplayHash": "6d74b2b0e91966917e571d0d59374c3674a8ecdf11c128f2a620b18135a5b5f7",
+  "sourceSnapshotHash": "6bdd4848753a7e4645d5dd1a8332db9e64a01581521cd93e72636359b3726789",
+  "requiredCheckpointIds": [
+    "submission-request"
+  ],
+  "status": "BOUNDED_DRAFT",
+  "diagnosis": "The reviewed student route and submit selector moved inside the frozen origin.",
+  "candidate": {
+    "bindings": [
+      {
+        "bindingId": "student-email-value",
+        "journeyFieldId": "student-email"
+      },
+      {
+        "bindingId": "student-response-value",
+        "journeyFieldId": "student-response"
+      }
+    ],
+    "operations": [
+      {
+        "operationId": "open-student-workspace",
+        "kind": "NAVIGATE",
+        "authorizedAction": "NAVIGATE",
+        "path": "/learner",
+        "expectedStatus": 200
+      },
+      {
+        "operationId": "check-student-email",
+        "kind": "ASSERT_VALUE",
+        "locator": {
+          "kind": "TEST_ID",
+          "value": "student-email"
+        },
+        "bindingId": "student-email-value"
+      },
+      {
+        "operationId": "enter-student-response",
+        "kind": "FILL",
+        "authorizedAction": "SUBMIT",
+        "locator": {
+          "kind": "TEST_ID",
+          "value": "student-response"
+        },
+        "bindingId": "student-response-value"
+      },
+      {
+        "operationId": "submit-student-response",
+        "kind": "CLICK",
+        "authorizedAction": "SUBMIT",
+        "locator": {
+          "kind": "TEST_ID",
+          "value": "turn-in-response"
+        }
+      },
+      {
+        "operationId": "observe-submission-request",
+        "kind": "CHECKPOINT",
+        "checkpointId": "submission-request",
+        "assertion": {
+          "kind": "RESPONSE",
+          "method": "POST",
+          "path": "/api/submissions",
+          "status": 200
+        }
+      },
+      {
+        "operationId": "confirm-visible-completion",
+        "kind": "ASSERT_TEXT",
+        "locator": {
+          "kind": "TEST_ID",
+          "value": "student-result"
+        },
+        "text": "Fictional submission completed"
+      }
+    ]
+  },
+  "changes": [
+    {
+      "operationId": "open-student-workspace",
+      "field": "path",
+      "before": "/student",
+      "after": "/learner"
+    },
+    {
+      "operationId": "submit-student-response",
+      "field": "locator",
+      "before": "submit-assignment",
+      "after": "turn-in-response"
+    }
+  ],
+  "violations": [],
+  "modelInvocationCount": 3,
+  "proposedBy": {
+    "actorId": "run-04-bdd-model",
+    "kind": "MODEL",
+    "model": "gpt-5.6-sol"
+  },
+  "createdAt": "2026-07-21T11:00:00.000Z",
+  "repairHash": "dfedb69328633534d2976a4bc91f7b820f674d2d28a5c0c1cecc212348e5adb0"
+}

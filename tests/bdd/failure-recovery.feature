@@ -26,6 +26,26 @@ Feature: Controlled failure and risky-action stops
     Then isolated run "recovered" sees no state from "crashed"
     And I capture the RUN-01 "crash-recovery" trace
 
+  @RUN-04 @FR-025 @PROP-05
+  Scenario: A bounded model repair stays draft until the original checkpoint is verified and a person promotes it
+    Given a frozen student replay encounters the seeded interface drift
+    When the RUN-04 model adapter follows the reviewed moved route and submit control
+    Then the proposed repair changes only the moved path and selector
+    And the model-proposed repair remains inactive
+    When deterministic replay verifies the RUN-04 repair in a fresh isolated browser
+    Then the original "submission-request" checkpoint is verified by the shared recorder
+    When the fictional privacy officer promotes the verified RUN-04 repair
+    Then replay version 2 appends to the human-owned source version
+    And I capture the RUN-04 "bounded-repair" evidence
+
+  @RUN-04 @FR-025 @PROP-05
+  Scenario: An unrepairable path remains not tested and cannot be promoted
+    Given a frozen student replay encounters the seeded unrepairable outage
+    When the RUN-04 model adapter attempts the reviewed submit control
+    Then the repair attempt is "UNRESOLVED" and the path is "NOT_TESTED"
+    And no RUN-04 replay version can be promoted
+    And I capture the RUN-04 "unresolved-repair" evidence
+
   @RUN-05 @FR-037 @PROP-19 @PROP-22
   Scenario: Terminal run history distinguishes captured and missing coverage
     Given the fictional workspace access fixture is reset
