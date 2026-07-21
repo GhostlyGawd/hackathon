@@ -5,6 +5,7 @@ import { SecretIsolationPanel } from "./secret-isolation-panel";
 import { AgreementIntakePanel } from "./agreement-intake-panel";
 import { JourneyAuthoringPanel } from "./journey-authoring-panel";
 import { DestinationRegistryPanel } from "./destination-registry-panel";
+import { FindingEvaluationPanel } from "./finding-evaluation-panel";
 import { RunHistoryPanel } from "./run-history-panel";
 import { SoftwareInventory } from "./software-inventory";
 import { SyntheticDataPanel } from "./synthetic-data-panel";
@@ -564,6 +565,10 @@ export function AccessConsole() {
                 workspaceId={principal.activeWorkspaceId}
               />
               <RunHistoryPanel workspaceId={principal.activeWorkspaceId} />
+              <FindingEvaluationPanel
+                key={`findings:${principal.activeWorkspaceId}:${principal.userId}`}
+                workspaceId={principal.activeWorkspaceId}
+              />
               <div className="workspace-grid">
               <div className="workspace-column">
                 <article className="workspace-card">

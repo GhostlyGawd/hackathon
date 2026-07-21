@@ -21,3 +21,4 @@ export * from "./evidence.js";
 export * from "./migrations.js";
 export * from "./canary-matcher.js";
 export * from "./destination-registry.js";
+export * from "./finding-evaluation.js";

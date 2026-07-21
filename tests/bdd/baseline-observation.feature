@@ -33,3 +33,14 @@ Feature: Controlled baseline and interface-drift fixture
     And the recorder contains the authorized request hashes and response metadata
     And no raw fictional request body appears in recorder data
     And I capture the RUN-02 "baseline-observation" evidence
+
+  @DET-03 @FR-040 @FR-046
+  Scenario: A complete named run reports only what its deterministic evidence supports
+    Given the fictional workspace access fixture is reset
+    And I start a signed session as the "Privacy officer"
+    When I open the bounded finding matrix
+    Then all six bounded finding states are available
+    And the complete clean finding says "No conflict recorded in these named tests"
+    And the clean finding says other behavior was not assessed
+    And model explanation is visibly separated from deterministic evidence
+    And I capture the DET-03 "finding-state-matrix" evidence

@@ -19,3 +19,13 @@ Feature: Controlled visibility loss
     And the recorder preserves the capture gap independently of page content
     And no clean recorder state is available
     And I capture the RUN-02 "visibility-loss" evidence
+
+  @DET-03 @FR-040 @PROP-05
+  Scenario: Missing visibility remains distinct from a clean named run
+    Given the fictional workspace access fixture is reset
+    And I start a signed session as the "Privacy officer"
+    When I open the bounded finding matrix
+    And I select the "NOT_VISIBLE" finding
+    Then the selected finding says "Required evidence was not visible"
+    And the selected finding names the path without visible evidence
+    And the untested state separately says "Required path was not tested"
