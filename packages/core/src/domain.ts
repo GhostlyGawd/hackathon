@@ -593,20 +593,47 @@ export type ProposedRequirementVersion = z.infer<
   typeof proposedRequirementSchema
 >;
 
-const confirmedRequirementSchema = z
+export const requirementChangeSchema = z
+  .object({
+    field: nonEmpty.max(500),
+    oldValue: z.string().max(50_000),
+    newValue: z.string().max(50_000),
+  })
+  .strict();
+export type RequirementChange = z.infer<typeof requirementChangeSchema>;
+
+export const observableDataFlowPredicateSchema = z
+  .object({
+    kind: z.literal("OBSERVABLE_DATA_FLOW"),
+    dataField: nonEmpty.max(1_000),
+    action: nonEmpty.max(1_000),
+    recipientRestriction: nonEmpty.max(2_000),
+    purposeRestriction: nonEmpty.max(2_000).nullable(),
+    suggestedObservableTest: nonEmpty.max(4_000),
+  })
+  .strict();
+export type ObservableDataFlowPredicate = z.infer<
+  typeof observableDataFlowPredicateSchema
+>;
+
+export const confirmedRequirementSchema = z
   .object({
     id: uuid,
     workspaceId: uuid,
     agreementVersionId: uuid,
     requirementKey: nonEmpty,
     version: z.number().int().positive(),
+    sourceVersionId: uuid,
     status: z.literal("CONFIRMED"),
     executable: z.boolean(),
     plainLanguage: nonEmpty,
+    details: requirementProposalDetailsSchema,
     citation: agreementCitationSchema,
-    predicate: z.record(z.string(), z.unknown()).optional(),
+    predicate: observableDataFlowPredicateSchema.optional(),
     confirmedBy: humanActorSchema,
     confirmedAt: timestamp,
+    reviewRationale: nonEmpty.max(4_000),
+    changes: z.array(requirementChangeSchema).min(1).max(100),
     createdAt: timestamp,
   })
   .strict()
@@ -618,25 +645,61 @@ const confirmedRequirementSchema = z
         message: "Executable confirmed requirements need a deterministic predicate",
       });
     }
+    if (!value.executable && value.predicate) {
+      context.addIssue({
+        code: "custom",
+        path: ["predicate"],
+        message: "Non-executable requirements cannot carry a predicate",
+      });
+    }
+    if (value.executable && value.details.ambiguity === "AMBIGUOUS") {
+      context.addIssue({
+        code: "custom",
+        path: ["details", "ambiguity"],
+        message: "Ambiguous details cannot become an executable rule",
+      });
+    }
   });
+export type ConfirmedRequirementVersion = z.infer<
+  typeof confirmedRequirementSchema
+>;
 
-const reviewedRequirementSchema = z
+export const reviewedRequirementSchema = z
   .object({
     id: uuid,
     workspaceId: uuid,
     agreementVersionId: uuid,
     requirementKey: nonEmpty,
     version: z.number().int().positive(),
+    sourceVersionId: uuid,
     status: z.enum(["REJECTED", "AMBIGUOUS"]),
     executable: z.literal(false),
     plainLanguage: nonEmpty,
+    details: requirementProposalDetailsSchema,
     citation: agreementCitationSchema,
     reviewedBy: humanActorSchema,
     reviewedAt: timestamp,
-    reviewRationale: nonEmpty,
+    reviewRationale: nonEmpty.max(4_000),
+    changes: z.array(requirementChangeSchema).min(1).max(100),
     createdAt: timestamp,
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    if (
+      value.status === "AMBIGUOUS" &&
+      (value.details.ambiguity !== "AMBIGUOUS" ||
+        value.details.ambiguityReason !== value.reviewRationale)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["details", "ambiguity"],
+        message: "Ambiguous reviews must preserve their human rationale",
+      });
+    }
+  });
+export type ReviewedRequirementVersion = z.infer<
+  typeof reviewedRequirementSchema
+>;
 
 export const requirementVersionSchema = z.union([
   proposedRequirementSchema,

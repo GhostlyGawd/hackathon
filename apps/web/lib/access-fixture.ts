@@ -7,6 +7,7 @@ import {
   InMemoryAgreementIntakeRepository,
   InMemoryAgreementObjectStore,
   InMemoryRequirementProposalRepository,
+  InMemoryRequirementReviewRepository,
   InMemorySecretIsolationRepository,
   InMemorySyntheticDataRepository,
   InMemoryWorkspaceAuthorizationRepository,
@@ -15,6 +16,7 @@ import {
   OpenAIResponsesRequirementProposalAdapter,
   SecretIsolationService,
   RequirementProposalService,
+  RequirementReviewService,
   SyntheticDataService,
   SoftwareInventoryService,
   TestAuthorizationService,
@@ -73,6 +75,8 @@ export interface AccessRuntime {
   readonly agreementService: AgreementIntakeService;
   readonly requirementProposalRepository: InMemoryRequirementProposalRepository;
   readonly requirementProposalService: RequirementProposalService;
+  readonly requirementReviewRepository: InMemoryRequirementReviewRepository;
+  readonly requirementReviewService: RequirementReviewService;
   readonly testAuthorizationRepository: InMemoryTestAuthorizationRepository;
   readonly testAuthorizationService: TestAuthorizationService;
   readonly secretIsolationRepository: InMemorySecretIsolationRepository;
@@ -205,6 +209,17 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     createRequirementProposalAdapterFromEnvironment(),
     { idFactory, now, maxAttempts: 2 },
   );
+  const requirementReviewRepository =
+    new InMemoryRequirementReviewRepository(
+      requirementProposalRepository,
+      repository,
+    );
+  const requirementReviewService = new RequirementReviewService(
+    requirementReviewRepository,
+    agreementService,
+    service,
+    { idFactory, now },
+  );
   const testAuthorizationRepository = new InMemoryTestAuthorizationRepository(
     repository,
   );
@@ -248,6 +263,8 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     agreementService,
     requirementProposalRepository,
     requirementProposalService,
+    requirementReviewRepository,
+    requirementReviewService,
     testAuthorizationRepository,
     testAuthorizationService,
     secretIsolationRepository,

@@ -48,6 +48,11 @@ const migrationFiles = [
     name: "requirement_proposals",
     fileName: "0007_requirement_proposals.sql",
   },
+  {
+    version: "0008",
+    name: "requirement_review",
+    fileName: "0008_requirement_review.sql",
+  },
 ] as const;
 
 export async function loadCoreMigrations(): Promise<readonly CoreMigration[]> {

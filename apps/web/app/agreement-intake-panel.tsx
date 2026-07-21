@@ -44,10 +44,12 @@ interface RequirementProposalDetails {
 
 interface RequirementProposal {
   readonly id: string;
+  readonly requirementKey: string;
   readonly modelRunId: string;
   readonly version: number;
   readonly status: "PROPOSED";
   readonly executable: false;
+  readonly plainLanguage: string;
   readonly details: RequirementProposalDetails;
   readonly citation: {
     readonly page: number;
@@ -58,6 +60,47 @@ interface RequirementProposal {
   readonly proposedBy:
     | { readonly kind: "MODEL"; readonly model: string }
     | { readonly kind: "AUTOMATION"; readonly component: string };
+  readonly createdAt: string;
+}
+
+interface RequirementChange {
+  readonly field: string;
+  readonly oldValue: string;
+  readonly newValue: string;
+}
+
+interface HumanReviewedRequirement {
+  readonly id: string;
+  readonly requirementKey: string;
+  readonly sourceVersionId: string;
+  readonly version: number;
+  readonly status: "CONFIRMED" | "AMBIGUOUS" | "REJECTED";
+  readonly executable: boolean;
+  readonly plainLanguage: string;
+  readonly details: RequirementProposalDetails;
+  readonly citation: RequirementProposal["citation"];
+  readonly reviewRationale: string;
+  readonly changes: readonly RequirementChange[];
+  readonly createdAt: string;
+  readonly confirmedBy?: { readonly kind: "HUMAN"; readonly actorId: string };
+  readonly confirmedAt?: string;
+  readonly reviewedBy?: { readonly kind: "HUMAN"; readonly actorId: string };
+  readonly reviewedAt?: string;
+}
+
+type RequirementVersion = RequirementProposal | HumanReviewedRequirement;
+
+interface RequirementHistory {
+  readonly versions: readonly RequirementVersion[];
+  readonly current: readonly RequirementVersion[];
+}
+
+interface RequirementReviewDraft {
+  readonly dataField: string;
+  readonly action: string;
+  readonly recipientRestriction: string;
+  readonly suggestedObservableTest: string;
+  readonly rationale: string;
 }
 
 interface RequirementProposalRun {
@@ -128,6 +171,24 @@ function dateTimeLabel(value: string): string {
   }).format(new Date(value));
 }
 
+function reviewDraftFor(proposal: RequirementProposal): RequirementReviewDraft {
+  return {
+    dataField: proposal.details.dataField,
+    action: proposal.details.action,
+    recipientRestriction: proposal.details.recipientRestriction,
+    suggestedObservableTest: proposal.details.suggestedObservableTest,
+    rationale: "",
+  };
+}
+
+function reviewActor(version: HumanReviewedRequirement): string {
+  return version.confirmedBy?.actorId ?? version.reviewedBy?.actorId ?? "Unknown reviewer";
+}
+
+function reviewTime(version: HumanReviewedRequirement): string {
+  return version.confirmedAt ?? version.reviewedAt ?? version.createdAt;
+}
+
 interface AgreementIntakePanelProps {
   readonly workspaceId: string;
   readonly principalUserId: string;
@@ -148,6 +209,18 @@ export function AgreementIntakePanel({
   const [submitting, setSubmitting] = useState(false);
   const [proposalHistory, setProposalHistory] =
     useState<RequirementProposalHistory>({ runs: [], proposals: [] });
+  const [requirementHistory, setRequirementHistory] =
+    useState<RequirementHistory>({ versions: [], current: [] });
+  const [reviewDrafts, setReviewDrafts] = useState<
+    Readonly<Record<string, RequirementReviewDraft>>
+  >({});
+  const [reviewSubmittingId, setReviewSubmittingId] = useState<string>();
+  const [reviewNotice, setReviewNotice] = useState<{
+    readonly tone: "success" | "danger";
+    readonly title: string;
+    readonly message: string;
+    readonly auditRecorded: boolean;
+  }>();
   const [proposalLoading, setProposalLoading] = useState(false);
   const [proposalSubmitting, setProposalSubmitting] = useState(false);
   const [proposalNotice, setProposalNotice] = useState<{
@@ -204,6 +277,22 @@ export function AgreementIntakePanel({
         `/api/workspaces/${workspaceId}/software/${softwareId}/agreements/${agreementVersionId}/proposals`,
       );
       setProposalHistory(result);
+      return result;
+    },
+    [softwareId, workspaceId],
+  );
+
+  const loadRequirementHistory = useCallback(
+    async (agreementVersionId: string): Promise<RequirementHistory> => {
+      if (!softwareId || !agreementVersionId) {
+        const empty = { versions: [], current: [] } as const;
+        setRequirementHistory(empty);
+        return empty;
+      }
+      const result = await jsonApi<RequirementHistory>(
+        `/api/workspaces/${workspaceId}/software/${softwareId}/agreements/${agreementVersionId}/requirements`,
+      );
+      setRequirementHistory(result);
       return result;
     },
     [softwareId, workspaceId],
@@ -269,7 +358,9 @@ export function AgreementIntakePanel({
     let active = true;
     if (!selectedAgreementId) {
       setProposalHistory({ runs: [], proposals: [] });
+      setRequirementHistory({ versions: [], current: [] });
       setProposalNotice(undefined);
+      setReviewNotice(undefined);
       return () => {
         active = false;
       };
@@ -297,6 +388,26 @@ export function AgreementIntakePanel({
       active = false;
     };
   }, [loadProposalHistory, selectedAgreementId]);
+
+  useEffect(() => {
+    let active = true;
+    if (!selectedAgreementId) return () => { active = false; };
+    setReviewNotice(undefined);
+    void loadRequirementHistory(selectedAgreementId).catch((error: unknown) => {
+      if (active) {
+        setReviewNotice({
+          tone: "danger",
+          title: "Requirement history unavailable",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Requirement versions could not be loaded.",
+          auditRecorded: false,
+        });
+      }
+    });
+    return () => { active = false; };
+  }, [loadRequirementHistory, selectedAgreementId]);
 
   const selectedAgreement = agreements.find(
     (agreement) => agreement.id === selectedAgreementId,
@@ -358,6 +469,7 @@ export function AgreementIntakePanel({
         readonly proposals: readonly RequirementProposal[];
       }>(path, { method: "POST" });
       await loadProposalHistory(selectedAgreement.id);
+      await loadRequirementHistory(selectedAgreement.id);
       setProposalNotice({
         tone: "success",
         title: `${result.proposals.length} requirement ${result.proposals.length === 1 ? "proposal" : "proposals"} ready for review`,
@@ -386,12 +498,104 @@ export function AgreementIntakePanel({
     }
   }
 
+  function updateReviewDraft(
+    proposal: RequirementProposal,
+    patch: Partial<RequirementReviewDraft>,
+  ): void {
+    setReviewDrafts((current) => ({
+      ...current,
+      [proposal.id]: {
+        ...reviewDraftFor(proposal),
+        ...current[proposal.id],
+        ...patch,
+      },
+    }));
+  }
+
+  async function submitRequirementReview(
+    proposal: RequirementProposal,
+    decision: "CONFIRM" | "AMBIGUOUS" | "REJECT",
+  ): Promise<void> {
+    if (!selectedAgreement) return;
+    const draft = reviewDrafts[proposal.id] ?? reviewDraftFor(proposal);
+    setReviewSubmittingId(proposal.id);
+    setReviewNotice(undefined);
+    const path = `/api/workspaces/${workspaceId}/software/${softwareId}/agreements/${selectedAgreement.id}/requirements`;
+    try {
+      const version = await jsonApi<HumanReviewedRequirement>(path, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          sourceVersionId: proposal.id,
+          decision,
+          ...(decision === "CONFIRM" ? { executable: true } : {}),
+          edits: {
+            dataField: draft.dataField,
+            action: draft.action,
+            recipientRestriction: draft.recipientRestriction,
+            suggestedObservableTest: draft.suggestedObservableTest,
+          },
+          rationale: draft.rationale,
+        }),
+      });
+      await loadRequirementHistory(selectedAgreement.id);
+      setReviewDrafts((current) => {
+        const { [proposal.id]: _removed, ...remaining } = current;
+        return remaining;
+      });
+      setReviewNotice({
+        tone: "success",
+        title:
+          version.status === "CONFIRMED"
+            ? `Requirement version ${version.version} confirmed`
+            : version.status === "AMBIGUOUS"
+              ? `Requirement version ${version.version} marked ambiguous`
+              : `Requirement version ${version.version} rejected`,
+        message:
+          version.status === "CONFIRMED"
+            ? "This human-confirmed version can be used as a bounded test rule. It does not establish legal compliance."
+            : "This decision remains non-executable. The original model proposal is still preserved in version history.",
+        auditRecorded: true,
+      });
+    } catch (error) {
+      const requestError = error instanceof AgreementApiError ? error : undefined;
+      if (requestError?.code === "REQUIREMENT_REVIEW_CONFLICT") {
+        await loadRequirementHistory(selectedAgreement.id).catch(() => undefined);
+      }
+      setReviewNotice({
+        tone: "danger",
+        title:
+          requestError?.code === "REQUIREMENT_REVIEW_CONFLICT"
+            ? "Requirement changed before this review"
+            : requestError?.status === 403
+              ? "Requirement review denied"
+              : "Requirement review could not be saved",
+        message:
+          requestError?.message ??
+          "Check the review fields and rationale, then try again.",
+        auditRecorded: requestError?.auditRecorded ?? false,
+      });
+    } finally {
+      setReviewSubmittingId(undefined);
+    }
+  }
+
   const latestProposalRun = proposalHistory.runs[0];
+  const currentProposalIds = new Set(
+    requirementHistory.current
+      .filter((version): version is RequirementProposal => version.status === "PROPOSED")
+      .map((version) => version.id),
+  );
   const currentProposals = latestProposalRun
     ? proposalHistory.proposals.filter(
-        (proposal) => proposal.modelRunId === latestProposalRun.id,
+        (proposal) =>
+          proposal.modelRunId === latestProposalRun.id &&
+          currentProposalIds.has(proposal.id),
       )
     : [];
+  const currentReviewedRequirements = requirementHistory.current.filter(
+    (version): version is HumanReviewedRequirement => version.status !== "PROPOSED",
+  );
 
   return (
     <section className="agreement-panel" data-testid="agreement-panel" id="agreements" aria-labelledby="agreement-heading">
@@ -555,38 +759,178 @@ export function AgreementIntakePanel({
                   </div>
                 )}
 
-                {currentProposals.length > 0 ? (
-                  <div className="proposal-list" data-testid="requirement-proposal-list">
-                    {currentProposals.map((proposal) => (
-                      <article className="proposal-card" data-testid="requirement-proposal" key={proposal.id}>
-                        <div className="proposal-card-heading">
-                          <div>
-                            <span className="proposal-draft-badge">Non-executable draft</span>
-                            <h5>{proposal.details.plainLanguage}</h5>
+                <section className="requirement-review-panel" data-testid="requirement-review-panel" aria-labelledby="requirement-review-heading">
+                  <div className="requirement-review-heading">
+                    <div>
+                      <p className="eyebrow">Human requirement review / AGR-03</p>
+                      <h4 id="requirement-review-heading">Decide what can become a test rule</h4>
+                      <p>Read the exact agreement text beside the structured draft. Edit the observable fields, explain your decision, then confirm, mark ambiguous, or reject.</p>
+                    </div>
+                    <span>Signed reviewer · {principalUserId}</span>
+                  </div>
+
+                  <div className="requirement-review-boundary">
+                    <strong>Confirm means “use this as a test rule.”</strong>
+                    <p>It does not accept a model&apos;s legal interpretation, prove the software is safe, or change district approval.</p>
+                  </div>
+
+                  {reviewNotice ? (
+                    <div className={`proposal-notice ${reviewNotice.tone}`} data-testid="requirement-review-notice" role="status" aria-live="polite">
+                      <span aria-hidden="true">{reviewNotice.tone === "success" ? "✓" : "!"}</span>
+                      <div>
+                        <strong>{reviewNotice.title}</strong>
+                        <p>{reviewNotice.message}</p>
+                        {reviewNotice.auditRecorded ? <small>Recorded in the active workspace audit.</small> : null}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {currentProposals.length > 0 ? (
+                    <div className="proposal-list" data-testid="requirement-proposal-list">
+                      {currentProposals.map((proposal) => {
+                        const draft = reviewDrafts[proposal.id] ?? reviewDraftFor(proposal);
+                        const reviewDisabled =
+                          reviewSubmittingId === proposal.id ||
+                          !draft.rationale.trim() ||
+                          !draft.dataField.trim() ||
+                          !draft.action.trim() ||
+                          !draft.recipientRestriction.trim() ||
+                          !draft.suggestedObservableTest.trim();
+                        return (
+                          <article className="proposal-card" data-testid="requirement-proposal" key={proposal.id}>
+                            <div className="proposal-card-heading">
+                              <div>
+                                <span className="proposal-draft-badge">Non-executable draft</span>
+                                <h5>{proposal.details.plainLanguage}</h5>
+                              </div>
+                              <span>Page {proposal.citation.page} · offsets {proposal.citation.startOffset}–{proposal.citation.endOffset}</span>
+                            </div>
+                            <blockquote data-testid="proposal-source-quote">“{proposal.details.sourceText}”</blockquote>
+                            <dl className="proposal-fields" data-testid="proposal-structured-fields">
+                              <div><dt>Data field</dt><dd>{proposal.details.dataField}</dd></div>
+                              <div><dt>Action</dt><dd>{proposal.details.action}</dd></div>
+                              <div><dt>Recipient restriction</dt><dd>{proposal.details.recipientRestriction}</dd></div>
+                              <div><dt>Purpose restriction</dt><dd>{proposal.details.purposeRestriction ?? "Not stated in this proposal"}</dd></div>
+                              <div><dt>Ambiguity</dt><dd>{proposal.details.ambiguity === "CLEAR" ? "No ambiguity identified" : proposal.details.ambiguityReason}</dd></div>
+                              <div className="proposal-test"><dt>Suggested observable test</dt><dd>{proposal.details.suggestedObservableTest}</dd></div>
+                            </dl>
+                            <footer>
+                              <span>Exact quote SHA-256</span>
+                              <code>{proposal.citation.quotedTextSha256}</code>
+                            </footer>
+
+                            <div className="requirement-review-grid" data-testid="requirement-review-editor">
+                              <aside className="requirement-source-pane">
+                                <span className="review-pane-label">Exact stored source</span>
+                                <strong>Page {proposal.citation.page}</strong>
+                                <blockquote data-testid="review-source-quote">“{proposal.details.sourceText}”</blockquote>
+                                <small>Offsets {proposal.citation.startOffset}–{proposal.citation.endOffset} · citation preserved in every later version</small>
+                              </aside>
+                              <div className="requirement-rule-editor">
+                                <span className="review-pane-label">Human-reviewed rule</span>
+                                <div className="requirement-review-fields">
+                                  <label>
+                                    Data field
+                                    <textarea data-testid="review-data-field" rows={2} value={draft.dataField} onChange={(event) => updateReviewDraft(proposal, { dataField: event.target.value })} />
+                                  </label>
+                                  <label>
+                                    Action
+                                    <input data-testid="review-action" value={draft.action} onChange={(event) => updateReviewDraft(proposal, { action: event.target.value })} />
+                                  </label>
+                                  <label>
+                                    Recipient restriction
+                                    <textarea data-testid="review-recipient" rows={2} value={draft.recipientRestriction} onChange={(event) => updateReviewDraft(proposal, { recipientRestriction: event.target.value })} />
+                                  </label>
+                                  <label>
+                                    Expected observable rule
+                                    <textarea data-testid="review-expected-rule" rows={3} value={draft.suggestedObservableTest} onChange={(event) => updateReviewDraft(proposal, { suggestedObservableTest: event.target.value })} />
+                                  </label>
+                                  <label className="review-rationale-field">
+                                    Decision rationale <span>required</span>
+                                    <textarea data-testid="review-rationale" rows={3} placeholder="Explain what you checked in the cited source." value={draft.rationale} onChange={(event) => updateReviewDraft(proposal, { rationale: event.target.value })} />
+                                  </label>
+                                </div>
+                                <div className="requirement-review-actions">
+                                  <button className="primary-button" data-testid="confirm-requirement" type="button" disabled={reviewDisabled} onClick={() => void submitRequirementReview(proposal, "CONFIRM")}>{reviewSubmittingId === proposal.id ? "Saving decision…" : "Confirm as test rule"}</button>
+                                  <button className="secondary-button" data-testid="ambiguous-requirement" type="button" disabled={reviewDisabled} onClick={() => void submitRequirementReview(proposal, "AMBIGUOUS")}>Mark ambiguous</button>
+                                  <button className="danger-button" data-testid="reject-requirement" type="button" disabled={reviewDisabled} onClick={() => void submitRequirementReview(proposal, "REJECT")}>Reject draft</button>
+                                </div>
+                              </div>
+                            </div>
+                          </article>
+                        );
+                      })}
+                    </div>
+                  ) : latestProposalRun && currentReviewedRequirements.length === 0 ? (
+                    <div className="proposal-empty" data-testid="requirement-proposal-list">
+                      No requirement proposal was stored from this run. The stored source remains available for manual review.
+                    </div>
+                  ) : null}
+
+                  {currentReviewedRequirements.length > 0 ? (
+                    <div className="current-requirements" data-testid="current-requirements">
+                      {currentReviewedRequirements.map((version) => (
+                        <article className={`current-requirement ${version.status.toLowerCase()}`} data-testid="current-requirement" data-requirement-status={version.status} key={version.id}>
+                          <header>
+                            <div>
+                              <span className="review-pane-label">Current requirement · version {version.version}</span>
+                              <h5>{version.status === "CONFIRMED" ? "Human-confirmed test rule" : version.status === "AMBIGUOUS" ? "Ambiguous — human clarification required" : "Rejected model draft"}</h5>
+                            </div>
+                            <span className="requirement-state-badge">{version.executable ? "Executable" : "Not executable"}</span>
+                          </header>
+                          <div className="requirement-review-grid">
+                            <aside className="requirement-source-pane">
+                              <span className="review-pane-label">Exact stored source</span>
+                              <strong>Page {version.citation.page}</strong>
+                              <blockquote data-testid="current-source-quote">“{version.details.sourceText}”</blockquote>
+                              <small>Offsets {version.citation.startOffset}–{version.citation.endOffset}</small>
+                            </aside>
+                            <div className="confirmed-rule-pane">
+                              <span className="review-pane-label">Recorded decision</span>
+                              <dl>
+                                <div><dt>Data field</dt><dd>{version.details.dataField}</dd></div>
+                                <div><dt>Action</dt><dd>{version.details.action}</dd></div>
+                                <div><dt>Recipient restriction</dt><dd>{version.details.recipientRestriction}</dd></div>
+                                <div><dt>Expected observable rule</dt><dd>{version.details.suggestedObservableTest}</dd></div>
+                              </dl>
+                              <div className="recorded-rationale"><strong>Human rationale</strong><p>{version.reviewRationale}</p></div>
+                            </div>
                           </div>
-                          <span>Page {proposal.citation.page} · offsets {proposal.citation.startOffset}–{proposal.citation.endOffset}</span>
-                        </div>
-                        <blockquote data-testid="proposal-source-quote">“{proposal.details.sourceText}”</blockquote>
-                        <dl className="proposal-fields">
-                          <div><dt>Data field</dt><dd>{proposal.details.dataField}</dd></div>
-                          <div><dt>Action</dt><dd>{proposal.details.action}</dd></div>
-                          <div><dt>Recipient restriction</dt><dd>{proposal.details.recipientRestriction}</dd></div>
-                          <div><dt>Purpose restriction</dt><dd>{proposal.details.purposeRestriction ?? "Not stated in this proposal"}</dd></div>
-                          <div><dt>Ambiguity</dt><dd>{proposal.details.ambiguity === "CLEAR" ? "No ambiguity identified" : proposal.details.ambiguityReason}</dd></div>
-                          <div className="proposal-test"><dt>Suggested observable test</dt><dd>{proposal.details.suggestedObservableTest}</dd></div>
-                        </dl>
-                        <footer>
-                          <span>Exact quote SHA-256</span>
-                          <code>{proposal.citation.quotedTextSha256}</code>
-                        </footer>
-                      </article>
-                    ))}
-                  </div>
-                ) : latestProposalRun ? (
-                  <div className="proposal-empty" data-testid="requirement-proposal-list">
-                    No requirement proposal was stored from this run. The stored source remains available for manual review.
-                  </div>
-                ) : null}
+                          <footer>
+                            <span>Decided by {reviewActor(version)}</span>
+                            <span>{dateTimeLabel(reviewTime(version))} UTC</span>
+                            <span>{version.changes.length} recorded {version.changes.length === 1 ? "change" : "changes"}</span>
+                          </footer>
+                        </article>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {requirementHistory.versions.length > 0 ? (
+                    <div className="requirement-history" data-testid="requirement-version-history">
+                      <div className="requirement-history-heading">
+                        <div><strong>Immutable version history</strong><p>New decisions append versions. Older bytes and citations are never rewritten.</p></div>
+                        <span>{requirementHistory.versions.length} {requirementHistory.versions.length === 1 ? "version" : "versions"}</span>
+                      </div>
+                      <div className="requirement-history-list">
+                        {requirementHistory.versions.map((version) => (
+                          <article data-testid="requirement-history-version" data-requirement-status={version.status} key={version.id}>
+                            <div>
+                              <strong>Version {version.version}</strong>
+                              <span>{version.status === "PROPOSED" ? "PROPOSED · Non-executable model draft" : `${version.status} · ${version.executable ? "Executable human rule" : "Non-executable human decision"}`}</span>
+                            </div>
+                            <div>
+                              <span>{version.status === "PROPOSED" ? `Created by ${version.proposedBy.kind === "MODEL" ? version.proposedBy.model : version.proposedBy.component}` : `Decided by ${reviewActor(version)}`}</span>
+                              <span>{dateTimeLabel(version.status === "PROPOSED" ? version.createdAt : reviewTime(version))} UTC</span>
+                            </div>
+                            {version.status !== "PROPOSED" ? <p>{version.reviewRationale}</p> : <p>Source proposal preserved. It cannot run a test.</p>}
+                            {version.status !== "PROPOSED" ? <small>Appended from version {version.version - 1} · {version.changes.length} recorded {version.changes.length === 1 ? "change" : "changes"}</small> : null}
+                          </article>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </section>
               </section>
               <div className="source-viewer" data-testid="agreement-source-viewer">
                 <div className="source-viewer-heading">

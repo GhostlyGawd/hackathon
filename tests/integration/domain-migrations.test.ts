@@ -33,6 +33,7 @@ describe("core domain migrations", () => {
       "0005",
       "0006",
       "0007",
+      "0008",
     ]);
   });
 
@@ -48,6 +49,7 @@ describe("core domain migrations", () => {
       "0005",
       "0006",
       "0007",
+      "0008",
     ]);
     await expect(applyCoreMigrations(service.database)).resolves.toEqual([]);
     const tables = await service.database.query<{ table_name: string }>(
@@ -76,6 +78,70 @@ describe("core domain migrations", () => {
       ]),
     );
     expect(tables.rows).toHaveLength(27);
+  });
+
+  it("requires immutable, latest-source lineage for human requirement reviews", async () => {
+    const { database } = await migratedDatabase();
+    const workspace = "11111111-1111-4111-8111-111111111111";
+    const software = "22222222-2222-4222-8222-222222222222";
+    const agreement = "33333333-3333-4333-8333-333333333333";
+    const run = "44444444-4444-4444-8444-444444444444";
+    const proposal = "55555555-5555-4555-8555-555555555555";
+    const confirmed = "66666666-6666-4666-8666-666666666666";
+    await database.query(
+      "INSERT INTO workspaces (id, name, created_at, created_by) VALUES ($1, 'Fictional District', now(), '{}')",
+      [workspace],
+    );
+    await database.query(
+      "INSERT INTO software_records (workspace_id, id, name, vendor_name, approval_state, approval_owner, created_at) VALUES ($1, $2, 'Fixture LMS', 'Fictional Vendor', 'UNKNOWN', 'NONE', now())",
+      [workspace, software],
+    );
+    await database.query(
+      "INSERT INTO agreement_versions (workspace_id, id, software_id, version, source_object_key, source_sha256, source_mime_type, source_file_name, source_byte_length, normalized_text, page_map, created_at, created_by) VALUES ($1, $2, $3, 1, ('agreements/sha256/' || $4 || '.txt'), $4, 'text/plain', 'Fictional Agreement.txt', 7, 'Fixture', jsonb_build_array(jsonb_build_object('pageNumber', 1, 'startOffset', 0, 'endOffset', 7, 'text', 'Fixture', 'textSha256', repeat('b', 64))), now(), jsonb_build_object('kind', 'HUMAN', 'actorId', 'fixture-officer'))",
+      [workspace, agreement, software, "a".repeat(64)],
+    );
+    await database.query(
+      "INSERT INTO requirement_proposal_runs (workspace_id, id, software_id, agreement_version_id, status, provider, requested_model, returned_model, attempts, total_input_tokens, total_cached_input_tokens, total_output_tokens, total_reasoning_tokens, total_tokens, total_estimated_cost_micro_usd, requested_by, created_at) VALUES ($1, $2, $3, $4, 'SUCCEEDED', 'DETERMINISTIC_FIXTURE', 'fixture-v1', 'fixture-v1', '[{}]', 0, 0, 0, 0, 0, 0, jsonb_build_object('kind', 'HUMAN', 'actorId', 'fixture-officer'), now())",
+      [workspace, run, software, agreement],
+    );
+    await database.query(
+      "INSERT INTO requirement_versions (workspace_id, id, agreement_version_id, requirement_key, version, model_run_id, status, executable, payload, created_at) VALUES ($1, $2::uuid, $3, 'recipient-rule', 1, $4, 'PROPOSED', false, jsonb_build_object('id', to_jsonb($2::uuid), 'status', 'PROPOSED'), now())",
+      [workspace, proposal, agreement, run],
+    );
+
+    await expect(
+      database.query(
+        "INSERT INTO requirement_versions (workspace_id, id, agreement_version_id, requirement_key, version, source_requirement_version_id, status, executable, payload, created_at) VALUES ($1, $2::uuid, $3, 'recipient-rule', 2, $4::uuid, 'CONFIRMED', true, jsonb_build_object('id', to_jsonb($2::uuid), 'sourceVersionId', to_jsonb($4::uuid), 'status', 'CONFIRMED', 'executable', true, 'confirmedBy', jsonb_build_object('kind', 'HUMAN', 'actorId', 'fixture-officer'), 'predicate', jsonb_build_object('kind', 'OBSERVABLE_DATA_FLOW')), now())",
+        [workspace, confirmed, agreement, proposal],
+      ),
+    ).resolves.toBeDefined();
+    await expect(
+      database.query(
+        "INSERT INTO requirement_versions (workspace_id, id, agreement_version_id, requirement_key, version, source_requirement_version_id, status, executable, payload, created_at) VALUES ($1, $2::uuid, $3, 'recipient-rule', 3, $4::uuid, 'AMBIGUOUS', false, jsonb_build_object('id', to_jsonb($2::uuid), 'sourceVersionId', to_jsonb($4::uuid), 'status', 'AMBIGUOUS', 'executable', false, 'reviewedBy', jsonb_build_object('kind', 'HUMAN', 'actorId', 'fixture-officer')), now())",
+        [
+          workspace,
+          "77777777-7777-4777-8777-777777777777",
+          agreement,
+          proposal,
+        ],
+      ),
+    ).rejects.toThrow("latest requirement version");
+    await expect(
+      database.query(
+        "INSERT INTO requirement_versions (workspace_id, id, agreement_version_id, requirement_key, version, status, executable, payload, created_at) VALUES ($1, $2, $3, 'other-rule', 1, 'REJECTED', false, jsonb_build_object('status', 'REJECTED', 'reviewedBy', jsonb_build_object('kind', 'HUMAN', 'actorId', 'fixture-officer')), now())",
+        [
+          workspace,
+          "88888888-8888-4888-8888-888888888888",
+          agreement,
+        ],
+      ),
+    ).rejects.toThrow("source requirement version");
+    await expect(
+      database.query(
+        "UPDATE requirement_versions SET executable = false WHERE workspace_id = $1 AND id = $2",
+        [workspace, confirmed],
+      ),
+    ).rejects.toThrow("immutable");
   });
 
   it("rejects a cross-workspace foreign-key reference", async () => {

@@ -132,8 +132,10 @@ After(async function ({ result, pickle }) {
             ? "AUT-04"
             : pickle.tags.some((tag) => tag.name === "@JRN-01")
               ? "JRN-01"
-              : pickle.tags.some((tag) => tag.name === "@AGR-02")
-                ? "AGR-02"
+              : pickle.tags.some((tag) => tag.name === "@AGR-03")
+                ? "AGR-03"
+                : pickle.tags.some((tag) => tag.name === "@AGR-02")
+                  ? "AGR-02"
               : pickle.tags.some((tag) => tag.name === "@AGR-01")
                 ? "AGR-01"
             : "AUT-01";
@@ -1528,7 +1530,10 @@ Then(
 Then(
   "the proposal includes every observable restriction and suggested test",
   async function () {
-    const proposal = this.page.getByTestId("requirement-proposal").first();
+    const proposal = this.page
+      .getByTestId("requirement-proposal")
+      .first()
+      .getByTestId("proposal-structured-fields");
     for (const value of [
       "Fictional student account and classroom activity data",
       "Collect and use",
@@ -1649,5 +1654,203 @@ Then(
   "I capture the {string} narrow proposal evidence",
   async function (evidenceName) {
     await captureProposalEvidence(this, evidenceName, true);
+  },
+);
+
+When("I edit the proposed action to {string}", async function (action) {
+  const editor = this.page.getByTestId("requirement-review-editor").first();
+  await editor.waitFor();
+  await editor.getByTestId("review-action").fill(action);
+});
+
+async function submitRequirementReview(world, buttonTestId, rationale) {
+  const editor = world.page.getByTestId("requirement-review-editor").first();
+  await editor.getByTestId("review-rationale").fill(rationale);
+  const responsePromise = world.page.waitForResponse((response) => {
+    const request = response.request();
+    return (
+      request.method() === "POST" &&
+      new URL(response.url()).pathname.endsWith("/requirements")
+    );
+  });
+  await editor.getByTestId(buttonTestId).click();
+  const response = await responsePromise;
+  assert.equal(response.status(), 201);
+  world.requirementReviewResponse = JSON.parse(await response.text());
+  await world.page.getByTestId("current-requirement").waitFor();
+}
+
+When(
+  "I confirm the requirement with rationale {string}",
+  async function (rationale) {
+    await submitRequirementReview(this, "confirm-requirement", rationale);
+  },
+);
+
+Then(
+  "requirement version {int} is executable and human-confirmed",
+  async function (versionNumber) {
+    const current = this.page.getByTestId("current-requirement");
+    await current
+      .getByText(`Current requirement · version ${versionNumber}`, {
+        exact: true,
+      })
+      .waitFor();
+    await current
+      .getByText("Human-confirmed test rule", { exact: true })
+      .waitFor();
+    await current.getByText("Executable", { exact: true }).waitFor();
+    await current.getByText("Transmit", { exact: true }).waitFor();
+    await current
+      .getByText("Decided by fictional-officer-a", { exact: true })
+      .waitFor();
+    assert.equal(this.requirementReviewResponse.version, versionNumber);
+    assert.equal(this.requirementReviewResponse.status, "CONFIRMED");
+    assert.equal(this.requirementReviewResponse.executable, true);
+    assert.equal(
+      this.requirementReviewResponse.confirmedBy.actorId,
+      "fictional-officer-a",
+    );
+  },
+);
+
+Then(
+  "the exact source quote remains beside the confirmed rule",
+  async function () {
+    const current = this.page.getByTestId("current-requirement");
+    const quote = await current.getByTestId("current-source-quote").innerText();
+    assert.equal(quote.includes("Purpose: classroom instruction only."), true);
+    await current.getByText("Exact stored source", { exact: true }).waitFor();
+    assert.deepEqual(
+      this.requirementReviewResponse.citation,
+      this.requirementProposalResponse.proposals[0].citation,
+    );
+  },
+);
+
+Then(
+  "version history preserves the non-executable proposal as version {int}",
+  async function (versionNumber) {
+    const history = this.page.getByTestId("requirement-version-history");
+    const proposalVersion = history
+      .locator('[data-testid="requirement-history-version"][data-requirement-status="PROPOSED"]');
+    await proposalVersion.waitFor();
+    await proposalVersion
+      .getByText(`Version ${versionNumber}`, { exact: true })
+      .waitFor();
+    await proposalVersion
+      .getByText("PROPOSED · Non-executable model draft", { exact: true })
+      .waitFor();
+    await proposalVersion
+      .getByText("Source proposal preserved. It cannot run a test.", {
+        exact: true,
+      })
+      .waitFor();
+    assert.equal(
+      this.requirementReviewResponse.sourceVersionId,
+      this.requirementProposalResponse.proposals[0].id,
+    );
+  },
+);
+
+When(
+  "I mark the requirement ambiguous with rationale {string}",
+  async function (rationale) {
+    await submitRequirementReview(this, "ambiguous-requirement", rationale);
+  },
+);
+
+Then(
+  "the current requirement is ambiguous and cannot run a test",
+  async function () {
+    const current = this.page.getByTestId("current-requirement");
+    await current
+      .getByText("Ambiguous — human clarification required", { exact: true })
+      .waitFor();
+    await current.getByText("Not executable", { exact: true }).waitFor();
+    assert.equal(this.requirementReviewResponse.status, "AMBIGUOUS");
+    assert.equal(this.requirementReviewResponse.executable, false);
+    assert.equal("predicate" in this.requirementReviewResponse, false);
+  },
+);
+
+When(
+  "I reject the requirement with rationale {string}",
+  async function (rationale) {
+    await submitRequirementReview(this, "reject-requirement", rationale);
+  },
+);
+
+Then(
+  "the current requirement is rejected and cannot run a test",
+  async function () {
+    const current = this.page.getByTestId("current-requirement");
+    await current.getByText("Rejected model draft", { exact: true }).waitFor();
+    await current.getByText("Not executable", { exact: true }).waitFor();
+    assert.equal(this.requirementReviewResponse.status, "REJECTED");
+    assert.equal(this.requirementReviewResponse.executable, false);
+    assert.equal("predicate" in this.requirementReviewResponse, false);
+  },
+);
+
+Then(
+  "version history preserves the rejected decision and original proposal",
+  async function () {
+    const history = this.page.getByTestId("requirement-version-history");
+    const versions = history.getByTestId("requirement-history-version");
+    assert.equal(await versions.count(), 2);
+    await history
+      .locator('[data-testid="requirement-history-version"][data-requirement-status="REJECTED"]')
+      .getByText("REJECTED · Non-executable human decision", { exact: true })
+      .waitFor();
+    await history
+      .locator('[data-testid="requirement-history-version"][data-requirement-status="PROPOSED"]')
+      .getByText("PROPOSED · Non-executable model draft", { exact: true })
+      .waitFor();
+  },
+);
+
+async function captureRequirementEvidence(world, name, narrow, historyOnly) {
+  if (narrow) await world.page.setViewportSize({ width: 390, height: 844 });
+  const target = world.page.getByTestId(
+    historyOnly ? "requirement-version-history" : "requirement-review-panel",
+  );
+  await target.scrollIntoViewIfNeeded();
+  const capture = async (root) => {
+    await target.screenshot({ path: path.join(root, `${name}.png`) });
+  };
+  await capture(
+    path.join(
+      process.cwd(),
+      "artifacts",
+      "verification",
+      "AGR-03",
+      "screenshots",
+    ),
+  );
+  if (shouldCaptureCurated("AGR-03")) {
+    await capture(path.join(process.cwd(), "docs", "evidence", "AGR-03"));
+  }
+  if (narrow) await world.page.setViewportSize({ width: 1440, height: 1100 });
+}
+
+Then(
+  "I capture the {string} requirement-review evidence",
+  async function (evidenceName) {
+    await captureRequirementEvidence(this, evidenceName, false, false);
+  },
+);
+
+Then(
+  "I capture the {string} narrow requirement-review evidence",
+  async function (evidenceName) {
+    await captureRequirementEvidence(this, evidenceName, true, false);
+  },
+);
+
+Then(
+  "I capture the {string} requirement-history evidence",
+  async function (evidenceName) {
+    await captureRequirementEvidence(this, evidenceName, false, true);
   },
 );

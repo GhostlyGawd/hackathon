@@ -1,0 +1,238 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "AGR-03",
+  "title": "Implement human requirement review, ambiguity, and immutable versions",
+  "status": "IN_PROGRESS",
+  "prdSections": [12, 15],
+  "functionalRequirements": ["FR-012", "FR-013", "FR-014"],
+  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "startedAt": "2026-07-21T00:36:00.000Z",
+  "artifactRoot": "artifacts/verification/AGR-03/",
+  "curatedEvidenceRoot": "docs/evidence/AGR-03/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing human-review builder",
+      "command": "pnpm exec vitest run --project unit tests/unit/requirement-review.test.ts --project property tests/property/requirement-review.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 7400,
+      "expectedFailure": "All five examples and properties failed because buildRequirementReviewVersion did not exist"
+    },
+    {
+      "phase": "RED",
+      "name": "Canonical-value property counterexample",
+      "command": "pnpm exec vitest run --project unit tests/unit/requirement-review.test.ts --project property tests/property/requirement-review.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 3600,
+      "expectedFailure": "PROP-10 shrank leading whitespace to the permanent counterexample plainLanguage=' !'; the assertion compared submitted text instead of the canonical stored value"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Human-review examples and seeded invariants",
+      "command": "pnpm exec vitest run --project unit tests/unit/requirement-review.test.ts --project property tests/property/requirement-review.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 3800
+    },
+    {
+      "phase": "RED",
+      "name": "Missing review service and repository",
+      "command": "pnpm exec vitest run --project integration tests/integration/requirement-review.test.ts",
+      "exitCode": 1,
+      "durationMs": 3100,
+      "expectedFailure": "Both service scenarios failed because InMemoryRequirementReviewRepository did not exist"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Permissioned service, conflict, and PostgreSQL append proof",
+      "command": "pnpm exec vitest run --project integration tests/integration/requirement-review.test.ts",
+      "exitCode": 0,
+      "durationMs": 6200
+    },
+    {
+      "phase": "RED",
+      "name": "Concurrent in-memory reviews forked one source version",
+      "command": "pnpm exec vitest run --project integration tests/integration/requirement-review.test.ts -t 'serializes competing'",
+      "exitCode": 1,
+      "durationMs": 5500,
+      "expectedFailure": "Two simultaneous human decisions both appended version 2 from the same proposal because the fixture repository did not serialize its latest-version check"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Serialized competing in-memory decisions",
+      "command": "pnpm exec vitest run --project integration tests/integration/requirement-review.test.ts -t 'serializes competing'",
+      "exitCode": 0,
+      "durationMs": 3900
+    },
+    {
+      "phase": "RED",
+      "name": "Missing review-lineage migration",
+      "command": "pnpm exec vitest run --project integration tests/integration/domain-migrations.test.ts -t 'loads the ordered PostgreSQL schema migrations'",
+      "exitCode": 1,
+      "durationMs": 2400,
+      "expectedFailure": "The migration inventory contained 0001 through 0007 while the new test required 0008"
+    },
+    {
+      "phase": "GREEN",
+      "name": "PostgreSQL latest-source and immutable-lineage guard",
+      "command": "pnpm exec vitest run --project integration tests/integration/domain-migrations.test.ts -t 'requires immutable, latest-source lineage'",
+      "exitCode": 0,
+      "durationMs": 7000
+    },
+    {
+      "phase": "RED",
+      "name": "Missing signed review route",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/requirement-review-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 10700,
+      "expectedFailure": "The route suite could not import the not-yet-created requirement review endpoint"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Signed confirmation, read history, permission denial, and stale conflict routes",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/requirement-review-routes.test.ts",
+      "exitCode": 0,
+      "durationMs": 3700
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined requirement-review browser behavior",
+      "command": "PACTWIRE_BDD_TAGS=@AGR-03 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 105100,
+      "expectedFailure": "All shared agreement setup passed while three AGR-03 scenarios and fourteen review steps remained undefined"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Confirm, ambiguity, rejection, and version-history browser journeys",
+      "command": "PACTWIRE_BDD_TAGS=@AGR-03 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 38400
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Existing schema and migration reconciliation",
+      "command": "pnpm exec vitest run --project integration tests/integration/domain-migrations.test.ts",
+      "exitCode": 0,
+      "durationMs": 16300
+    }
+  ],
+  "testSummary": {
+    "files": 5,
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-10-linked-version-and-source-immutability",
+        "seed": 20260720,
+        "numRuns": 250,
+        "passed": true,
+        "counterexample": "plainLanguage=' !' is retained as an example regression proving change history records the canonical stored value"
+      },
+      {
+        "id": "PROP-17-non-confirm-never-executable",
+        "seed": 20260720,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "requirement-review.feature",
+        "scenario": "The privacy officer edits and confirms a source-bound test rule",
+        "passed": true
+      },
+      {
+        "feature": "requirement-review.feature",
+        "scenario": "An unclear proposal remains visibly ambiguous and non-executable",
+        "passed": true
+      },
+      {
+        "feature": "requirement-review.feature",
+        "scenario": "A rejected proposal remains in immutable history",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": false,
+    "rationale": "Curated optimized-production captures will be attached after the implementation source commit exists.",
+    "assets": []
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/requirement-review.test.ts",
+      "description": "Confirmation, edit history, ambiguity, rejection, model-actor rejection, and canonical-value examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/requirement-review.property.test.ts",
+      "description": "Seeded PROP-10 append-only source preservation and PROP-17 executable-boundary invariants"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/requirement-review.test.ts",
+      "description": "Permissioned service, audit, stale-source conflict, PostgreSQL transaction, and immutable history proof"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/requirement-review-routes.test.ts",
+      "description": "Signed confirmation, history, reviewer denial, and bounded stale-review HTTP conflict"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/requirement-review.feature",
+      "description": "Human confirmation, ambiguity, rejection, exact source, and immutable history journeys"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/workspace-access.steps.mjs",
+      "description": "Playwright source/rule assertions, non-executable decisions, lineage, and visual capture"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/requirement-review.ts",
+      "description": "Human-only review builder, services, errors, in-memory repository, and PostgreSQL repository"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0008_requirement_review.sql",
+      "description": "Latest-source lineage, human actor, payload/column consistency, and executable predicate constraints"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/agreement-intake-panel.tsx",
+      "description": "Source-beside-rule editor, direct authority boundary, decision states, and immutable history"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/api/workspaces/[workspaceId]/software/[softwareId]/agreements/[agreementVersionId]/requirements/route.ts",
+      "description": "Signed no-store history and human review boundary"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T01:10:00.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "FR-015 agreement-version comparison remains explicitly deferred until its changed-span and affected-journey scenario and evidence pass.",
+    "A human confirmation creates a bounded executable test rule; it does not establish legal meaning, safety, compliance, or software approval.",
+    "The observable predicate records human-reviewed fields, while deterministic finding evaluation is owned by DET-03.",
+    "The browser fixture uses ephemeral in-memory storage; PostgreSQL persistence is exercised separately in integration tests."
+  ],
+  "reviewer": "codex-agent"
+}
