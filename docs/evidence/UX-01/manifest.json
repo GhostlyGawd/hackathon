@@ -95,6 +95,29 @@
       "command": "pnpm verify",
       "exitCode": 0,
       "durationMs": 449138
+    },
+    {
+      "phase": "RED",
+      "name": "Latest-main property matrix exceeded existing test deadlines under parallel load",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 170800,
+      "expectedFailure": "DET-04 PROP-10 crossed its five-second deadline and DET-05 PROP-02 crossed its twenty-second deadline while 24 property files competed for the default worker pool; neither invariant produced a counterexample"
+    },
+    {
+      "phase": "RED",
+      "name": "Four property workers still starved the longest generated sequence",
+      "command": "pnpm test:property",
+      "exitCode": 1,
+      "durationMs": 40900,
+      "expectedFailure": "DET-05 PROP-02 reached 25.9 seconds with four property workers, proving that a partial worker cap did not make the unchanged 500-run property deterministic"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Two complete serial property matrices with unchanged seeds, run counts, and deadlines",
+      "command": "Repeat 2x: pnpm test:property",
+      "exitCode": 0,
+      "durationMs": 128100
     }
   ],
   "testSummary": {

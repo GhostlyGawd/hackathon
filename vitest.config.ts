@@ -15,6 +15,10 @@ const project = (name: string, include: string[]) => ({
           maxWorkers: 4,
           testTimeout: 30_000,
         }
+      : name === "property"
+        ? {
+            maxWorkers: 1,
+          }
       : {}),
   },
 });
