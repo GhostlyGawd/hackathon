@@ -166,6 +166,7 @@ describe("core domain migrations", () => {
       "0011",
       "0012",
       "0013",
+      "0014",
     ]);
   });
 
@@ -187,6 +188,7 @@ describe("core domain migrations", () => {
       "0011",
       "0012",
       "0013",
+      "0014",
     ]);
     await expect(applyCoreMigrations(service.database)).resolves.toEqual([]);
     const tables = await service.database.query<{ table_name: string }>(

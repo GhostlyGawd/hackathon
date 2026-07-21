@@ -64,3 +64,14 @@ Feature: Controlled failure and risky-action stops
     Then the crashed run shows an explicit worker lease integrity failure
     And its completed retry links to the source run with the same frozen configuration
     And I capture the "retry-lineage" RUN-05 evidence
+
+  @DET-04 @FR-044 @FR-045 @PROP-09 @PROP-10
+  Scenario: A changed exported artifact invalidates verification without changing the stored receipt
+    Given the fictional workspace access fixture is reset
+    And I start a signed session as the "Reviewer"
+    When I export the witnessed-conflict evidence receipt
+    And I change one byte in an exported receipt artifact
+    Then independent receipt verification reports "INVALID"
+    And the verifier names "ARTIFACT_HASH_MISMATCH"
+    And the original stored receipt still verifies as "VALID"
+    And I record the DET-04 valid and corrupted verifier reports

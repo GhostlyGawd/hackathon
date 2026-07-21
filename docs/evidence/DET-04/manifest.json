@@ -1,0 +1,322 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "DET-04",
+  "title": "Implement evidence receipts, export, and superseding corrections",
+  "status": "IN_PROGRESS",
+  "prdSections": [12, 14],
+  "functionalRequirements": ["FR-042", "FR-043", "FR-044", "FR-045"],
+  "sourceCommitSha": "2b646151491655b5c66d3bdcbd6b61ee77726062",
+  "startedAt": "2026-07-21T14:50:00.000-04:00",
+  "artifactRoot": "artifacts/verification/DET-04/",
+  "curatedEvidenceRoot": "docs/evidence/DET-04/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing receipt domain",
+      "command": "pnpm exec vitest run --project unit tests/unit/evidence-receipt.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 2300,
+      "expectedFailure": "The focused unit suite failed to import the not-yet-created evidence-receipt module"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing receipt migration and PostgreSQL persistence",
+      "command": "pnpm exec vitest run --project integration tests/integration/domain-migrations.test.ts tests/integration/finding-evaluation.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 11100,
+      "expectedFailure": "The migration inventory lacked 0014_evidence_receipts.sql and the PostgreSQL receipt repository did not exist"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing standalone verifier process",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-receipt-cli.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 8800,
+      "expectedFailure": "The CLI integration suite could not execute the not-yet-created receipt verifier"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing authenticated receipt API",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/evidence-receipt-routes.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 4800,
+      "expectedFailure": "The focused HTTP suite failed to import the not-yet-created receipt routes"
+    },
+    {
+      "phase": "RED",
+      "name": "Self-consistent semantic-lineage rehash",
+      "command": "pnpm exec vitest run --project unit tests/unit/evidence-receipt.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 2700,
+      "expectedFailure": "Changing the agreement artifact and recomputing every byte hash still returned VALID until exact citation lineage was verified"
+    },
+    {
+      "phase": "RED",
+      "name": "Plaintext filesystem object storage",
+      "command": "pnpm exec vitest run --project integration tests/integration/finding-evaluation.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 2800,
+      "expectedFailure": "The filesystem object-store fixture exposed the synthetic artifact bytes before AES-256-GCM encryption was added"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Receipt domain, storage, routes, verifier, and exact lineage",
+      "command": "pnpm exec vitest run --project unit tests/unit/evidence-receipt.test.ts --project property tests/property/evidence-receipt.property.test.ts --project integration tests/integration/evidence-receipt.test.ts tests/integration/evidence-receipt-cli.test.ts tests/integration/finding-evaluation.test.ts apps/web/tests/integration/evidence-receipt-routes.test.ts tests/integration/domain-migrations.test.ts --reporter=dot",
+      "exitCode": 0,
+      "durationMs": 11800
+    },
+    {
+      "phase": "GREEN",
+      "name": "Fixed-seed canonicalization, corruption, and correction properties",
+      "command": "pnpm exec vitest run --project property tests/property/evidence-receipt.property.test.ts --reporter=dot",
+      "exitCode": 0,
+      "durationMs": 7440
+    },
+    {
+      "phase": "GREEN",
+      "name": "Receipt review and corruption recovery through production browser boundaries",
+      "command": "PACTWIRE_BDD_TAGS=@DET-04 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 16700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production receipt capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=DET-04 PACTWIRE_BDD_TAGS=@DET-04 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 17300
+    },
+    {
+      "phase": "RED",
+      "name": "Repository browser matrix exposed an unauthorized receipt request",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 410800,
+      "expectedFailure": "Five existing test-operator browser scenarios recorded GET /receipts as an unexpected 403 because the new receipt panel requested evidence before checking the current server-loaded role"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Affected operator-only browser feature groups",
+      "command": "PACTWIRE_BDD_TAGS='@AUT-01 or @AUT-02 or @JRN-01' pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 89500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Permission fix lint, type check, and optimized build",
+      "command": "pnpm lint; pnpm typecheck; pnpm build",
+      "exitCode": 0,
+      "durationMs": 78000
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory recognized DET-04 proof",
+      "command": "pnpm evidence:check; pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 3000,
+      "expectedFailure": "Traceability accepted twenty-two manifests and 220 unique proof files while the explicit inventory regression still expected twenty-one manifests and 206 proof files"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "DET-04 evidence traceability and explicit inventory",
+      "command": "pnpm evidence:check; pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts --reporter=dot",
+      "exitCode": 0,
+      "durationMs": 3000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete evidence-bound optimized-production repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 385800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency audit",
+      "command": "pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 2100
+    }
+  ],
+  "testSummary": {
+    "files": 87,
+    "passed": 350,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-08-equivalent-canonical-evidence-has-one-manifest-hash",
+        "seed": 20260721,
+        "numRuns": 500,
+        "passed": true
+      },
+      {
+        "id": "PROP-09-every-generated-byte-mutation-invalidates-the-receipt",
+        "seed": 20260721,
+        "numRuns": 500,
+        "passed": true
+      },
+      {
+        "id": "PROP-10-corrections-preserve-prior-receipt-bytes-and-history",
+        "seed": 20260721,
+        "numRuns": 200,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "witnessed-conflict.feature",
+        "scenario": "A reviewer can read and independently verify the exact evidence behind a conflict",
+        "passed": true
+      },
+      {
+        "feature": "failure-recovery.feature",
+        "scenario": "A changed exported artifact invalidates verification without changing the stored receipt",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "assets": [
+      {
+        "path": "docs/evidence/DET-04/receipt-detail-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T19:49:14.000Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Desktop Pactwire receipt detail showing eight direct-language evidence sections, exact test limits, agreement citation, approval effect, next human decision, valid verifier badge, and artifact hashes.",
+        "caption": "The reviewer can trace the recorded fictional submission from human-confirmed rule through deterministic observation to a separately verifiable export without relying on model prose.",
+        "provenance": "captured",
+        "sourceCommitSha": "2b646151491655b5c66d3bdcbd6b61ee77726062"
+      },
+      {
+        "path": "docs/evidence/DET-04/receipt-detail-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T19:49:14.000Z",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "altText": "Narrow Pactwire receipt detail stacking the same evidence, verifier status, and artifact hashes without horizontal overflow or hidden lineage.",
+        "caption": "The narrow review preserves scope, evidence ownership, approval boundary, and independent-verification detail in reading order.",
+        "provenance": "captured",
+        "sourceCommitSha": "2b646151491655b5c66d3bdcbd6b61ee77726062"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "schema",
+      "path": "packages/core/src/evidence-receipt.ts",
+      "description": "Strict receipt schemas, canonical SHA-256 hashing, exact semantic lineage, redaction, immutable repositories, encrypted object storage, export, and verification"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0014_evidence_receipts.sql",
+      "description": "Append-only receipt metadata, exact finding/run lineage, superseding correction links, and stored bundle constraints"
+    },
+    {
+      "kind": "config",
+      "path": "scripts/verify-evidence-receipt.ts",
+      "description": "Standalone bundle verifier with deterministic valid and invalid exit codes and machine-readable reports"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/evidence-receipt.test.ts",
+      "description": "Required lineage, canonicalization, corruption, redaction, exact-citation, and self-consistent-rehash regressions"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/evidence-receipt.property.test.ts",
+      "description": "Fixed-seed PROP-08, PROP-09, and PROP-10 invariants with 500, 500, and 200 runs"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/evidence-receipt.test.ts",
+      "description": "Immutable metadata, content-addressed artifact storage, standalone export, and correction persistence"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/evidence-receipt-cli.test.ts",
+      "description": "Separate-process valid export and one-byte corruption verification"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/finding-evaluation.test.ts",
+      "description": "PostgreSQL receipt persistence plus AES-256-GCM filesystem object-store encryption"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/evidence-receipt-routes.test.ts",
+      "description": "Authenticated receipt review/export, independent verification, permission denial, and cross-workspace concealment"
+    },
+    {
+      "kind": "evidence",
+      "path": "apps/web/app/evidence-receipt-panel.tsx",
+      "description": "Eight-step direct-language receipt review, exact scope and citation, approval boundary, next decision, export, verifier result, and artifact hashes"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/witnessed-conflict.feature",
+      "description": "Real-browser receipt review and independent valid-export story tagged DET-04, FR-042, FR-043, FR-044, and PROP-08"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/failure-recovery.feature",
+      "description": "Real-browser corruption detection and unchanged-original recovery story tagged DET-04, FR-044, FR-045, PROP-09, and PROP-10"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/evidence-receipt.steps.mjs",
+      "description": "Browser/API/download/separate-verifier assertions and source-bound desktop/narrow capture"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/DET-04/sanitized-receipt-bundle.json",
+      "description": "Source-bound sanitized standalone export containing all eight required controlled-fixture artifacts"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/DET-04/verifier-valid.json",
+      "description": "Independent successful verification of eight artifacts and ten hashes"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/DET-04/verifier-corrupted.json",
+      "description": "Independent rejection of a one-byte action-trace mutation with ARTIFACT_HASH_MISMATCH"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/DET-04/README.md",
+      "description": "Receipt evidence description, reproduction command, provenance, authority boundary, and explicit non-claim"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T19:49:30.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "The committed receipt uses controlled fictional identities, reserved domains, synthetic observations, and a controlled agreement; it does not establish effectiveness on real school software.",
+    "A VALID report establishes byte integrity and included semantic lineage, not safety, compliance, approval, destination truth outside the human-confirmed record, or behavior outside the named test scope.",
+    "The encrypted filesystem object store is an implementation seam for controlled verification; production key custody, rotation, backup, and retention operations remain outside DET-04.",
+    "The standalone verifier checks the exported evidence supplied to it; independent ground truth for agreement meaning and destination identity remains human-owned.",
+    "GitHub Actions clean-checkout verification is pending because the current account billing rejection prevents jobs from starting before checkout."
+  ],
+  "reviewer": "codex-agent"
+}

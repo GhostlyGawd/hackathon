@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 13,
+  "migrationCount": 14,
   "totalTables": 34,
   "migrations": [
     {
@@ -171,6 +171,13 @@
       "immutableTables": [
         "destination_record_versions"
       ]
+    },
+    {
+      "version": "0014",
+      "name": "evidence_receipts",
+      "sha256": "fe2106c5a32b4f46ae46c3bc9d79da7f5d99838cbce248c91cac2b13e88526d2",
+      "tables": [],
+      "immutableTables": []
     }
   ]
 }

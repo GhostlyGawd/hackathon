@@ -4,6 +4,11 @@ import {
   PostgresFindingEvaluationRepository,
   evaluateBoundedFinding,
 } from "../../packages/core/src/finding-evaluation";
+import {
+  EvidenceReceiptService,
+  InMemoryEvidenceObjectStore,
+  PostgresEvidenceReceiptRepository,
+} from "../../packages/core/src/evidence-receipt";
 import { applyCoreMigrations } from "../../packages/core/src/migrations";
 import {
   createDatabaseTestService,
@@ -15,6 +20,7 @@ import {
   humanActor,
 } from "../helpers/domain-fixtures";
 import { makeFindingEvaluationInput } from "../helpers/finding-evaluation-fixtures";
+import { makeEvidenceReceiptBundle } from "../helpers/evidence-receipt-fixtures";
 import { insertPostgresJourneyFixture } from "../helpers/postgres-journey-fixture";
 
 const databases: DatabaseTestService[] = [];
@@ -208,6 +214,41 @@ describe("DET-03 finding persistence", () => {
       database.query(
         "DELETE FROM findings WHERE workspace_id = $1 AND id = $2",
         [evaluation.finding.workspaceId, evaluation.finding.id],
+      ),
+    ).rejects.toThrow(/immutable/iu);
+  });
+});
+
+describe("DET-04 PostgreSQL evidence receipt persistence", () => {
+  it("stores the exact independently verifiable bundle and rejects database mutation", async () => {
+    const database = await seedFindingDatabase();
+    const findingRepository = new PostgresFindingEvaluationRepository(database);
+    const evaluation = evaluateBoundedFinding(
+      makeFindingEvaluationInput({ destinationStatus: "PROHIBITED" }),
+    );
+    await findingRepository.append(evaluation);
+    const repository = new PostgresEvidenceReceiptRepository(database);
+    const service = new EvidenceReceiptService(
+      repository,
+      new InMemoryEvidenceObjectStore(),
+    );
+    const bundle = makeEvidenceReceiptBundle();
+
+    await service.append(bundle);
+
+    await expect(
+      service.get(bundle.receipt.workspaceId, bundle.receipt.id),
+    ).resolves.toEqual(bundle);
+    await expect(
+      database.query(
+        "UPDATE evidence_receipts SET content_hash = $3 WHERE workspace_id = $1 AND id = $2",
+        [bundle.receipt.workspaceId, bundle.receipt.id, "0".repeat(64)],
+      ),
+    ).rejects.toThrow(/immutable/iu);
+    await expect(
+      database.query(
+        "DELETE FROM evidence_receipts WHERE workspace_id = $1 AND id = $2",
+        [bundle.receipt.workspaceId, bundle.receipt.id],
       ),
     ).rejects.toThrow(/immutable/iu);
   });

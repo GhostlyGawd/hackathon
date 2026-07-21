@@ -20,3 +20,16 @@ Feature: Controlled regression traffic
     Then the selected finding says "Recorded conflict in this named test"
     And its deterministic basis names the matched observation and prohibited destination version
     And its model explanation is labeled "Model explanation — not evidence"
+
+  @DET-04 @FR-042 @FR-043 @FR-044 @PROP-08
+  Scenario: A reviewer can read and independently verify the exact evidence behind a conflict
+    Given the fictional workspace access fixture is reset
+    And I start a signed session as the "Reviewer"
+    When I open the bounded finding matrix
+    And I select the "WITNESSED_CONFLICT" finding
+    Then the receipt directly names what was recorded, the fictional field, action, and destination
+    And the receipt names the human-confirmed agreement rule and exact named test limits
+    And the receipt says no approval state was changed and names the next human decision
+    When I download and independently verify the receipt bundle
+    Then every included receipt artifact and hash verifies
+    And I capture the DET-04 "receipt-detail" evidence
