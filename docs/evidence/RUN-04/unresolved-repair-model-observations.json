@@ -1,0 +1,12 @@
+[
+  {
+    "sequence": 1,
+    "actionType": "click",
+    "controlId": "submit-assignment",
+    "authorizationAction": "SUBMIT",
+    "origin": "http://classroom.pactwire.test:57766",
+    "hrefPath": null,
+    "beforePath": "/student",
+    "afterPath": "/student"
+  }
+]

@@ -175,6 +175,13 @@
     },
     {
       "phase": "REGRESSION",
+      "name": "Complete latest-main integration verification after DET-04 merge",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 525600
+    },
+    {
+      "phase": "REGRESSION",
       "name": "Production dependency audit",
       "command": "pnpm audit --prod",
       "exitCode": 0,
@@ -182,8 +189,8 @@
     }
   ],
   "testSummary": {
-    "files": 91,
-    "passed": 364,
+    "files": 96,
+    "passed": 379,
     "failed": 0,
     "skipped": 0,
     "retries": 0
