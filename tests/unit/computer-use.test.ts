@@ -171,6 +171,24 @@ describe("RUN-03 policy-bounded computer use", () => {
       outcome: "BLOCK",
       reason: "DESTINATION_OUTSIDE_SCOPE",
     });
+
+    expect(
+      evaluateComputerActionPolicy(policy(), {
+        action: {
+          type: "click",
+          x: 850,
+          y: 610,
+          button: "left",
+          keys: ["CTRL"],
+        },
+        target: allowedTarget,
+        secretValues: [],
+      }),
+    ).toMatchObject({
+      allowed: false,
+      outcome: "BLOCK",
+      reason: "MODIFIER_KEYS_NOT_ALLOWED",
+    });
   });
 
   it("blocks configured secret representations without copying them into the decision", () => {
@@ -252,7 +270,13 @@ describe("RUN-03 policy-bounded computer use", () => {
             call_id: "call_fixture_01",
             actions: [
               { type: "move", x: 800, y: 500 },
-              { type: "click", x: 800, y: 500, button: "left" },
+              {
+                type: "click",
+                x: 800,
+                y: 500,
+                button: "left",
+                keys: [],
+              },
               { type: "wait" },
             ],
           },
@@ -266,7 +290,13 @@ describe("RUN-03 policy-bounded computer use", () => {
           callId: "call_fixture_01",
           actions: [
             { type: "move", x: 800, y: 500 },
-            { type: "click", x: 800, y: 500, button: "left" },
+            {
+              type: "click",
+              x: 800,
+              y: 500,
+              button: "left",
+              keys: [],
+            },
             { type: "wait" },
           ],
         },

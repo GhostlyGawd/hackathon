@@ -34,6 +34,35 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function responseContractShape(response: unknown) {
+  if (!isRecord(response)) return { responseKind: typeof response };
+  const output = Array.isArray(response.output) ? response.output : [];
+  return {
+    responseFields: Object.keys(response).sort(),
+    output: output.map((item) =>
+      isRecord(item)
+        ? {
+            type: typeof item.type === "string" ? item.type : "NON_STRING",
+            fields: Object.keys(item).sort(),
+            actions: Array.isArray(item.actions)
+              ? item.actions.map((action) =>
+                  isRecord(action)
+                    ? {
+                        type:
+                          typeof action.type === "string"
+                            ? action.type
+                            : "NON_STRING",
+                        fields: Object.keys(action).sort(),
+                      }
+                    : { type: "NON_OBJECT", fields: [] },
+                )
+              : [],
+          }
+        : { type: "NON_OBJECT", fields: [], actions: [] },
+    ),
+  };
+}
+
 describe("RUN-03 live GPT-5.6 Sol computer-use contract", () => {
   it("completes the exact authorized fictional submission through the isolated browser", async () => {
     const apiKey = process.env.OPENAI_API_KEY;
@@ -153,6 +182,8 @@ describe("RUN-03 live GPT-5.6 Sol computer-use contract", () => {
     });
     const observedModels: string[] = [];
     const observedUsage: Record<string, unknown>[] = [];
+    const observedResponseContracts: ReturnType<typeof responseContractShape>[] =
+      [];
     const baseTransport = new FetchComputerUseResponsesTransport({
       apiKey,
       timeoutMs: 120_000,
@@ -160,6 +191,7 @@ describe("RUN-03 live GPT-5.6 Sol computer-use contract", () => {
     const transport: ComputerUseResponsesTransport = {
       async create(request) {
         const response = await baseTransport.create(request);
+        observedResponseContracts.push(responseContractShape(response));
         if (isRecord(response)) {
           if (typeof response.model === "string") observedModels.push(response.model);
           if (isRecord(response.usage)) observedUsage.push(response.usage);
@@ -196,7 +228,10 @@ describe("RUN-03 live GPT-5.6 Sol computer-use contract", () => {
       secretValues: ["RUN-03-LIVE-FICTIONAL-BROWSER-SECRET"],
     });
     const latencyMs = Date.now() - startedAt;
-    expect(result).toMatchObject({
+    expect(
+      result,
+      `Sanitized response contracts: ${JSON.stringify(observedResponseContracts)}`,
+    ).toMatchObject({
       model: "gpt-5.6-sol",
       status: "COMPLETED",
       reason: "DETERMINISTIC_COMPLETION_OBSERVED",
@@ -245,6 +280,7 @@ describe("RUN-03 live GPT-5.6 Sol computer-use contract", () => {
       deterministicVisibility: report.visibility.state,
       observedDispatchCount: fixture.readEvents().length,
       usage: observedUsage,
+      responseContracts: observedResponseContracts,
       latencyMs,
       rawResponseIncluded: false,
       responseIdIncluded: false,

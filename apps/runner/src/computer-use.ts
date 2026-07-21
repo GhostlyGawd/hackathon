@@ -74,11 +74,21 @@ export const computerActionTypeSchema = z.enum([
 export type ComputerActionType = z.infer<typeof computerActionTypeSchema>;
 
 const pointerButton = z.enum(["left", "right", "wheel", "back", "forward"]);
+const computerKeys = z.array(z.string().min(1).max(100)).max(32);
 const pointerActionFields = {
   x: coordinate,
   y: coordinate,
   button: pointerButton.default("left"),
+  keys: computerKeys.optional(),
 };
+const dragPointSchema = z
+  .union([
+    z.object({ x: coordinate, y: coordinate }).strict(),
+    z.tuple([coordinate, coordinate]),
+  ])
+  .transform((point) =>
+    Array.isArray(point) ? { x: point[0], y: point[1] } : point,
+  );
 
 export const computerActionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("click"), ...pointerActionFields }).strict(),
@@ -92,6 +102,7 @@ export const computerActionSchema = z.discriminatedUnion("type", [
       y: coordinate,
       scroll_x: delta,
       scroll_y: delta,
+      keys: computerKeys.optional(),
     })
     .strict(),
   z
@@ -101,19 +112,24 @@ export const computerActionSchema = z.discriminatedUnion("type", [
   z
     .object({
       type: z.literal("keypress"),
-      keys: z.array(z.string().min(1).max(100)).min(1).max(32),
+      keys: computerKeys.min(1),
     })
     .strict(),
   z
     .object({
       type: z.literal("drag"),
-      path: z
-        .array(z.object({ x: coordinate, y: coordinate }).strict())
-        .min(2)
-        .max(100),
+      path: z.array(dragPointSchema).min(2).max(100),
+      keys: computerKeys.optional(),
     })
     .strict(),
-  z.object({ type: z.literal("move"), x: coordinate, y: coordinate }).strict(),
+  z
+    .object({
+      type: z.literal("move"),
+      x: coordinate,
+      y: coordinate,
+      keys: computerKeys.optional(),
+    })
+    .strict(),
   z.object({ type: z.literal("screenshot") }).strict(),
 ]);
 export type ComputerAction = z.infer<typeof computerActionSchema>;
@@ -202,6 +218,7 @@ export type ComputerActionPolicyReason =
   | "TRUSTED_CONTROL"
   | "SAFE_NON_MUTATING_ACTION"
   | "ACTION_NOT_ALLOWED"
+  | "MODIFIER_KEYS_NOT_ALLOWED"
   | "CURRENT_ORIGIN_OUTSIDE_SCOPE"
   | "DESTINATION_OUTSIDE_SCOPE"
   | "UNRESOLVED_TARGET"
@@ -262,6 +279,17 @@ export function evaluateComputerActionPolicy(
       outcome: "BLOCK",
       reason: "ACTION_NOT_ALLOWED",
       summary: "The proposed computer action is not allowed by this run.",
+      controlId: null,
+      authorizationAction: null,
+    });
+  }
+  if ("keys" in action && action.keys && action.keys.length > 0) {
+    return decision({
+      allowed: false,
+      outcome: "BLOCK",
+      reason: "MODIFIER_KEYS_NOT_ALLOWED",
+      summary:
+        "Modifier-assisted pointer actions are not authorized by this run.",
       controlId: null,
       authorizationAction: null,
     });
@@ -629,7 +657,7 @@ function pointerForAction(
   return undefined;
 }
 
-function keyboardChord(keys: readonly string[]): string {
+function normalizeComputerKey(key: string): string {
   const aliases: Readonly<Record<string, string>> = {
     ALT: "Alt",
     ARROWDOWN: "ArrowDown",
@@ -647,7 +675,7 @@ function keyboardChord(keys: readonly string[]): string {
     SPACE: "Space",
     TAB: "Tab",
   };
-  return keys.map((key) => aliases[key.toUpperCase()] ?? key).join("+");
+  return aliases[key.toUpperCase()] ?? key;
 }
 
 export class PlaywrightComputerUseAdapter implements ComputerUseBrowserAdapter {
@@ -729,6 +757,11 @@ export class PlaywrightComputerUseAdapter implements ComputerUseBrowserAdapter {
   }
 
   async execute(action: ComputerAction): Promise<void> {
+    if ("keys" in action && action.keys && action.keys.length > 0) {
+      throw new TypeError(
+        "Modifier-assisted pointer actions require a separately reviewed policy.",
+      );
+    }
     switch (action.type) {
       case "click":
       case "double_click": {
@@ -755,7 +788,9 @@ export class PlaywrightComputerUseAdapter implements ComputerUseBrowserAdapter {
         await this.#page.waitForTimeout(500);
         break;
       case "keypress":
-        await this.#page.keyboard.press(keyboardChord(action.keys));
+        for (const key of action.keys) {
+          await this.#page.keyboard.press(normalizeComputerKey(key));
+        }
         break;
       case "drag": {
         const [first, ...rest] = action.path;
