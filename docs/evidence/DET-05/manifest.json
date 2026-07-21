@@ -137,6 +137,36 @@
       "durationMs": 65761
     },
     {
+      "phase": "RED",
+      "name": "Clean-checkout CI exposed stale role-gated approval UI during a session downgrade",
+      "command": "GitHub Actions CI run 29870880986 / Verify on ubuntu-latest",
+      "exitCode": 1,
+      "durationMs": 366000,
+      "expectedFailure": "The existing AUT-02 test-operator BDD scenario observed GET /approval returning 403 because the client briefly rendered the approval panel with the previous privacy officer's roles after the signed session had changed"
+    },
+    {
+      "phase": "RED",
+      "name": "Clean-checkout Windows CI exposed a browser lookup inside the scripted model transport",
+      "command": "GitHub Actions CI run 29870880986 / Verify on windows-latest",
+      "exitCode": 1,
+      "durationMs": 254000,
+      "expectedFailure": "The existing RUN-03 popup-policy regression returned MODEL_REQUEST_FAILED when its scripted transport performed a live page lookup; the lower browser policy assertion never received the deterministic fixture action"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Role downgrade clears the prior principal's privileged panels",
+      "command": "PACTWIRE_BDD_TAGS=@AUT-02 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 10790
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Static scripted action reaches the lower browser policy consistently",
+      "command": "Repeat 3x: pnpm exec vitest run --project integration tests/integration/computer-use.test.ts --reporter=dot",
+      "exitCode": 0,
+      "durationMs": 57200
+    },
+    {
       "phase": "REGRESSION",
       "name": "Complete evidence-bound optimized-production repository verification",
       "command": "pnpm verify",

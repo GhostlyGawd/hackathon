@@ -285,6 +285,12 @@ export function AccessConsole() {
           method: "POST",
         },
       );
+      // Drop the previous principal's privileged view before rendering the
+      // replacement session. Otherwise a lower-privilege user can briefly
+      // inherit stale role-gated panels while their own roles are loading.
+      setWorkspace(undefined);
+      setRoles([]);
+      setAudits([]);
       setPrincipal(result.principal);
       await loadWorkspace(result.principal);
       setFeedback({
