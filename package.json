@@ -26,6 +26,7 @@
     "test:security": "vitest run --project security",
     "test:a11y": "vitest run --project a11y",
     "test:live-openai": "vitest run --project live-openai",
+    "test:live-computer-use": "vitest run --project live-openai tests/live-openai/computer-use.live.test.ts",
     "verify": "pnpm workspace:check && pnpm toolchain:check && pnpm evidence:check && pnpm domain:evidence:check && pnpm lint && pnpm typecheck && pnpm build && pnpm test:unit && pnpm test:property && pnpm test:integration && pnpm test:bdd -- --production && pnpm test:e2e && pnpm test:security && pnpm test:a11y"
   },
   "devDependencies": {

@@ -244,7 +244,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | JRN-03 | P0 | JRN-02, FIX-01 | Deterministic replay baseline | IN PROGRESS |
 | RUN-01 | P0 | AUT-03, AUT-04, FIX-01 | Isolated browser runner | COMPLETE |
 | RUN-02 | P0 + P1 follow-on | RUN-01, JRN-01 | Deterministic recorder and visibility | COMPLETE (P0) |
-| RUN-03 | P0 | RUN-01, AUT-03, AUT-04, FIX-01 | Policy-bounded GPT-5.6 computer use | NOT STARTED |
+| RUN-03 | P0 | RUN-01, AUT-03, AUT-04, FIX-01 | Policy-bounded GPT-5.6 computer use | IN PROGRESS |
 | RUN-04 | P0 | RUN-03, JRN-02, JRN-03 | Model-assisted journey repair | NOT STARTED |
 | RUN-05 | P0 | FND-03, RUN-01, RUN-02 | Run orchestration and manifests | NOT STARTED |
 | DET-01 | P0 | AGR-03, RUN-02 | Human-confirmed destination registry | NOT STARTED |
@@ -510,6 +510,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### RUN-03 — Integrate GPT-5.6 computer use with policy enforcement
 
+- **Status:** IN PROGRESS — the official batched action/screenshot exchange, explicit GPT-5.6 Sol request, frozen exact-origin/control policy, deterministic action adapter, recorder summaries, bounded refusal/timeout states, seeded boundary properties, and real-browser authorization/injection/handoff stories are locally green. Completion remains gated on the opt-in live GPT-5.6 journey, source-bound sanitized evidence, and clean-checkout CI.
 - **Deliver:** Responses computer-use loop, screenshot/action exchange, scoped instruction, action summaries, stop/handoff states, lower-layer allowlist checks, and deterministic action adapter for CI.
 - **PRD:** FR-023, FR-026, and FR-036; Sections 3, 15, and 16.
 - **Depends on:** RUN-01, AUT-03, AUT-04, and FIX-01.

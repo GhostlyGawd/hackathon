@@ -1,0 +1,244 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "RUN-03",
+  "title": "Integrate GPT-5.6 computer use with policy enforcement",
+  "status": "IN_PROGRESS",
+  "prdSections": [3, 15, 16],
+  "functionalRequirements": ["FR-023", "FR-026", "FR-036"],
+  "sourceCommitSha": "4413ea569b99ff59e57fba19def9164bc36839ac",
+  "startedAt": "2026-07-21T08:10:00.000Z",
+  "artifactRoot": "artifacts/verification/RUN-03/",
+  "curatedEvidenceRoot": "docs/evidence/RUN-03/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing policy-bounded computer-use module",
+      "command": "pnpm exec vitest run --project unit tests/unit/computer-use.test.ts --project property tests/property/computer-use.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 3200,
+      "expectedFailure": "Both focused suites failed to import the not-yet-created computer-use module"
+    },
+    {
+      "phase": "RED",
+      "name": "Generated page-content assertion preserved the empty-string shrink",
+      "command": "pnpm exec vitest run --project unit tests/unit/computer-use.test.ts --project property tests/property/computer-use.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 2820,
+      "expectedFailure": "PROP-13 shrank to empty page text and exposed an invalid substring assertion; the permanent property now compares identical decisions with and without page text"
+    },
+    {
+      "phase": "RED",
+      "name": "Generated control identifier escaped its fixture grammar",
+      "command": "pnpm exec vitest run --project unit tests/unit/computer-use.test.ts --project property tests/property/computer-use.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 2430,
+      "expectedFailure": "The generated control shrank to a-; the permanent generator now constructs only valid lower-case alphanumeric fixture identifiers"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing real-browser loop and scripted transport",
+      "command": "pnpm exec vitest run --project integration tests/integration/computer-use.test.ts",
+      "exitCode": 1,
+      "durationMs": 7900,
+      "expectedFailure": "All seven integrations failed before the scripted Responses transport and Playwright computer adapter existed"
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined policy-bounded browser stories",
+      "command": "PACTWIRE_BDD_TAGS=@RUN-03 pnpm test:bdd -- --production",
+      "exitCode": 1,
+      "durationMs": 30800,
+      "expectedFailure": "Three RUN-03 scenarios reported eighteen undefined steps before their real-browser and recorder bindings existed"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing opt-in live computer-use workflow",
+      "command": "pnpm exec vitest run --project unit tests/unit/live-computer-use-workflow.test.ts",
+      "exitCode": 1,
+      "durationMs": 3000,
+      "expectedFailure": "The workflow contract could not read the not-yet-created live-computer-use workflow"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Focused computer-use unit, property, integration, and workflow matrix",
+      "command": "pnpm exec vitest run --project unit tests/unit/computer-use.test.ts tests/unit/live-computer-use-workflow.test.ts --project property tests/property/computer-use.property.test.ts --project integration tests/integration/computer-use.test.ts",
+      "exitCode": 0,
+      "durationMs": 30800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Optimized-production authorization, handoff, and injection stories",
+      "command": "PACTWIRE_BDD_TAGS=@RUN-03 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 49600
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Computer-use source, live contract, and sanitizer type and lint gates",
+      "command": "pnpm exec tsc -p tsconfig.json --noEmit and focused eslint",
+      "exitCode": 0,
+      "durationMs": 27100
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory required RUN-03 totals",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 1010,
+      "expectedFailure": "The evidence inventory still expected sixteen manifests and 161 proof files after RUN-03 added the seventeenth manifest and ten unique proof paths"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete optimized-production repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 329800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency and credential-pattern audit",
+      "command": "pnpm audit --prod and workspace credential-pattern scan excluding dependencies, build output, artifacts, research, and binary evidence",
+      "exitCode": 0,
+      "durationMs": 2000
+    }
+  ],
+  "testSummary": {
+    "files": 69,
+    "passed": 276,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-13-page-content-cannot-expand-reviewed-controls",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-13-every-origin-outside-exact-allowlist-is-denied",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-15-secret-representations-never-become-type-actions",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "authorization.feature",
+        "scenario": "GPT computer actions complete only the reviewed fictional journey",
+        "passed": true
+      },
+      {
+        "feature": "authorization.feature",
+        "scenario": "Messaging a real person stops before the model clicks",
+        "passed": true
+      },
+      {
+        "feature": "prompt-injection.feature",
+        "scenario": "Page instructions cannot expand a model-operated run",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": false,
+    "rationale": "Source-bound deterministic and live screenshots and sanitized browser traces are required before RUN-03 can become complete; local pre-commit artifacts are not curated as final proof.",
+    "assets": []
+  },
+  "proofs": [
+    {
+      "kind": "schema",
+      "path": "apps/runner/src/computer-use.ts",
+      "description": "Strict GPT-5.6 Sol request/response contract, frozen lower-layer policy, Playwright adapter, deterministic transport, action summaries, and bounded terminal states"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/computer-use.test.ts",
+      "description": "Exact policy, reviewed and prohibited controls, secret blocking, official screenshot exchange, strict action parsing, and safe HTTP errors"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/computer-use.property.test.ts",
+      "description": "Seeded PROP-13 origin/control non-expansion and PROP-15 secret-containment invariants"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/computer-use.test.ts",
+      "description": "Real isolated Chromium success, injection, human handoff, lower-layer popup/redirect, refusal, and timeout behavior"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/evidence-harness.test.ts",
+      "description": "Repository evidence inventory updated for the seventeenth task manifest and 171 unique proof files"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/authorization.feature",
+      "description": "Authorized computer-use completion and pre-click real-person messaging handoff"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/prompt-injection.feature",
+      "description": "Untrusted page instructions fail to expand the frozen run policy"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/computer-use.steps.mjs",
+      "description": "Real controlled fixture, isolated browser, independent recorder, scripted model adapter, and source-bound evidence capture bindings"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/live-computer-use-workflow.test.ts",
+      "description": "Opt-in workflow, encrypted-key, browser-runtime, explicit upload allowlist, and no-main/no-PR contract"
+    },
+    {
+      "kind": "test",
+      "path": "tests/live-openai/computer-use.live.test.ts",
+      "description": "Required explicit GPT-5.6 Sol fictional journey with deterministic completion, recorder visibility, and sanitized manifest output"
+    },
+    {
+      "kind": "config",
+      "path": ".github/workflows/live-computer-use.yml",
+      "description": "Separately opt-in live model workflow that installs Chromium and uploads only staged sanitized RUN-03 evidence"
+    },
+    {
+      "kind": "config",
+      "path": "scripts/sanitize-extracted-playwright-trace.mjs",
+      "description": "Owned-root Playwright trace metadata path redaction and credential-pattern failure gate"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/RUN-03/README.md",
+      "description": "Current deterministic proof, remaining live/CI/evidence gates, and honest claim boundary"
+    }
+  ],
+  "sanitization": {
+    "reviewed": false,
+    "reviewedAt": "2026-07-21T08:39:19.811Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "The opt-in live GPT-5.6 Sol journey has not run from the implementation source commit yet, so RUN-03 remains IN_PROGRESS.",
+    "Current visual and trace outputs are local pre-commit artifacts; only later source-bound sanitized captures may become curated proof.",
+    "The lower-layer policy permits only exact origins and reviewed fixture controls; it does not infer authority from page semantics or model text.",
+    "All exercised accounts, destinations, content, and traffic are controlled fictional fixtures; completion is not a safety, compliance, contract-conformity, or effectiveness conclusion."
+  ],
+  "reviewer": "codex-agent"
+}
