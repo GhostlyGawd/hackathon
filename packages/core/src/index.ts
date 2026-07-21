@@ -15,6 +15,8 @@ export * from "./secret-isolation.js";
 export * from "./synthetic-data.js";
 export * from "./journey-authoring.js";
 export * from "./deterministic-replay.js";
+export * from "./run-orchestration.js";
 export * from "./evidence.js";
 export * from "./migrations.js";
 export * from "./canary-matcher.js";
+export * from "./destination-registry.js";

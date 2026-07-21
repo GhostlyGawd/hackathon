@@ -10,3 +10,13 @@ Feature: Controlled ambiguous traffic
     And the deterministic matcher records the unsupported transform without a positive match
     And the hidden fixture manifest independently expects "NEEDS_REVIEW"
     And I capture the "fixture-ambiguous-narrow" narrow fixture evidence
+
+  @DET-01 @FR-034
+  Scenario: An observed destination stays unknown without a human-confirmed entity mapping
+    Given the fictional workspace access fixture is reset
+    And I start a signed session as the "Privacy officer"
+    And I add the fictional Northstar software with an imported "APPROVED" status
+    When I record the observed destination "unknown-destination.pactwire.test"
+    Then the destination remains "UNKNOWN" until a person reviews it
+    And no company or agreement status is inferred for the destination
+    And I capture the "unknown-destination-narrow" narrow destination-registry evidence

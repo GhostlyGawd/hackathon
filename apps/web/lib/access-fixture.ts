@@ -3,10 +3,13 @@ import {
   Aes256GcmSecretCipher,
   AgreementIntakeService,
   DeterministicRequirementProposalAdapter,
+  DestinationRegistryService,
   FetchOpenAIResponsesTransport,
   InMemoryAgreementIntakeRepository,
   InMemoryAgreementObjectStore,
+  InMemoryDestinationRegistryRepository,
   InMemoryJourneyAuthoringRepository,
+  InMemoryRunOrchestrationRepository,
   InMemoryRequirementProposalRepository,
   InMemoryRequirementReviewRepository,
   InMemorySecretIsolationRepository,
@@ -19,6 +22,7 @@ import {
   SecretIsolationService,
   RequirementProposalService,
   RequirementReviewService,
+  RunOrchestrationService,
   SyntheticDataService,
   SoftwareInventoryService,
   TestAuthorizationService,
@@ -87,6 +91,10 @@ export interface AccessRuntime {
   readonly syntheticDataService: SyntheticDataService;
   readonly journeyAuthoringRepository: InMemoryJourneyAuthoringRepository;
   readonly journeyAuthoringService: JourneyAuthoringService;
+  readonly destinationRegistryRepository: InMemoryDestinationRegistryRepository;
+  readonly destinationRegistryService: DestinationRegistryService;
+  readonly runOrchestrationRepository: InMemoryRunOrchestrationRepository;
+  readonly runOrchestrationService: RunOrchestrationService;
 }
 
 export function isFixtureMode(): boolean {
@@ -154,6 +162,185 @@ function fixtureClock(): () => string {
     offset += 1;
     return current.toISOString();
   };
+}
+
+export const fixtureRunHistorySoftwareId =
+  "56565656-5656-4565-8565-565656565656";
+
+function runHistoryFixtureOptions(): {
+  readonly advance: (milliseconds: number) => void;
+  readonly idFactory: () => string;
+  readonly now: () => string;
+} {
+  let current = Date.parse("2026-07-22T14:00:00.000Z");
+  let identifier = 1;
+  return {
+    advance: (milliseconds: number) => {
+      current += milliseconds;
+    },
+    idFactory: () =>
+      `57575757-5757-4757-8757-${String(identifier++).padStart(12, "0")}`,
+    now: () => {
+      const observed = new Date(current).toISOString();
+      current += 1_000;
+      return observed;
+    },
+  };
+}
+
+async function seedRunHistory(
+  repository: InMemoryRunOrchestrationRepository,
+  service: RunOrchestrationService,
+  advance: (milliseconds: number) => void,
+): Promise<void> {
+  const human = {
+    kind: "HUMAN" as const,
+    actorId: fixtureUsers.officer.userId,
+  };
+  const automation = {
+    kind: "AUTOMATION" as const,
+    actorId: "pactwire-fixture-worker",
+    component: "run-orchestrator",
+  };
+  const requiredCheckpointIds = [
+    "submission-request",
+    "completion-visible",
+  ] as const;
+  const snapshot = {
+    agreementVersionId: "58585858-5858-4858-8858-585858585858",
+    journeyVersionId: "59595959-5959-4959-8959-595959595959",
+    authorizationId: "60606060-6060-4060-8060-606060606060",
+    runnerConfigVersion: "controlled-runner-v1",
+    snapshotHash: "a".repeat(64),
+  };
+  const observation = (ordinal: number, source: "BROWSER" | "NETWORK") => ({
+    observationId: `61616161-6161-4161-8161-${String(ordinal).padStart(12, "0")}`,
+    sequence: ordinal,
+    source,
+    payloadHash: ordinal.toString(16).padStart(64, "0"),
+  });
+  const queue = (label: string) =>
+    service.queueRun({
+      workspaceId: fixtureWorkspaceIds.cedarRidge,
+      softwareId: fixtureRunHistorySoftwareId,
+      snapshot,
+      requiredCheckpointIds,
+      modelIdentifier: "gpt-5.6-sol",
+      queuedBy: human,
+      idempotencyKey: `fixture-${label}-queue`,
+    });
+  const claim = (label: string) =>
+    service.claimNext({
+      workspaceId: fixtureWorkspaceIds.cedarRidge,
+      workerId: `fixture-${label}-worker`,
+      leaseToken: `${label}-${"fictional-lease-token".repeat(2)}`,
+      actor: automation,
+      idempotencyKey: `fixture-${label}-claim`,
+    });
+  const verifiedCoverage = requiredCheckpointIds.map((checkpointId) => ({
+    checkpointId,
+    status: "VERIFIED" as const,
+  }));
+
+  const completed = await queue("completed");
+  const completedClaim = await claim("completed");
+  if (!completedClaim) throw new Error("Completed fixture run was not claimed");
+  await service.finalizeRun({
+    workspaceId: completed.workspaceId,
+    runId: completed.id,
+    leaseToken: completedClaim.leaseToken,
+    terminalStatus: "COMPLETED",
+    runnerVersion: "pactwire-runner-v1",
+    observations: [observation(1, "NETWORK"), observation(2, "BROWSER")],
+    coverage: verifiedCoverage,
+    limitations: ["Only the controlled fictional student journey was exercised."],
+    actor: automation,
+    idempotencyKey: "fixture-completed-finalize",
+  });
+
+  const partial = await queue("partial");
+  const partialClaim = await claim("partial");
+  if (!partialClaim) throw new Error("Partial fixture run was not claimed");
+  await service.finalizeRun({
+    workspaceId: partial.workspaceId,
+    runId: partial.id,
+    leaseToken: partialClaim.leaseToken,
+    terminalStatus: "PARTIAL",
+    runnerVersion: "pactwire-runner-v1",
+    observations: [observation(3, "NETWORK")],
+    coverage: [
+      { checkpointId: requiredCheckpointIds[0], status: "VERIFIED" },
+      {
+        checkpointId: requiredCheckpointIds[1],
+        status: "NOT_VISIBLE",
+        reason: "The completion signal was outside recorder visibility.",
+      },
+    ],
+    limitations: ["One required checkpoint was not visible to the recorder."],
+    actor: automation,
+    idempotencyKey: "fixture-partial-finalize",
+  });
+
+  const failed = await queue("failed");
+  const failedClaim = await claim("failed");
+  if (!failedClaim) throw new Error("Failed fixture run was not claimed");
+  await service.finalizeRun({
+    workspaceId: failed.workspaceId,
+    runId: failed.id,
+    leaseToken: failedClaim.leaseToken,
+    terminalStatus: "FAILED",
+    runnerVersion: "pactwire-runner-v1",
+    observations: [],
+    coverage: requiredCheckpointIds.map((checkpointId) => ({
+      checkpointId,
+      status: "NOT_TESTED" as const,
+      reason: "Execution stopped before this checkpoint.",
+    })),
+    limitations: ["No required checkpoint completed."],
+    actor: automation,
+    idempotencyKey: "fixture-failed-finalize",
+  });
+
+  const crashed = await queue("crashed");
+  const crashedClaim = await claim("crashed");
+  if (!crashedClaim) throw new Error("Crash fixture run was not claimed");
+  advance(300_001);
+  await service.failExpiredLease({
+    workspaceId: crashed.workspaceId,
+    runId: crashed.id,
+    actor: automation,
+    idempotencyKey: "fixture-crashed-expire",
+  });
+  const retry = await service.retryRun({
+    workspaceId: crashed.workspaceId,
+    sourceRunId: crashed.id,
+    requestedBy: human,
+    idempotencyKey: "fixture-crashed-retry",
+  });
+  const retryClaim = await claim("retry");
+  if (!retryClaim || retryClaim.run.id !== retry.run.id) {
+    throw new Error("Retry fixture run was not claimed");
+  }
+  await service.finalizeRun({
+    workspaceId: retry.run.workspaceId,
+    runId: retry.run.id,
+    leaseToken: retryClaim.leaseToken,
+    terminalStatus: "COMPLETED",
+    runnerVersion: "pactwire-runner-v1",
+    observations: [observation(4, "NETWORK"), observation(5, "BROWSER")],
+    coverage: verifiedCoverage,
+    limitations: ["This retry repeated only the exact frozen configuration."],
+    actor: automation,
+    idempotencyKey: "fixture-retry-finalize",
+  });
+
+  const history = await repository.listHistory(
+    fixtureWorkspaceIds.cedarRidge,
+    fixtureRunHistorySoftwareId,
+  );
+  if (history.length !== 5) {
+    throw new Error("The controlled run-history fixture is incomplete");
+  }
 }
 
 async function createFixtureRuntime(): Promise<AccessRuntime> {
@@ -270,6 +457,30 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     service,
     { idFactory, now },
   );
+  const destinationRegistryRepository =
+    new InMemoryDestinationRegistryRepository(repository);
+  const destinationRegistryService = new DestinationRegistryService(
+    destinationRegistryRepository,
+    service,
+    agreementService,
+    { idFactory, now },
+  );
+  const runHistoryOptions = runHistoryFixtureOptions();
+  const runOrchestrationRepository =
+    new InMemoryRunOrchestrationRepository();
+  const runOrchestrationService = new RunOrchestrationService(
+    runOrchestrationRepository,
+    {
+      idFactory: runHistoryOptions.idFactory,
+      now: runHistoryOptions.now,
+      leaseDurationMs: 300_000,
+    },
+  );
+  await seedRunHistory(
+    runOrchestrationRepository,
+    runOrchestrationService,
+    runHistoryOptions.advance,
+  );
   return Object.freeze({
     repository,
     service,
@@ -290,6 +501,10 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     syntheticDataService,
     journeyAuthoringRepository,
     journeyAuthoringService,
+    destinationRegistryRepository,
+    destinationRegistryService,
+    runOrchestrationRepository,
+    runOrchestrationService,
   });
 }
 
