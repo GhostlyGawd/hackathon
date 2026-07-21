@@ -12,6 +12,7 @@ import {
   deterministicRecorderReportSchema,
   networkObservationFactsSchema,
 } from "../../apps/runner/dist/index.js";
+import { createFictionalSubmissionRecorderConfig } from "../helpers/fictional-submission-recorder.mjs";
 
 const workspaceId = "11111111-1111-4111-8111-111111111111";
 const runIds = Object.freeze({
@@ -19,34 +20,6 @@ const runIds = Object.freeze({
   INVISIBLE: "52525252-5252-4252-8252-525252525252",
 });
 const recorderSecret = "RUN-02-FICTIONAL-LOGIN-SECRET";
-
-function recorderConfig(server, runId) {
-  return {
-    workspaceId,
-    runId,
-    captureMode: "BROWSER_CDP",
-    authorizedRequestRules: [
-      {
-        host: "classroom-service.pactwire.test",
-        method: "POST",
-        path: "/collect",
-        fields: ["studentEmail", "submission"],
-      },
-    ],
-    requiredCheckpoints: [
-      {
-        id: "student-submission-request",
-        required: true,
-        host: "classroom-service.pactwire.test",
-        method: "POST",
-        path: "/collect",
-        requiredRequestFields: ["studentEmail", "submission"],
-        requireResponseMetadata: true,
-      },
-    ],
-    secrets: [recorderSecret],
-  };
-}
 
 function isolationConfig(server, runId) {
   return {
@@ -229,7 +202,11 @@ Given(
     const recorder = await DeterministicBrowserRecorder.start({
       page: session.page,
       artifactDirectory: screenshotDirectory,
-      config: recorderConfig(fixture, runId),
+      config: createFictionalSubmissionRecorderConfig({
+        workspaceId,
+        runId,
+        secrets: [recorderSecret],
+      }),
     });
     this.run02 = {
       fixture,

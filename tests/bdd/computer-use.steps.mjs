@@ -15,6 +15,7 @@ import {
   networkObservationFactsSchema,
   runPolicyBoundedComputerUse,
 } from "../../apps/runner/dist/index.js";
+import { createFictionalSubmissionRecorderConfig } from "../helpers/fictional-submission-recorder.mjs";
 
 const workspaceId = "11111111-1111-4111-8111-111111111111";
 const runIds = Object.freeze({
@@ -23,34 +24,6 @@ const runIds = Object.freeze({
   RISKY_ACTION: "63636363-6363-4363-8363-636363636363",
 });
 const computerUseSecret = "RUN-03-FICTIONAL-BROWSER-SECRET";
-
-function recorderConfig(server, runId) {
-  return {
-    workspaceId,
-    runId,
-    captureMode: "BROWSER_CDP",
-    authorizedRequestRules: [
-      {
-        host: "classroom-service.pactwire.test",
-        method: "POST",
-        path: "/collect",
-        fields: ["studentEmail", "submission"],
-      },
-    ],
-    requiredCheckpoints: [
-      {
-        id: "student-submission-request",
-        required: true,
-        host: "classroom-service.pactwire.test",
-        method: "POST",
-        path: "/collect",
-        requiredRequestFields: ["studentEmail", "submission"],
-        requireResponseMetadata: true,
-      },
-    ],
-    secrets: [computerUseSecret],
-  };
-}
 
 function isolationConfig(server, runId) {
   return {
@@ -318,7 +291,11 @@ Given(
     const recorder = await DeterministicBrowserRecorder.start({
       page: session.page,
       artifactDirectory: screenshotDirectory,
-      config: recorderConfig(fixture, runId),
+      config: createFictionalSubmissionRecorderConfig({
+        workspaceId,
+        runId,
+        secrets: [computerUseSecret],
+      }),
     });
     const riskyRequests = [];
     session.page.on("request", (request) => {
