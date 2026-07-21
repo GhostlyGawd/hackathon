@@ -243,7 +243,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | FIX-01 | P0 | FND-01, FND-03 | Controlled classroom fixture | COMPLETE |
 | JRN-03 | P0 | JRN-02, FIX-01 | Deterministic replay baseline | IN PROGRESS |
 | RUN-01 | P0 | AUT-03, AUT-04, FIX-01 | Isolated browser runner | COMPLETE |
-| RUN-02 | P0 + P1 follow-on | RUN-01, JRN-01 | Deterministic recorder and visibility | IN PROGRESS |
+| RUN-02 | P0 + P1 follow-on | RUN-01, JRN-01 | Deterministic recorder and visibility | COMPLETE (P0) |
 | RUN-03 | P0 | RUN-01, AUT-03, AUT-04, FIX-01 | Policy-bounded GPT-5.6 computer use | NOT STARTED |
 | RUN-04 | P0 | RUN-03, JRN-02, JRN-03 | Model-assisted journey repair | NOT STARTED |
 | RUN-05 | P0 | FND-03, RUN-01, RUN-02 | Run orchestration and manifests | NOT STARTED |
@@ -497,7 +497,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### RUN-02 — Implement deterministic recorder and visibility detection
 
-- **Status:** IN PROGRESS — red-first scope covers canonical observation ordering and hashes, minimized authorized request-field summaries, real CDP browser/network/response capture, storage diffs, masked screenshots, capture-gap events, and required visibility classification independent of model output. FR-038 proxy mode remains the explicit P1 follow-on.
+- **Status:** COMPLETE (P0) — canonical observation ordering and hashes, minimized authorized request-field summaries, real CDP browser/network/response capture, storage diffs, masked screenshots, capture-gap events, and required visibility classification pass independently of model output. Source commit `dedd0151d819dd99b1cd18609b8fb7713c0e1b60` passed clean-checkout Ubuntu and Windows CI and produced source-bound reports, screenshots, and sanitized paired browser traces. FR-038 proxy mode remains DEFERRED (P1) until its separately labeled proxy tests and minimization gate pass.
 - **Deliver:** action times, page URLs, screenshots, request method/URL/host, initiator when available, authorized request fields, response metadata, storage changes, capture-gap events, and recorder versioning. P1 adds separately labeled proxy capture.
 - **PRD:** FR-031, FR-035, and FR-038; Sections 13 and 17.
 - **Depends on:** RUN-01 and JRN-01.

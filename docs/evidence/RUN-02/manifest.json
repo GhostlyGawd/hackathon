@@ -2,17 +2,34 @@
   "schemaVersion": "1.0.0",
   "taskId": "RUN-02",
   "title": "Implement deterministic recorder and visibility detection (P0)",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [13, 17],
   "functionalRequirements": ["FR-031", "FR-035"],
-  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "sourceCommitSha": "dedd0151d819dd99b1cd18609b8fb7713c0e1b60",
   "startedAt": "2026-07-21T02:48:00.000-04:00",
+  "completedAt": "2026-07-21T07:54:20.379Z",
   "artifactRoot": "artifacts/verification/RUN-02/",
   "curatedEvidenceRoot": "docs/evidence/RUN-02/",
   "environment": {
-    "os": "Windows local; clean-checkout GitHub Actions pending",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29810698922",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29810698922/job/88570804994",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29810698922/job/88570805010",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -133,6 +150,71 @@
       "command": "pnpm audit --prod and workspace credential-pattern scan",
       "exitCode": 0,
       "durationMs": 3900
+    },
+    {
+      "phase": "RED",
+      "name": "Clean-checkout request selection was sensitive to Chromium CORS preflights",
+      "command": "GitHub Actions run 29810053782 on source commit f9b728fd6177dca3bd97116f8c6f65b9ec88f360",
+      "exitCode": 1,
+      "durationMs": 291000,
+      "expectedFailure": "Ubuntu and Windows each selected a host-matching OPTIONS preflight in one recorder assertion instead of the configured POST /collect request; the recorder visibility decision itself remained method-and-path specific"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Exact configured-request selection across repeated real-Chromium runs",
+      "command": "Run tests/integration/deterministic-recorder.test.ts six consecutive times after matching host, method, and path",
+      "exitCode": 0,
+      "durationMs": 45600
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Exact-request BDD, lint, and type checks",
+      "command": "PACTWIRE_BDD_TAGS=@RUN-02 pnpm test:bdd -- --production && pnpm lint && pnpm typecheck",
+      "exitCode": 0,
+      "durationMs": 69800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout Ubuntu and Windows verification",
+      "command": "GitHub Actions run 29810698922 on source commit dedd0151d819dd99b1cd18609b8fb7713c0e1b60",
+      "exitCode": 0,
+      "durationMs": 390000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production recorder workflows",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=RUN-02 PACTWIRE_BDD_TAGS=@RUN-02 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 13800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Browser-trace privacy sanitization",
+      "command": "Mechanically replace the repository root in Playwright trace.stacks, preserve every archive entry, and scan expanded traces plus curated evidence for personal paths and credential patterns",
+      "exitCode": 0,
+      "durationMs": 2500
+    },
+    {
+      "phase": "RED",
+      "name": "Captured RUN-02 assets required manifest traceability",
+      "command": "pnpm evidence:check",
+      "exitCode": 1,
+      "durationMs": 2406,
+      "expectedFailure": "The evidence checker reported the two recorder reports, two screenshots, and two sanitized paired browser traces as six orphan evidence assets before they were added to this manifest"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Completed evidence inventory and harness reconciliation",
+      "command": "pnpm evidence:check && pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 0,
+      "durationMs": 6700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Final complete optimized-production repository verification with curated evidence",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 312259
     }
   ],
   "testSummary": {
@@ -175,9 +257,88 @@
     ]
   },
   "visualEvidence": {
-    "applicable": false,
-    "rationale": "Source-bound optimized-production recorder reports, screenshots, and sanitized paired browser traces are pending the implementation source commit and clean-checkout CI.",
-    "assets": []
+    "applicable": true,
+    "rationale": "RUN-02 changes browser observation and a visible capture-loss state. The optimized-production BDD workflows therefore retain recorder reports, desktop screenshots, and paired sanitized Playwright traces. No responsive product screen changed in this task, so a narrow-viewport duplicate is not applicable; the recorder boundary is proven at the controlled 1280 by 900 run viewport.",
+    "assets": [
+      {
+        "path": "docs/evidence/RUN-02/baseline-observation-recorder.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T07:42:39.858Z",
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "altText": "Machine-readable browser-CDP recorder report for a fictional classroom submission, with one deterministic action, ten canonical observations, authorized request-field hashes, response metadata, and a VISIBLE required checkpoint.",
+        "caption": "The independent recorder observed the exact POST /collect checkpoint, hashed only the authorized fictional fields, recorded the 204 response and storage changes, and classified all required P0 facts as VISIBLE.",
+        "provenance": "captured",
+        "sourceCommitSha": "dedd0151d819dd99b1cd18609b8fb7713c0e1b60"
+      },
+      {
+        "path": "docs/evidence/RUN-02/baseline-observation-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T07:42:39.827Z",
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "altText": "Desktop capture of the controlled fictional classroom fixture after a baseline submission, showing BASELINE mode and a green Fictional submission completed receipt.",
+        "caption": "The baseline workflow completed through the declared controlled fixture while the independent recorder produced the paired VISIBLE report.",
+        "provenance": "captured",
+        "sourceCommitSha": "dedd0151d819dd99b1cd18609b8fb7713c0e1b60"
+      },
+      {
+        "path": "docs/evidence/RUN-02/baseline-observation-browser-trace-sanitized.zip",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T07:42:39.325Z",
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "altText": "Sanitized fourteen-entry Playwright browser archive paired with the baseline recorder report, preserving actions, snapshots, screenshots, network records, and stack metadata.",
+        "caption": "All fourteen raw trace entries are preserved; the single local repository-root occurrence in optional stack metadata is replaced with $REPOSITORY.",
+        "provenance": "captured",
+        "sourceCommitSha": "dedd0151d819dd99b1cd18609b8fb7713c0e1b60"
+      },
+      {
+        "path": "docs/evidence/RUN-02/visibility-loss-recorder.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T07:42:41.222Z",
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "altText": "Machine-readable browser-CDP recorder report for a controlled required-stream loss, with one deterministic action, eleven canonical observations, an INSTRUMENTATION_UNAVAILABLE gap, and a NOT_VISIBLE required checkpoint.",
+        "caption": "Even though the fictional submission occurred, the trusted forced capture gap dominates matching observations and prevents a clean or visible result.",
+        "provenance": "captured",
+        "sourceCommitSha": "dedd0151d819dd99b1cd18609b8fb7713c0e1b60"
+      },
+      {
+        "path": "docs/evidence/RUN-02/visibility-loss-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T07:42:41.188Z",
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "altText": "Desktop capture of the controlled fictional classroom fixture in INVISIBLE mode, showing a required-capture warning and a submission-completed-with-declared-capture-gap receipt.",
+        "caption": "The visible fixture warning and completion receipt are paired with the independent recorder's NOT_VISIBLE classification; page content cannot clear the trusted gap.",
+        "provenance": "captured",
+        "sourceCommitSha": "dedd0151d819dd99b1cd18609b8fb7713c0e1b60"
+      },
+      {
+        "path": "docs/evidence/RUN-02/visibility-loss-browser-trace-sanitized.zip",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T07:42:40.692Z",
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "altText": "Sanitized eleven-entry Playwright browser archive paired with the visibility-loss recorder report, preserving actions, snapshots, screenshots, network records, and stack metadata.",
+        "caption": "All eleven raw trace entries are preserved; the single local repository-root occurrence in optional stack metadata is replaced with $REPOSITORY.",
+        "provenance": "captured",
+        "sourceCommitSha": "dedd0151d819dd99b1cd18609b8fb7713c0e1b60"
+      }
+    ]
   },
   "proofs": [
     {
@@ -214,11 +375,41 @@
       "kind": "test",
       "path": "tests/bdd/deterministic-recorder.steps.mjs",
       "description": "Real isolated Chromium, independent fixture oracle, recorder finalization, Playwright trace, screenshot, JSON report, and capture-gap evidence bindings"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/RUN-02/baseline-observation-recorder.json",
+      "description": "Source-bound canonical recorder report proving the exact required request, authorized field hashes, response metadata, storage changes, and VISIBLE baseline classification"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/RUN-02/baseline-observation-desktop.png",
+      "description": "Source-bound optimized-production screenshot of the completed controlled baseline workflow"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/RUN-02/baseline-observation-browser-trace-sanitized.zip",
+      "description": "Sanitized paired Playwright archive preserving all fourteen baseline trace entries"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/RUN-02/visibility-loss-recorder.json",
+      "description": "Source-bound canonical recorder report proving a trusted required-stream gap deterministically yields NOT_VISIBLE"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/RUN-02/visibility-loss-desktop.png",
+      "description": "Source-bound optimized-production screenshot of the declared capture-gap workflow and visible loss warning"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/RUN-02/visibility-loss-browser-trace-sanitized.zip",
+      "description": "Sanitized paired Playwright archive preserving all eleven visibility-loss trace entries"
     }
   ],
   "sanitization": {
     "reviewed": true,
-    "reviewedAt": "2026-07-21T07:10:09.557Z",
+    "reviewedAt": "2026-07-21T07:46:25.705Z",
     "findings": []
   },
   "knownLimitations": [
