@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -21,10 +20,6 @@ const workspaceId = "11111111-1111-4111-8111-111111111111";
 
 function marker(label) {
   return `RUN-01-${label.toUpperCase()}-FICTIONAL-CREDENTIAL`;
-}
-
-function markerHash(label) {
-  return createHash("sha256").update(marker(label), "utf8").digest("hex");
 }
 
 function config(world, label) {
@@ -138,7 +133,6 @@ When(
     await rememberTerminal(this, label, session, {
       artifactReadableDuringFinalization: artifactReadable,
       downloadRemovedAfterFinalization: !existsSync(downloadPath),
-      markerPersistedOnlyAsHash: markerHash(label).length === 64,
     });
   },
 );
@@ -194,7 +188,6 @@ When(
     await session.waitForTermination();
     await rememberTerminal(this, label, session, {
       downloadRemovedAfterCrash: !existsSync(downloadPath),
-      markerPersistedOnlyAsHash: markerHash(label).length === 64,
     });
   },
 );
@@ -215,11 +208,25 @@ Then(
 Then(/^I capture the RUN-01 "([^"]+)" trace$/, async function (name) {
   const sessions = Object.values(this.run01History);
   assert.ok(sessions.length >= 2);
-  const trace = isolationTraceSchema.parse({
+  const candidateTrace = isolationTraceSchema.parse({
     schemaVersion: "1.0.0",
     source: "PACTWIRE_ISOLATED_BROWSER",
     capturedAt: new Date().toISOString(),
     sessions,
+  });
+  const candidateSerialized = JSON.stringify(candidateTrace);
+  for (const label of Object.keys(runIds)) {
+    assert.equal(candidateSerialized.includes(marker(label)), false);
+  }
+  const trace = isolationTraceSchema.parse({
+    ...candidateTrace,
+    sessions: candidateTrace.sessions.map((session) => ({
+      ...session,
+      assertions: {
+        ...session.assertions,
+        rawFictionalMarkerAbsentFromTrace: true,
+      },
+    })),
   });
   const serialized = `${JSON.stringify(trace, null, 2)}\n`;
   for (const label of Object.keys(runIds)) {
