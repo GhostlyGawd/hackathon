@@ -8,9 +8,17 @@ import {
   buildJourneyVersion,
 } from "../../packages/core/dist/index.js";
 import {
+  DeterministicBrowserRecorder,
+  createDeterministicRecorderReplayEvidenceSink,
   createPlaywrightReplayAdapter,
+  deterministicRecorderReportSchema,
   executeDeterministicReplay,
+  networkObservationFactsSchema,
 } from "../../apps/runner/dist/index.js";
+import {
+  createFictionalSubmissionRecorderConfig,
+  fictionalSubmissionRecorderCheckpointId,
+} from "../helpers/fictional-submission-recorder.mjs";
 
 const ids = Object.freeze({
   workspace: "11111111-1111-4111-8111-111111111111",
@@ -24,6 +32,11 @@ const ids = Object.freeze({
   replay: "12121212-1212-4212-8212-121212121212",
   replayVersion: "13131313-1313-4313-8313-131313131313",
 });
+const replayRunIds = Object.freeze({
+  BASELINE: "14141414-1414-4141-8141-141414141414",
+  INTERFACE_DRIFT: "15151515-1515-4151-8151-151515151515",
+});
+const replayRecorderSecret = "JRN-03-FICTIONAL-RECORDER-SECRET";
 
 function namedStudentJourney() {
   return buildJourneyVersion({
@@ -177,8 +190,30 @@ When("the non-model baseline replays the frozen student journey", async function
     "JRN-03",
     "traces",
   );
-  await mkdir(traceRoot, { recursive: true });
+  const recorderScreenshotRoot = path.join(
+    process.cwd(),
+    "artifacts",
+    "verification",
+    "JRN-03",
+    "screenshots",
+    `recorder-${mode}`,
+  );
+  await Promise.all([
+    mkdir(traceRoot, { recursive: true }),
+    mkdir(recorderScreenshotRoot, { recursive: true }),
+  ]);
   const browserTracePath = path.join(traceRoot, `${mode}-browser-trace.zip`);
+  const runId = replayRunIds[this.fixtureVersion];
+  assert.ok(runId);
+  const recorder = await DeterministicBrowserRecorder.start({
+    page: this.page,
+    artifactDirectory: recorderScreenshotRoot,
+    config: createFictionalSubmissionRecorderConfig({
+      workspaceId: ids.workspace,
+      runId,
+      secrets: [replayRecorderSecret],
+    }),
+  });
   await this.context.tracing.start({
     screenshots: true,
     snapshots: true,
@@ -197,10 +232,18 @@ When("the non-model baseline replays the frozen student journey", async function
           this.fixtureServer.scenario.submission.response,
       },
       adapter: createPlaywrightReplayAdapter(this.page, { timeoutMs: 5_000 }),
+      evidence: createDeterministicRecorderReplayEvidenceSink(recorder),
     });
+    await recorder.captureScreenshot(`jrn-03-${mode}`);
   } finally {
-    await this.context.tracing.stop({ path: browserTracePath });
+    try {
+      this.deterministicReplayRecorderReport =
+        deterministicRecorderReportSchema.parse(await recorder.stop());
+    } finally {
+      await this.context.tracing.stop({ path: browserTracePath });
+    }
   }
+  this.deterministicReplayRecorderScreenshotRoot = recorderScreenshotRoot;
   this.deterministicReplayBrowserTracePath = browserTracePath;
   this.fixtureEvents = this.fixtureServer.readEvents();
 });
@@ -240,6 +283,65 @@ Then(
   },
 );
 
+Then(
+  "the shared recorder scores the required network checkpoint {string}",
+  function (state) {
+    const report = deterministicRecorderReportSchema.parse(
+      this.deterministicReplayRecorderReport,
+    );
+    assert.equal(report.captureMode, "BROWSER_CDP");
+    assert.equal(report.visibility.state, state);
+    const checkpoint = report.visibility.checkpoints.find(
+      (candidate) =>
+        candidate.checkpointId === fictionalSubmissionRecorderCheckpointId,
+    );
+    assert.ok(checkpoint);
+    assert.equal(checkpoint.required, true);
+    assert.equal(checkpoint.visible, state === "VISIBLE");
+    assert.equal(checkpoint.exercised, state === "VISIBLE");
+    assert.equal(
+      report.actions.length,
+      this.deterministicReplayOutcome.trace.length,
+    );
+    assert.ok(report.actions.every(({ actor }) => actor === "DETERMINISTIC"));
+    assert.equal(
+      report.actions.at(-1)?.summary.startsWith(
+        `${this.deterministicReplayOutcome.state}:`,
+      ),
+      true,
+    );
+    const serializedActions = JSON.stringify(report.actions);
+    assert.equal(
+      serializedActions.includes(
+        this.fixtureServer.scenario.personas.student.email,
+      ),
+      false,
+    );
+    assert.equal(
+      serializedActions.includes(
+        this.fixtureServer.scenario.submission.response,
+      ),
+      false,
+    );
+    assert.equal(serializedActions.includes(replayRecorderSecret), false);
+    if (state === "VISIBLE") {
+      const exactRequest = report.observations
+        .flatMap(({ facts }) => {
+          const parsed = networkObservationFactsSchema.safeParse(facts);
+          return parsed.success ? [parsed.data] : [];
+        })
+        .find(
+          ({ request }) =>
+            request.host === "classroom-service.pactwire.test" &&
+            request.method === "POST" &&
+            request.path === "/collect",
+        );
+      assert.ok(exactRequest);
+      assert.equal(exactRequest.response?.status, 204);
+    }
+  },
+);
+
 Then("the replay trace stops at {string}", function (reasonCode) {
   assert.equal(this.deterministicReplayOutcome.trace.at(-1)?.reasonCode, reasonCode);
 });
@@ -275,12 +377,26 @@ Then(
       `${mode}-replay-desktop.png`,
     );
     const replayTracePath = path.join(traceRoot, `${mode}-replay-trace.json`);
-    await this.page.setViewportSize({ width: 1440, height: 1100 });
+    const recorderReportPath = path.join(traceRoot, `${mode}-recorder.json`);
+    const recorderScreenshot = this.deterministicReplayRecorderReport
+      .screenshots[0];
+    assert.ok(recorderScreenshot);
     await Promise.all([
-      this.page.screenshot({ path: screenshotPath, fullPage: true }),
+      copyFile(
+        path.join(
+          this.deterministicReplayRecorderScreenshotRoot,
+          recorderScreenshot.artifactName,
+        ),
+        screenshotPath,
+      ),
       writeFile(
         replayTracePath,
         `${JSON.stringify(this.deterministicReplayOutcome, null, 2)}\n`,
+        "utf8",
+      ),
+      writeFile(
+        recorderReportPath,
+        `${JSON.stringify(this.deterministicReplayRecorderReport, null, 2)}\n`,
         "utf8",
       ),
     ]);
@@ -306,8 +422,8 @@ Then(
           path.join(curatedRoot, `${mode}-replay-trace.json`),
         ),
         copyFile(
-          this.deterministicReplayBrowserTracePath,
-          path.join(curatedRoot, `${mode}-browser-trace.zip`),
+          recorderReportPath,
+          path.join(curatedRoot, `${mode}-recorder.json`),
         ),
       ]);
     }

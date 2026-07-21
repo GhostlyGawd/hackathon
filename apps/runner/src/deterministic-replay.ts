@@ -35,6 +35,53 @@ export interface DeterministicReplayAdapter {
   ): Promise<ReplayAdapterResult>;
 }
 
+export interface DeterministicReplayOperationEvidence {
+  readonly sequence: number;
+  readonly operationId: string;
+  readonly operationKind: DeterministicReplayOperation["kind"];
+  readonly outcome: ReplayAdapterResult["status"];
+}
+
+export interface DeterministicReplayEvidenceSink {
+  recordOperation(
+    evidence: DeterministicReplayOperationEvidence,
+  ): Promise<void>;
+}
+
+function recorderActionKind(
+  operationKind: DeterministicReplayOperation["kind"],
+): "NAVIGATE" | "CLICK" | "FILL" | "CHECKPOINT" {
+  switch (operationKind) {
+    case "NAVIGATE":
+      return "NAVIGATE";
+    case "CLICK":
+      return "CLICK";
+    case "FILL":
+      return "FILL";
+    case "ASSERT_VALUE":
+    case "ASSERT_TEXT":
+    case "CHECKPOINT":
+      return "CHECKPOINT";
+  }
+}
+
+export function createDeterministicRecorderReplayEvidenceSink(recorder: {
+  readonly recordAction: (candidate: unknown) => Promise<void>;
+}): DeterministicReplayEvidenceSink {
+  return Object.freeze({
+    recordOperation(evidence: DeterministicReplayOperationEvidence) {
+      return recorder.recordAction({
+        actionId: `deterministic-replay-${evidence.sequence
+          .toString()
+          .padStart(4, "0")}`,
+        actor: "DETERMINISTIC",
+        kind: recorderActionKind(evidence.operationKind),
+        summary: `${evidence.outcome}: ${evidence.operationKind} ${evidence.operationId}`,
+      });
+    },
+  });
+}
+
 const traceEventSchema = z
   .object({
     sequence: z.number().int().positive(),
@@ -144,6 +191,7 @@ export async function executeDeterministicReplay(input: {
   readonly baseUrl: string;
   readonly bindingValues: Readonly<Record<string, string>>;
   readonly adapter: DeterministicReplayAdapter;
+  readonly evidence?: DeterministicReplayEvidenceSink;
   readonly now?: () => string;
 }): Promise<DeterministicReplayOutcome> {
   const replay = deterministicReplayVersionSchema.parse(input.replay);
@@ -177,6 +225,12 @@ export async function executeDeterministicReplay(input: {
     const materialized = materialize(operation, input.bindingValues);
     const result = await input.adapter.execute(materialized, {
       baseUrl: baseUrl.toString(),
+    });
+    await input.evidence?.recordOperation({
+      sequence: trace.length + 1,
+      operationId: operation.operationId,
+      operationKind: operation.kind,
+      outcome: result.status,
     });
     const bindingValue =
       materialized.kind === "FILL" || materialized.kind === "ASSERT_VALUE"

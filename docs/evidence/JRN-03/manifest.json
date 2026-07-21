@@ -2,11 +2,12 @@
   "schemaVersion": "1.0.0",
   "taskId": "JRN-03",
   "title": "Implement deterministic recording/replay and the non-model baseline",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [3, 19],
   "functionalRequirements": ["FR-024", "FR-027"],
-  "sourceCommitSha": "0eca6378612af76d838f4146353a1e771cbec827",
+  "sourceCommitSha": "2a358b1b5e3de75cdd99ad8638dfe7a86582ce46",
   "startedAt": "2026-07-21T00:05:00.000-04:00",
+  "completedAt": "2026-07-21T09:55:26.617Z",
   "artifactRoot": "artifacts/verification/JRN-03/",
   "curatedEvidenceRoot": "docs/evidence/JRN-03/",
   "environment": {
@@ -15,16 +16,16 @@
     "pnpm": "11.6.0",
     "ci": {
       "provider": "github-actions",
-      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29803249286",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29819428856",
       "jobs": [
         {
           "name": "Verify on ubuntu-latest",
-          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29803249286/job/88548347644",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29819428856/job/88598302133",
           "status": "SUCCESS"
         },
         {
           "name": "Verify on windows-latest",
-          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29803249286/job/88548347622",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29819428856/job/88598302184",
           "status": "SUCCESS"
         }
       ]
@@ -267,11 +268,105 @@
       "command": "Mechanically replace the repository root in Playwright trace.stacks, preserve every archive entry, and scan all trace metadata for personal paths and credential patterns",
       "exitCode": 0,
       "durationMs": 1200
+    },
+    {
+      "phase": "RED",
+      "name": "Missing deterministic-to-recorder evidence sink",
+      "command": "pnpm exec vitest run --project unit tests/unit/deterministic-replay.test.ts --project property tests/property/deterministic-replay.property.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 4400,
+      "expectedFailure": "The unit and generated recorder-isolation cases failed because the replay evidence sink did not exist; the first shrink 000a0aaa and 00A0AA0AAA00 is preserved as a permanent example"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Value-free shared-recorder actions and seeded replay properties",
+      "command": "Focused replay unit/property tests, runner typecheck, and focused eslint",
+      "exitCode": 0,
+      "durationMs": 26300
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined shared-recorder visibility stories",
+      "command": "PACTWIRE_BDD_TAGS=@JRN-03 pnpm test:bdd -- --production",
+      "exitCode": 1,
+      "durationMs": 13900,
+      "expectedFailure": "Both JRN-03 scenarios lacked the shared recorder score step, leaving two undefined steps, nineteen passed steps, and five skipped steps"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Shared-recorder baseline and drift browser stories",
+      "command": "PACTWIRE_BDD_TAGS=@JRN-03 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 20500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Replay behavior, property, browser, persistence, type, and lint matrix",
+      "command": "Focused replay unit/property/integration/persistence tests, runner typecheck, and focused eslint",
+      "exitCode": 0,
+      "durationMs": 29300
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Common JRN-03, RUN-02, and RUN-03 recorder stories",
+      "command": "PACTWIRE_BDD_TAGS='@JRN-03 or @RUN-02 or @RUN-03' pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 45400
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Fail-closed recorder regression and final focused browser stories",
+      "command": "Focused replay unit/property tests, runner typecheck, PACTWIRE_BDD_TAGS=@JRN-03 optimized-production BDD, and git diff whitespace validation",
+      "exitCode": 0,
+      "durationMs": 24500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound shared-recorder replay capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=JRN-03 PACTWIRE_BDD_TAGS=@JRN-03 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 13900
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound browser-trace privacy sanitization",
+      "command": "Expand both Playwright archives, preserve every entry, mechanically replace repository paths when present, add sanitizer reports, and scan trace text and curated JSON for personal paths and credential patterns",
+      "exitCode": 0,
+      "durationMs": 1900
+    },
+    {
+      "phase": "RED",
+      "name": "Shared recorder reports required manifest traceability",
+      "command": "pnpm evidence:check",
+      "exitCode": 1,
+      "durationMs": 2900,
+      "expectedFailure": "The evidence checker reported baseline-recorder.json and drift-recorder.json as two orphan source-bound assets"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout shared-recorder verification on Ubuntu and Windows",
+      "command": "GitHub Actions run 29819428856 on source commit 2a358b1b5e3de75cdd99ad8638dfe7a86582ce46: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 527000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Completed evidence inventory and harness reconciliation",
+      "command": "pnpm evidence:check; pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts --reporter=dot; git diff --check",
+      "exitCode": 0,
+      "durationMs": 4700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Final complete optimized-production repository verification with shared-recorder evidence",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 333380
     }
   ],
   "testSummary": {
-    "files": 58,
-    "passed": 235,
+    "files": 69,
+    "passed": 279,
     "failed": 0,
     "skipped": 0,
     "retries": 0
@@ -316,24 +411,25 @@
   },
   "visualEvidence": {
     "applicable": true,
+    "rationale": "JRN-03 changes visible replay completion and drift behavior and now binds both states to the same independent recorder and visibility scorer as the GPT arm. Source-bound desktop captures, replay outcomes, recorder reports, and sanitized Playwright traces are retained. No product screen changed in this completion seam, so a narrow-viewport duplicate is not applicable; execution is proven at the controlled 1440 by 1100 viewport.",
     "assets": [
       {
         "path": "docs/evidence/JRN-03/baseline-replay-desktop.png",
         "kind": "screenshot",
-        "capturedAt": "2026-07-21T05:17:57.000Z",
+        "capturedAt": "2026-07-21T09:44:00.787Z",
         "viewport": {
           "width": 1440,
           "height": 1100
         },
         "altText": "Desktop controlled classroom fixture after the deterministic baseline submitted a fictional response, showing BASELINE mode, reserved student data, and the visible fictional submission completed state.",
-        "caption": "The frozen human-authored replay completed all six operations and the required submission-request checkpoint against the optimized-production fictional fixture.",
+        "caption": "The frozen human-authored replay completed all six operations while the shared independent recorder separately scored the exact required network checkpoint VISIBLE.",
         "provenance": "captured",
-        "sourceCommitSha": "0eca6378612af76d838f4146353a1e771cbec827"
+        "sourceCommitSha": "2a358b1b5e3de75cdd99ad8638dfe7a86582ce46"
       },
       {
         "path": "docs/evidence/JRN-03/baseline-replay-trace.json",
         "kind": "trace",
-        "capturedAt": "2026-07-21T05:17:57.000Z",
+        "capturedAt": "2026-07-21T09:44:00.787Z",
         "viewport": {
           "width": 1440,
           "height": 1100
@@ -341,38 +437,51 @@
         "altText": "Machine-readable deterministic baseline trace with six completed operations, a verified required checkpoint, zero model calls, and hashes in place of raw fictional values.",
         "caption": "The durable baseline outcome is COMPLETED only after its required checkpoint is VERIFIED; two runtime values appear only as SHA-256 hashes.",
         "provenance": "captured",
-        "sourceCommitSha": "0eca6378612af76d838f4146353a1e771cbec827"
+        "sourceCommitSha": "2a358b1b5e3de75cdd99ad8638dfe7a86582ce46"
+      },
+      {
+        "path": "docs/evidence/JRN-03/baseline-recorder.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:44:00.787Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Independent browser-CDP recorder report for the deterministic baseline with six value-free deterministic action claims, eight canonical observations, one screenshot, and a VISIBLE required checkpoint.",
+        "caption": "The same recorder configuration used by the GPT arm independently observed the exact POST /collect request, authorized field hashes, 204 response, and required visibility score.",
+        "provenance": "captured",
+        "sourceCommitSha": "2a358b1b5e3de75cdd99ad8638dfe7a86582ce46"
       },
       {
         "path": "docs/evidence/JRN-03/baseline-browser-trace-sanitized.zip",
         "kind": "trace",
-        "capturedAt": "2026-07-21T05:17:57.000Z",
+        "capturedAt": "2026-07-21T09:44:00.787Z",
         "viewport": {
           "width": 1440,
           "height": 1100
         },
         "altText": "Sanitized Playwright browser trace for the completed deterministic baseline, containing action, page snapshot, screenshot, and network records without local personal paths.",
-        "caption": "The paired Playwright archive preserves ten captured trace entries; only local repository-root text in optional stack metadata was replaced with $REPOSITORY.",
+        "caption": "The paired archive preserves all fourteen captured trace entries plus its sanitizer report; no repository path or credential pattern was present after review.",
         "provenance": "captured",
-        "sourceCommitSha": "0eca6378612af76d838f4146353a1e771cbec827"
+        "sourceCommitSha": "2a358b1b5e3de75cdd99ad8638dfe7a86582ce46"
       },
       {
         "path": "docs/evidence/JRN-03/drift-replay-desktop.png",
         "kind": "screenshot",
-        "capturedAt": "2026-07-21T05:17:58.000Z",
+        "capturedAt": "2026-07-21T09:44:01.844Z",
         "viewport": {
           "width": 1440,
           "height": 1100
         },
         "altText": "Desktop controlled classroom fixture in INTERFACE DRIFT mode, showing that the student checkpoint moved and the old student route is unavailable.",
-        "caption": "The identical frozen replay stopped at its first navigation after the controlled fixture moved the route; no fictional submission request was sent.",
+        "caption": "The identical frozen replay stopped at its first navigation after the route moved; no fictional dispatch occurred and the shared recorder scored the checkpoint NOT_TESTED.",
         "provenance": "captured",
-        "sourceCommitSha": "0eca6378612af76d838f4146353a1e771cbec827"
+        "sourceCommitSha": "2a358b1b5e3de75cdd99ad8638dfe7a86582ce46"
       },
       {
         "path": "docs/evidence/JRN-03/drift-replay-trace.json",
         "kind": "trace",
-        "capturedAt": "2026-07-21T05:17:58.000Z",
+        "capturedAt": "2026-07-21T09:44:01.844Z",
         "viewport": {
           "width": 1440,
           "height": 1100
@@ -380,20 +489,33 @@
         "altText": "Machine-readable deterministic drift trace with one failed navigation, NAVIGATION_STATUS_MISMATCH, a NOT_REACHED required checkpoint, and zero model calls.",
         "caption": "The drift outcome cannot become success: it records DRIFTED, stops at the moved route, and leaves the required submission-request checkpoint NOT_REACHED.",
         "provenance": "captured",
-        "sourceCommitSha": "0eca6378612af76d838f4146353a1e771cbec827"
+        "sourceCommitSha": "2a358b1b5e3de75cdd99ad8638dfe7a86582ce46"
+      },
+      {
+        "path": "docs/evidence/JRN-03/drift-recorder.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T09:44:01.844Z",
+        "viewport": {
+          "width": 1440,
+          "height": 1100
+        },
+        "altText": "Independent browser-CDP recorder report for interface drift with one value-free deterministic action claim, five canonical observations, one screenshot, and a NOT_TESTED required checkpoint.",
+        "caption": "The shared recorder independently confirms that the required POST /collect effect was not exercised after deterministic navigation drift.",
+        "provenance": "captured",
+        "sourceCommitSha": "2a358b1b5e3de75cdd99ad8638dfe7a86582ce46"
       },
       {
         "path": "docs/evidence/JRN-03/drift-browser-trace-sanitized.zip",
         "kind": "trace",
-        "capturedAt": "2026-07-21T05:17:58.000Z",
+        "capturedAt": "2026-07-21T09:44:01.844Z",
         "viewport": {
           "width": 1440,
           "height": 1100
         },
         "altText": "Sanitized Playwright browser trace for deterministic interface drift, containing the moved-route page and network records without local personal paths.",
-        "caption": "The paired Playwright archive preserves four captured trace entries for the stopped drift run; only local repository-root text in optional stack metadata was replaced with $REPOSITORY.",
+        "caption": "The paired archive preserves all seven captured trace entries plus its sanitizer report; no repository path or credential pattern was present after review.",
         "provenance": "captured",
-        "sourceCommitSha": "0eca6378612af76d838f4146353a1e771cbec827"
+        "sourceCommitSha": "2a358b1b5e3de75cdd99ad8638dfe7a86582ce46"
       }
     ]
   },
@@ -401,12 +523,12 @@
     {
       "kind": "test",
       "path": "tests/unit/deterministic-replay.test.ts",
-      "description": "Stable human baseline, strict scope, complete bindings/checkpoints, no captured values, execution outcome, drift, and frozen-input refusal"
+      "description": "Stable human baseline, strict scope, value-free recorder mapping, recorder fail-closed behavior, complete bindings/checkpoints, execution outcome, drift, and frozen-input refusal"
     },
     {
       "kind": "test",
       "path": "tests/property/deterministic-replay.property.test.ts",
-      "description": "Seeded PROP-18 frozen-scope and PROP-05 required-checkpoint invariants"
+      "description": "Seeded PROP-18 frozen-scope and recorder-value isolation plus PROP-05 required-checkpoint invariants"
     },
     {
       "kind": "test",
@@ -421,12 +543,17 @@
     {
       "kind": "scenario",
       "path": "tests/bdd/deterministic-replay.feature",
-      "description": "Human-authored non-model completion and interface-drift stories through real browser boundaries"
+      "description": "Human-authored non-model completion and interface-drift stories through the shared independent recorder and visibility scorer"
     },
     {
       "kind": "test",
       "path": "tests/bdd/deterministic-replay.steps.mjs",
-      "description": "Controlled fixture, Playwright executor, zero-model/no-raw-value assertions, fixture oracle, and paired evidence capture"
+      "description": "Controlled fixture, Playwright executor, shared browser-CDP recorder, exact visibility scoring, zero-model/no-raw-value assertions, fixture oracle, and paired evidence capture"
+    },
+    {
+      "kind": "config",
+      "path": "tests/helpers/fictional-submission-recorder.mjs",
+      "description": "One exact POST /collect capture and visibility configuration shared by the deterministic baseline, recorder-only proof, and GPT-operated arm"
     },
     {
       "kind": "schema",
@@ -441,7 +568,7 @@
     {
       "kind": "config",
       "path": "apps/runner/src/deterministic-replay.ts",
-      "description": "Value-materializing executor with pre-action snapshot checks, bounded drift outcomes, checkpoint state, and hashed durable values"
+      "description": "Value-materializing executor with pre-action snapshot checks, value-free deterministic recorder actions, fail-closed evidence writes, bounded drift outcomes, checkpoint state, and hashed durable values"
     },
     {
       "kind": "config",
@@ -461,18 +588,19 @@
     {
       "kind": "evidence",
       "path": "docs/evidence/JRN-03/README.md",
-      "description": "JRN-03 red/green record, clean-checkout CI, source-bound visual/trace proof, and incomplete shared-recorder claim boundary"
+      "description": "JRN-03 red/green record, clean-checkout CI, source-bound replay/recorder/visual proof, and comparative claim boundary"
     }
   ],
   "sanitization": {
     "reviewed": true,
-    "reviewedAt": "2026-07-21T05:22:10.000Z",
+    "reviewedAt": "2026-07-21T09:45:26.000Z",
     "findings": []
   },
   "knownLimitations": [
     "JRN-03 proves a saved human-authored replay and its deterministic checkpoint outcome; RUN-01 still owns isolated production execution and runtime authorization-origin resolution.",
     "Saved navigation and response checkpoints are exact-origin bound, but this adapter is not a substitute for RUN-01's redirect, popup, and network-egress policy enforcement.",
-    "The replay adapter sees only its own browser actions; RUN-02 owns independent traffic capture and observed facts.",
+    "The deterministic arm now uses RUN-02's independent browser-CDP recorder and exact visibility score, but FR-038 proxy capture remains the separately labeled RUN-02 P1 follow-on.",
+    "JRN-03 supplies the non-model arm and common measurement seam; VAL-02 still owns blinded corpus comparison, scoring aggregation, and the eventual model-ablation decision.",
     "JRN-03 does not diagnose or repair drift; RUN-04 owns model-assisted repair and human review for scope changes.",
     "A COMPLETED replay means only that this frozen plan reached its required execution checkpoints; it does not establish safety, compliance, contract conformity, or product effectiveness.",
     "All behavior and evidence use the controlled fictional classroom fixture and reserved destinations."

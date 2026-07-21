@@ -6,6 +6,7 @@ import {
 } from "../../packages/core/src/deterministic-replay";
 import {
   FrozenReplayScopeError,
+  createDeterministicRecorderReplayEvidenceSink,
   executeDeterministicReplay,
   type DeterministicReplayAdapter,
   type MaterializedReplayOperation,
@@ -19,8 +20,9 @@ import {
 import { journeyPrincipal } from "../helpers/journey-authoring-fixtures";
 
 const injectedValues = Object.freeze({
-  "student-email-value": "student-a@canary.pactwire.invalid",
-  "student-response-value": "PACTWIRE-FICTIONAL-AAAAAAAAAAAAAAAAAAAA",
+  // Permanent example from the first recorder-isolation property shrink.
+  "student-email-value": "000a0aaa@canary.pactwire.invalid",
+  "student-response-value": "PACTWIRE-FICTIONAL-00A0AA0AAA00",
 });
 
 function successfulAdapter(calls: MaterializedReplayOperation[]): DeterministicReplayAdapter {
@@ -126,6 +128,90 @@ describe("deterministic replay domain", () => {
 });
 
 describe("deterministic replay execution", () => {
+  it("records one bounded value-free deterministic action for every attempted operation", async () => {
+    const replay = makeReplayVersion();
+    const recorderActions: unknown[] = [];
+    const outcome = await executeDeterministicReplay({
+      replay,
+      snapshot: replay.snapshot,
+      baseUrl: "http://classroom.pactwire.test",
+      bindingValues: injectedValues,
+      adapter: successfulAdapter([]),
+      evidence: createDeterministicRecorderReplayEvidenceSink({
+        recordAction(candidate) {
+          recorderActions.push(candidate);
+          return Promise.resolve();
+        },
+      }),
+      now: () => "2026-07-21T10:15:00.000Z",
+    });
+
+    expect(outcome.state).toBe("COMPLETED");
+    expect(recorderActions).toEqual([
+      {
+        actionId: "deterministic-replay-0001",
+        actor: "DETERMINISTIC",
+        kind: "NAVIGATE",
+        summary: "COMPLETED: NAVIGATE open-student-workspace",
+      },
+      {
+        actionId: "deterministic-replay-0002",
+        actor: "DETERMINISTIC",
+        kind: "CHECKPOINT",
+        summary: "COMPLETED: ASSERT_VALUE check-student-email",
+      },
+      {
+        actionId: "deterministic-replay-0003",
+        actor: "DETERMINISTIC",
+        kind: "FILL",
+        summary: "COMPLETED: FILL enter-student-response",
+      },
+      {
+        actionId: "deterministic-replay-0004",
+        actor: "DETERMINISTIC",
+        kind: "CLICK",
+        summary: "COMPLETED: CLICK submit-student-response",
+      },
+      {
+        actionId: "deterministic-replay-0005",
+        actor: "DETERMINISTIC",
+        kind: "CHECKPOINT",
+        summary: "COMPLETED: CHECKPOINT observe-submission-request",
+      },
+      {
+        actionId: "deterministic-replay-0006",
+        actor: "DETERMINISTIC",
+        kind: "CHECKPOINT",
+        summary: "COMPLETED: ASSERT_TEXT confirm-visible-completion",
+      },
+    ]);
+    expect(JSON.stringify(recorderActions)).not.toContain(
+      injectedValues["student-email-value"],
+    );
+    expect(JSON.stringify(recorderActions)).not.toContain(
+      injectedValues["student-response-value"],
+    );
+  });
+
+  it("cannot return a completed replay when the required evidence sink fails", async () => {
+    const replay = makeReplayVersion();
+    await expect(
+      executeDeterministicReplay({
+        replay,
+        snapshot: replay.snapshot,
+        baseUrl: "http://classroom.pactwire.test",
+        bindingValues: injectedValues,
+        adapter: successfulAdapter([]),
+        evidence: {
+          recordOperation() {
+            return Promise.reject(new Error("shared recorder unavailable"));
+          },
+        },
+        now: () => "2026-07-21T10:15:00.000Z",
+      }),
+    ).rejects.toThrow("shared recorder unavailable");
+  });
+
   it("injects current run values, completes every checkpoint, and persists only value hashes", async () => {
     const replay = makeReplayVersion();
     const calls: MaterializedReplayOperation[] = [];

@@ -2,6 +2,7 @@ import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import {
   FrozenReplayScopeError,
+  createDeterministicRecorderReplayEvidenceSink,
   executeDeterministicReplay,
   type MaterializedReplayOperation,
 } from "../../apps/runner/src/deterministic-replay";
@@ -23,6 +24,7 @@ describe("deterministic replay properties", () => {
             "student-response-value": `PACTWIRE-FICTIONAL-${responseToken}`,
           };
           const calls: MaterializedReplayOperation[] = [];
+          const recorderActions: unknown[] = [];
           const outcome = await executeDeterministicReplay({
             replay,
             snapshot: structuredClone(replay.snapshot),
@@ -34,6 +36,12 @@ describe("deterministic replay properties", () => {
                 return Promise.resolve({ status: "COMPLETED" as const });
               },
             },
+            evidence: createDeterministicRecorderReplayEvidenceSink({
+              recordAction(candidate) {
+                recorderActions.push(candidate);
+                return Promise.resolve();
+              },
+            }),
             now: () => "2026-07-21T10:15:00.000Z",
           });
 
@@ -44,6 +52,13 @@ describe("deterministic replay properties", () => {
           );
           expect(JSON.stringify(outcome)).not.toContain(values["student-email-value"]);
           expect(JSON.stringify(outcome)).not.toContain(values["student-response-value"]);
+          expect(recorderActions).toHaveLength(replay.operations.length);
+          expect(JSON.stringify(recorderActions)).not.toContain(
+            values["student-email-value"],
+          );
+          expect(JSON.stringify(recorderActions)).not.toContain(
+            values["student-response-value"],
+          );
         },
       ),
       { seed: propertySeed, numRuns: propertyRuns },
