@@ -2,17 +2,34 @@
   "schemaVersion": "1.0.0",
   "taskId": "RUN-01",
   "title": "Implement isolated browser execution",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [13, 16, 17],
   "functionalRequirements": ["FR-030"],
-  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "sourceCommitSha": "feb2234e126bc358c56de6d3e4de2e75fa7b2dbb",
   "startedAt": "2026-07-21T01:20:00.000-04:00",
+  "completedAt": "2026-07-21T06:27:38.571Z",
   "artifactRoot": "artifacts/verification/RUN-01/",
   "curatedEvidenceRoot": "docs/evidence/RUN-01/",
   "environment": {
-    "os": "Windows local; clean-checkout GitHub Actions pending",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29806618321",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29806618321/job/88558377331",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29806618321/job/88558377365",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -118,6 +135,42 @@
       "command": "pnpm audit --prod and workspace credential-pattern scan",
       "exitCode": 0,
       "durationMs": 2500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Corrected-source clean-checkout verification on Ubuntu and Windows",
+      "command": "GitHub Actions run 29806618321: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 476000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production isolation capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=RUN-01 PACTWIRE_BDD_TAGS=@RUN-01 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 18500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Curated trace privacy scan",
+      "command": "Scan RUN-01 traces for raw fictional markers, personal paths, token-shaped credentials, access keys, and private-key headers",
+      "exitCode": 0,
+      "durationMs": 600
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory rejected stale source-bound proof total",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 1080,
+      "expectedFailure": "The evidence inventory still expected 148 proof files after the two source-bound RUN-01 traces became the 149th and 150th unique proofs"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete evidence-bound optimized-production verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 308000
     }
   ],
   "testSummary": {
@@ -160,9 +213,36 @@
     ]
   },
   "visualEvidence": {
-    "applicable": false,
-    "rationale": "Source-bound optimized-production isolation and crash-recovery traces are pending the implementation source commit and clean-checkout CI; RUN-01 adds no visible product error surface that would make a screenshot applicable.",
-    "assets": []
+    "applicable": true,
+    "rationale": "Machine-readable lifecycle traces are applicable and required. A screenshot is not applicable because RUN-01 adds no visible UI or isolation-error surface.",
+    "assets": [
+      {
+        "path": "docs/evidence/RUN-01/sequential-isolation-trace.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T06:27:03.093Z",
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "altText": "Machine-readable lifecycle trace for two sequential real-Chromium runs, showing terminal cleanup for the first run and empty cookie, local-storage, clipboard, and prior-marker assertions for the second run.",
+        "caption": "The first run retained its isolated download only through artifact finalization, released its browser and temporary root, and the second run at the same authorized origin observed no browser-local state from it.",
+        "provenance": "captured",
+        "sourceCommitSha": "feb2234e126bc358c56de6d3e4de2e75fa7b2dbb"
+      },
+      {
+        "path": "docs/evidence/RUN-01/crash-recovery-trace.json",
+        "kind": "trace",
+        "capturedAt": "2026-07-21T06:27:04.998Z",
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "altText": "Machine-readable lifecycle trace for a real Chromium renderer crash followed by a recovery run, showing crash cleanup and empty browser-local state in recovery.",
+        "caption": "A CDP-induced renderer crash produced a CRASHED terminal session, removed its isolated download and temporary root, disconnected its browser, and allowed a clean recovery run.",
+        "provenance": "captured",
+        "sourceCommitSha": "feb2234e126bc358c56de6d3e4de2e75fa7b2dbb"
+      }
+    ]
   },
   "proofs": [
     {
@@ -199,11 +279,21 @@
       "kind": "test",
       "path": "tests/bdd/isolated-browser.steps.mjs",
       "description": "Controlled fictional fixture, real per-run Chromium resources, crash injection, terminal-resource assertions, and sanitized trace capture"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/RUN-01/sequential-isolation-trace.json",
+      "description": "Source-bound optimized-production trace proving sequential finalization, resource destruction, and absence of prior browser-local state"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/RUN-01/crash-recovery-trace.json",
+      "description": "Source-bound optimized-production trace proving renderer-crash cleanup and a clean recovery run"
     }
   ],
   "sanitization": {
     "reviewed": true,
-    "reviewedAt": "2026-07-21T05:57:00.000Z",
+    "reviewedAt": "2026-07-21T06:27:38.571Z",
     "findings": []
   },
   "knownLimitations": [
