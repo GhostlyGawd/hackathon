@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "25252525-2525-4525-8525-252525252525",
+  "workspaceId": "11111111-1111-4111-8111-111111111111",
+  "softwareId": "22222222-2222-4222-8222-222222222222",
+  "agreementVersionId": "33333333-3333-4333-8333-333333333333",
+  "journeyVersionId": "66666666-6666-4666-8666-666666666666",
+  "authorizationId": "44444444-4444-4444-8444-444444444444",
+  "replayId": "12121212-1212-4212-8212-121212121212",
+  "version": 2,
+  "sourceVersionId": "13131313-1313-4313-8313-131313131313",
+  "arm": "HUMAN_AUTHORED_DETERMINISTIC",
+  "modelInvocationCount": 0,
+  "journeyHash": "7800b054a0d442a0fffce209d23fa23fd956615b4869006a86bd0f6d4eb1dc3e",
+  "replayHash": "1998423a735f8cc6c60a77d4821b24bd302525764f0940f9846612c32684b6d6",
+  "snapshot": {
+    "agreementVersionId": "33333333-3333-4333-8333-333333333333",
+    "journeyVersionId": "66666666-6666-4666-8666-666666666666",
+    "authorizationId": "44444444-4444-4444-8444-444444444444",
+    "runnerConfigVersion": "deterministic-replay-v1",
+    "snapshotHash": "6bdd4848753a7e4645d5dd1a8332db9e64a01581521cd93e72636359b3726789"
+  },
+  "allowedActions": [
+    "NAVIGATE",
+    "SUBMIT"
+  ],
+  "requiredCheckpointIds": [
+    "submission-request"
+  ],
+  "bindings": [
+    {
+      "bindingId": "student-email-value",
+      "journeyFieldId": "student-email"
+    },
+    {
+      "bindingId": "student-response-value",
+      "journeyFieldId": "student-response"
+    }
+  ],
+  "operations": [
+    {
+      "operationId": "open-student-workspace",
+      "kind": "NAVIGATE",
+      "authorizedAction": "NAVIGATE",
+      "path": "/learner",
+      "expectedStatus": 200
+    },
+    {
+      "operationId": "check-student-email",
+      "kind": "ASSERT_VALUE",
+      "locator": {
+        "kind": "TEST_ID",
+        "value": "student-email"
+      },
+      "bindingId": "student-email-value"
+    },
+    {
+      "operationId": "enter-student-response",
+      "kind": "FILL",
+      "authorizedAction": "SUBMIT",
+      "locator": {
+        "kind": "TEST_ID",
+        "value": "student-response"
+      },
+      "bindingId": "student-response-value"
+    },
+    {
+      "operationId": "submit-student-response",
+      "kind": "CLICK",
+      "authorizedAction": "SUBMIT",
+      "locator": {
+        "kind": "TEST_ID",
+        "value": "turn-in-response"
+      }
+    },
+    {
+      "operationId": "observe-submission-request",
+      "kind": "CHECKPOINT",
+      "checkpointId": "submission-request",
+      "assertion": {
+        "kind": "RESPONSE",
+        "method": "POST",
+        "path": "/api/submissions",
+        "status": 200
+      }
+    },
+    {
+      "operationId": "confirm-visible-completion",
+      "kind": "ASSERT_TEXT",
+      "locator": {
+        "kind": "TEST_ID",
+        "value": "student-result"
+      },
+      "text": "Fictional submission completed"
+    }
+  ],
+  "createdAt": "2026-07-21T11:10:00.000Z",
+  "createdBy": {
+    "actorId": "fictional-officer-a",
+    "kind": "HUMAN"
+  }
+}
