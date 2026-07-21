@@ -68,6 +68,11 @@ const migrationFiles = [
     name: "journey_repairs",
     fileName: "0011_journey_repairs.sql",
   },
+  {
+    version: "0012",
+    name: "run_orchestration",
+    fileName: "0012_run_orchestration.sql",
+  },
 ] as const;
 
 export async function loadCoreMigrations(): Promise<readonly CoreMigration[]> {
