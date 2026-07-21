@@ -1,0 +1,230 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "DET-02",
+  "title": "Implement deterministic canary matching",
+  "status": "IN_PROGRESS",
+  "prdSections": [6, 15],
+  "functionalRequirements": ["FR-033"],
+  "sourceCommitSha": "cd9e74040877c8cbad7d80f49531601a461ae87d",
+  "startedAt": "2026-07-21T13:25:00.000Z",
+  "artifactRoot": "artifacts/verification/DET-02/",
+  "curatedEvidenceRoot": "docs/evidence/DET-02/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing deterministic canary matcher",
+      "command": "pnpm exec vitest run --project unit tests/unit/canary-matcher.test.ts --project property tests/property/canary-matcher.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 2200,
+      "expectedFailure": "Both focused suites failed to import the not-yet-created canary matcher module"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Enumerated matcher examples and generated soundness corpus",
+      "command": "pnpm exec vitest run --project unit tests/unit/canary-matcher.test.ts --project property tests/property/canary-matcher.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 3800
+    },
+    {
+      "phase": "RED",
+      "name": "Recorder rejected run canaries before transient matching existed",
+      "command": "pnpm exec vitest run --project integration tests/integration/deterministic-recorder.test.ts -t \"matches a transient authorized field\"",
+      "exitCode": 1,
+      "durationMs": 4500,
+      "expectedFailure": "The strict RUN-02 recorder configuration rejected the canaries input and emitted no matcher report"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Transient authorized-field matching through the real Chromium recorder",
+      "command": "pnpm exec vitest run --project integration tests/integration/deterministic-recorder.test.ts -t \"matches a transient authorized field\"",
+      "exitCode": 0,
+      "durationMs": 5400
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined unsupported-transform browser assertion",
+      "command": "PACTWIRE_BDD_TAGS=@DET-02 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 16200,
+      "expectedFailure": "The controlled ambiguity scenario reported one undefined deterministic-matcher step"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Controlled browser ambiguity remains unsupported without a positive match",
+      "command": "PACTWIRE_BDD_TAGS=@DET-02 pnpm test:bdd",
+      "exitCode": 0,
+      "durationMs": 14800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Matcher, recorder, generated corpus, workspace build, and optimized-production story",
+      "command": "Focused canary and recorder unit/property/integration matrix; pnpm build; PACTWIRE_BDD_TAGS=@DET-02 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 45000
+    },
+    {
+      "phase": "RED",
+      "name": "Matcher tests and reports required evidence traceability",
+      "command": "pnpm evidence:check",
+      "exitCode": 1,
+      "durationMs": 2300,
+      "expectedFailure": "The evidence checker reported two orphan matcher tests and two orphan curated matcher reports before this manifest referenced them"
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory omitted the DET-02 manifest and proof paths",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 2800,
+      "expectedFailure": "The repository inventory still expected seventeen manifests and 172 proof files after DET-02 added the eighteenth manifest and seven unique proof paths"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound all-case matcher and controlled ambiguity capture",
+      "command": "capture-canary-matcher-evidence at source commit cd9e74040877c8cbad7d80f49531601a461ae87d; PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=DET-02 PACTWIRE_BDD_TAGS=@DET-02 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 12600
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Completed evidence traceability and inventory reconciliation",
+      "command": "pnpm evidence:check; pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 0,
+      "durationMs": 4200
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete optimized-production repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 309100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Final production dependency and evidence privacy audit",
+      "command": "pnpm audit --prod; credential-pattern, personal-path, and raw-canary scans; git diff --check",
+      "exitCode": 0,
+      "durationMs": 8200
+    }
+  ],
+  "testSummary": {
+    "files": 71,
+    "passed": 290,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-06-enumerated-reversible-transforms-only",
+        "seed": 20260720,
+        "numRuns": 1000,
+        "passed": true
+      },
+      {
+        "id": "PROP-06-canary-containing-whole-fields-do-not-substring-match",
+        "seed": 20260720,
+        "numRuns": 2000,
+        "passed": true
+      },
+      {
+        "id": "PROP-06-arbitrary-body-header-query-values-do-not-match",
+        "seed": 20260720,
+        "numRuns": 2000,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "ambiguity.feature",
+        "scenario": "Ambiguous mode sends an opaque reference to an unknown destination",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": false,
+    "rationale": "DET-02 changes deterministic matching and machine-readable recorder output, not a user interface. The real-browser boundary is retained as Cucumber and matcher reports; screenshots would not prove the matching predicate.",
+    "assets": []
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/unit/canary-matcher.test.ts",
+      "description": "Exact, canonical transform, semantic no-match, unsupported transform, collision, lineage, and cross-run examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/canary-matcher.property.test.ts",
+      "description": "Fixed-seed PROP-06 transform soundness and 4,000-case arbitrary body, header, and query false-positive corpus"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/deterministic-recorder.test.ts",
+      "description": "Real Chromium comparison before redaction, authorized-field digest join, and raw-canary absence"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/ambiguity.feature",
+      "description": "Controlled unsupported opaque transform through the browser and API boundary"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/controlled-fixture.steps.mjs",
+      "description": "Unsupported transform assertion, no-positive-match guard, raw-value guard, and machine report capture"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/src/canary-matcher.ts",
+      "description": "Strict whole-field matcher, deterministic IDs and hashes, complete lineage, bounded outcomes, and collision refusal"
+    },
+    {
+      "kind": "config",
+      "path": "apps/runner/src/deterministic-recorder.ts",
+      "description": "Transient authorized JSON field adapter that clears raw candidates and persists only matcher reports"
+    },
+    {
+      "kind": "config",
+      "path": "scripts/capture-canary-matcher-evidence.ts",
+      "description": "Source-bound sanitized exact, URL, Base64, no-match, unsupported, and collision evidence generator"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/DET-02/matcher-report.json",
+      "description": "Generated all-case matcher report with fixed property corpus declaration and no raw canary values"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/DET-02/ambiguity-matcher-report.json",
+      "description": "Optimized-production controlled-fixture unsupported-transform report"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/DET-02/README.md",
+      "description": "DET-02 implementation, evidence, and claim boundary"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T13:42:00.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "DET-02 matches only whole authorized field candidates already extracted by instrumentation; it does not scan unapproved raw payloads or infer fields semantically.",
+    "RUN-02 automatically supplies authorized JSON body fields. Query, header, and storage locations use the same typed matcher boundary, but their automatic extraction adapters are not claimed by this task.",
+    "URL_ENCODED means canonical encodeURIComponent output and BASE64 means standard padded UTF-8 Base64; unenumerated variants remain unsupported.",
+    "An opaque value cannot be proven canary-derived by this matcher. A declared unsupported transform is refused and DET-03 owns the later bounded uncertainty decision.",
+    "GitHub Actions clean-checkout verification is pending; the current account billing rejection prevents jobs from starting before checkout."
+  ],
+  "reviewer": "codex-agent"
+}

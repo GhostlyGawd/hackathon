@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "DET-02",
+  "matcherVersion": "pactwire-canary-matcher-v1",
+  "sourceCommitSha": "cd9e74040877c8cbad7d80f49531601a461ae87d",
+  "capturedAt": "2026-07-21T13:41:10.253Z",
+  "authorityBoundary": {
+    "positiveMatchOwner": "DETERMINISTIC_ENUMERATED_MATCHER",
+    "modelUsed": false,
+    "wholeFieldOnly": true,
+    "acceptedTransforms": [
+      "EXACT",
+      "URL_ENCODED",
+      "BASE64"
+    ],
+    "unsupportedResult": "UNSUPPORTED_TRANSFORM",
+    "collisionResult": "COLLISION"
+  },
+  "generatedCorpus": {
+    "propertyId": "PROP-06",
+    "seed": 20260720,
+    "enumeratedTransformRuns": 1000,
+    "arbitraryContainerRuns": 4000,
+    "locations": [
+      "BODY",
+      "HEADER",
+      "QUERY"
+    ]
+  },
+  "reports": [
+    {
+      "schemaVersion": "1.0.0",
+      "matcherVersion": "pactwire-canary-matcher-v1",
+      "workspaceId": "11111111-1111-4111-8111-111111111111",
+      "runId": "22222222-2222-4222-8222-222222222222",
+      "observationId": "77777777-7777-4777-8777-777777777777",
+      "observationSource": "NETWORK",
+      "outcomes": [
+        {
+          "workspaceId": "11111111-1111-4111-8111-111111111111",
+          "runId": "22222222-2222-4222-8222-222222222222",
+          "observationId": "77777777-7777-4777-8777-777777777777",
+          "observationSource": "NETWORK",
+          "candidateLocation": "BODY",
+          "candidatePath": "student.email",
+          "candidateValueSha256": "6ac017f579443d7c9fd78528a5424ac176ab17fba94370783f34d9730e0b4e06",
+          "status": "MATCHED",
+          "canaryId": "44444444-4444-4444-8444-444444444444",
+          "canarySourceField": "email",
+          "transform": "EXACT",
+          "match": {
+            "id": "6d8b4b01-5228-5752-a557-4f7f57cd1e75",
+            "workspaceId": "11111111-1111-4111-8111-111111111111",
+            "runId": "22222222-2222-4222-8222-222222222222",
+            "canaryId": "44444444-4444-4444-8444-444444444444",
+            "observationId": "77777777-7777-4777-8777-777777777777",
+            "transform": "EXACT",
+            "matchedValueHash": "6ac017f579443d7c9fd78528a5424ac176ab17fba94370783f34d9730e0b4e06",
+            "createdAt": "2026-07-20T12:00:00.000Z"
+          }
+        },
+        {
+          "workspaceId": "11111111-1111-4111-8111-111111111111",
+          "runId": "22222222-2222-4222-8222-222222222222",
+          "observationId": "77777777-7777-4777-8777-777777777777",
+          "observationSource": "NETWORK",
+          "candidateLocation": "QUERY",
+          "candidatePath": "student_email",
+          "candidateValueSha256": "837e6319349e10d2c23564a294de960c7e31568c6c2abff4ad8b5dc653a40fa9",
+          "status": "MATCHED",
+          "canaryId": "44444444-4444-4444-8444-444444444444",
+          "canarySourceField": "email",
+          "transform": "URL_ENCODED",
+          "match": {
+            "id": "fac99f37-7c49-5be2-b47b-6c2dd15c1eb9",
+            "workspaceId": "11111111-1111-4111-8111-111111111111",
+            "runId": "22222222-2222-4222-8222-222222222222",
+            "canaryId": "44444444-4444-4444-8444-444444444444",
+            "observationId": "77777777-7777-4777-8777-777777777777",
+            "transform": "URL_ENCODED",
+            "matchedValueHash": "837e6319349e10d2c23564a294de960c7e31568c6c2abff4ad8b5dc653a40fa9",
+            "createdAt": "2026-07-20T12:00:00.000Z"
+          }
+        },
+        {
+          "workspaceId": "11111111-1111-4111-8111-111111111111",
+          "runId": "22222222-2222-4222-8222-222222222222",
+          "observationId": "77777777-7777-4777-8777-777777777777",
+          "observationSource": "NETWORK",
+          "candidateLocation": "HEADER",
+          "candidatePath": "x-fictional-submission",
+          "candidateValueSha256": "cb4b840e4fcd92ebcdb1ebb9f58d4f23ba0c67a50fdf46c2a09d02a435f07bea",
+          "status": "MATCHED",
+          "canaryId": "66666666-6666-4666-8666-666666666666",
+          "canarySourceField": "submissionPhrase",
+          "transform": "BASE64",
+          "match": {
+            "id": "f989a2a4-c5c9-5a50-9b17-f8aac7e1ceac",
+            "workspaceId": "11111111-1111-4111-8111-111111111111",
+            "runId": "22222222-2222-4222-8222-222222222222",
+            "canaryId": "66666666-6666-4666-8666-666666666666",
+            "observationId": "77777777-7777-4777-8777-777777777777",
+            "transform": "BASE64",
+            "matchedValueHash": "cb4b840e4fcd92ebcdb1ebb9f58d4f23ba0c67a50fdf46c2a09d02a435f07bea",
+            "createdAt": "2026-07-20T12:00:00.000Z"
+          }
+        },
+        {
+          "workspaceId": "11111111-1111-4111-8111-111111111111",
+          "runId": "22222222-2222-4222-8222-222222222222",
+          "observationId": "77777777-7777-4777-8777-777777777777",
+          "observationSource": "NETWORK",
+          "candidateLocation": "BODY",
+          "candidatePath": "narrative",
+          "candidateValueSha256": "2a23f5c9e36d8cbbb5e37f901ccc4088a58b6de48be64caffd6c2a8e16486d7f",
+          "status": "NO_MATCH",
+          "reasonCode": "NO_ENUMERATED_MATCH"
+        },
+        {
+          "workspaceId": "11111111-1111-4111-8111-111111111111",
+          "runId": "22222222-2222-4222-8222-222222222222",
+          "observationId": "77777777-7777-4777-8777-777777777777",
+          "observationSource": "NETWORK",
+          "candidateLocation": "STORAGE",
+          "candidatePath": "opaqueStudentReference",
+          "candidateValueSha256": "6080eadd6c9284c7f13e0d23013afb1611a25d2eee07afa8755ba86060624071",
+          "status": "UNSUPPORTED_TRANSFORM",
+          "requestedTransform": "UNSUPPORTED_OPAQUE",
+          "reasonCode": "TRANSFORM_NOT_ENUMERATED"
+        }
+      ],
+      "counts": {
+        "matched": 3,
+        "noMatch": 1,
+        "unsupported": 1,
+        "collisions": 0
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "matcherVersion": "pactwire-canary-matcher-v1",
+      "workspaceId": "11111111-1111-4111-8111-111111111111",
+      "runId": "22222222-2222-4222-8222-222222222222",
+      "observationId": "88888888-8888-4888-8888-888888888888",
+      "observationSource": "NETWORK",
+      "outcomes": [
+        {
+          "workspaceId": "11111111-1111-4111-8111-111111111111",
+          "runId": "22222222-2222-4222-8222-222222222222",
+          "observationId": "88888888-8888-4888-8888-888888888888",
+          "observationSource": "NETWORK",
+          "candidateLocation": "BODY",
+          "candidatePath": "student.email",
+          "candidateValueSha256": "6ac017f579443d7c9fd78528a5424ac176ab17fba94370783f34d9730e0b4e06",
+          "status": "COLLISION",
+          "canaryIds": [
+            "44444444-4444-4444-8444-444444444444",
+            "99999999-9999-4999-8999-999999999999"
+          ],
+          "transforms": [
+            "EXACT"
+          ],
+          "reasonCode": "MULTIPLE_CANARY_MATCHES"
+        }
+      ],
+      "counts": {
+        "matched": 0,
+        "noMatch": 0,
+        "unsupported": 0,
+        "collisions": 1
+      }
+    }
+  ]
+}
