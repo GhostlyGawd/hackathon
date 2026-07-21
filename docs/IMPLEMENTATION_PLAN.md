@@ -611,7 +611,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### UX-01 — Build the product shell, inventory, and setup workflow
 
-- **Status:** IN PROGRESS — source behavior, fixed-seed properties, API/component checks, and four real-browser acceptance scenarios are locally green; curated source-bound evidence and clean-checkout CI remain required before completion.
+- **Status:** IN PROGRESS — source behavior, fixed-seed properties, API/component checks, four real-browser acceptance scenarios, curated source-bound evidence, and the complete local `pnpm verify` gate are green; clean-checkout CI remains required before completion.
 - **Deliver:** accessible navigation, software inventory, status provenance, six-step setup, resumable drafts, authorization blockers, empty/loading/error states, desktop and narrow layouts.
 - **PRD:** Sections 5, 9, 12.1, and 12.2.
 - **Depends on:** AUT-02, AUT-03, FND-03, AGR-01, and JRN-01.
