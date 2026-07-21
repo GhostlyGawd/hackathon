@@ -1,6 +1,6 @@
 # UX-01 verification evidence
 
-UX-01 is **IN PROGRESS**. The product shell and resumable six-step setup workflow are implemented and locally green at source commit `addb4a04744bf20074c79bfc36fc56d12db45db5`. Clean-checkout Ubuntu and Windows CI must still pass before this task can become complete.
+UX-01 is **IN PROGRESS**. The product shell and resumable six-step setup workflow are implemented at source commit `addb4a04744bf20074c79bfc36fc56d12db45db5`; the security-patched latest-main regression head `edee755bb681fa3f8d1e3ed1d6dbe8545fd149ab` is locally green. Clean-checkout Ubuntu and Windows CI must still pass before this task can become complete.
 
 ## What this task proves
 
@@ -16,13 +16,15 @@ The first focused unit/property command failed because `packages/core/src/setup-
 
 The first curated visual review found that an initial request failure still left the heading as “Loading software setup.” The heading now becomes “Software setup,” and the recovery BDD scenario asserts that exact state before retrying.
 
+After merging the complete DET and SEC stack, the expanded property matrix exposed two worker-starvation timeouts without producing an invariant counterexample. Four workers still allowed the longest unchanged 500-run property to exceed its original deadline. The property project now uses one worker; two complete repeat matrices and the complete gate pass without changing a seed, run count, assertion, or timeout.
+
 ## Current local evidence
 
 - Five unit/component examples, three property-file checks, and two HTTP integration checks pass.
 - Two fixed-seed properties run 500 cases each with seed `20260720`.
 - Four optimized-production browser scenarios pass all 69 steps: leave/resume, full run-ready configuration, keyboard/Axe accessibility, and empty/error/retry recovery.
 - The production web build and production dependency audit pass.
-- The complete local `pnpm verify` gate passes in 449.1 seconds: 73 Vitest files with 289 checks, all 48 production-browser scenarios with 577 steps, both production builds, and every lint, type, evidence, toolchain, security, accessibility, and end-to-end command. Failures, retries, and skipped required checks are zero.
+- The complete security-patched latest-main `pnpm verify` gate passes in 567.2 seconds: 101 Vitest files with 390 checks, all 65 production-browser scenarios with 763 steps, the optimized build, and every lint, type, evidence, toolchain, security, accessibility, and end-to-end command. Failures, retries, and skipped required checks are zero.
 - The screenshots below were captured from the optimized build at the source commit named above and reviewed at original resolution. They contain only controlled fictional records and reserved `.invalid` destinations.
 
 ## Visual evidence
