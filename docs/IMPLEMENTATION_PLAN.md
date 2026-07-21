@@ -256,7 +256,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | UX-02 | P0 | AGR-03, JRN-02, UX-01 | Agreement and journey review | NOT STARTED |
 | UX-03 | P0 | RUN-05, DET-04, DET-05, UX-01 | Run, finding, receipt, and hold experience | NOT STARTED |
 | QLT-01 | P0 | UX-01, UX-02, UX-03, RUN-05 | Quality and observability gates | NOT STARTED |
-| SEC-01 | P0 | AUT-04, RUN-03, DET-05, UX-03 | Security and privacy threat suite | NOT STARTED |
+| SEC-01 | P0 | AUT-04, RUN-03, DET-05, UX-03 | Security and privacy threat suite | IN PROGRESS |
 | VAL-01 | P0 | FIX-01, DET-05, SEC-01 | Blinded mechanism corpus | NOT STARTED |
 | VAL-02 | P0 claim gate | JRN-03, RUN-03, RUN-04, VAL-01 | Model-ablation decision | NOT STARTED |
 | VAL-03 | P0 claim gate | UX-03, VAL-01 | Workflow and comprehension validation | NOT STARTED |
@@ -663,6 +663,8 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 - **Complete when:** all PRD quality thresholds pass or a changed PRD records an honest revised threshold before implementation claims success.
 
 #### SEC-01 — Execute the security, privacy, and prompt-injection threat suite
+
+- **Status:** IN PROGRESS — the production dependency audit prerequisite is green locally with exact lockfile regressions; the adversarial threat matrix, safe-recovery evidence, and clean-checkout CI remain outstanding.
 
 - **Deliver:** executable cases for real-data entry, prompt injection, credential leakage, egress, harmful actions, cross-workspace access, tampering, false attribution, incomplete capture, publication permission, and retention/deletion.
 - **PRD:** Section 16 and the security cases in Section 17.

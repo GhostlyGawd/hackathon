@@ -1,0 +1,131 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "SEC-01",
+  "title": "Execute the security, privacy, and prompt-injection threat suite",
+  "status": "IN_PROGRESS",
+  "prdSections": [16, 17],
+  "functionalRequirements": [],
+  "sourceCommitSha": "a964f92d1ebc41665d7822d8accef8a05e89531d",
+  "startedAt": "2026-07-21T18:25:00.000-04:00",
+  "artifactRoot": "artifacts/verification/SEC-01/",
+  "curatedEvidenceRoot": "docs/evidence/SEC-01/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29875318319",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29875318319/job/88784474215",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29875318319/job/88784474533",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Production dependency audit detected two high-severity advisories",
+      "command": "pnpm audit --prod --json",
+      "exitCode": 1,
+      "durationMs": 1400,
+      "expectedFailure": "The inherited graph contained fast-uri 3.1.3 (GHSA-v2hh-gcrm-f6hx) and optional sharp 0.34.5 (GHSA-f88m-g3jw-g9cj), both in known high-severity vulnerable ranges"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Frozen dependency graph, advisory regression, and production audit",
+      "command": "pnpm install --frozen-lockfile; pnpm test:security; pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 5200
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Optimized production build with patched transitive dependencies",
+      "command": "pnpm build",
+      "exitCode": 0,
+      "durationMs": 33500
+    },
+    {
+      "phase": "RED",
+      "name": "Complete repository gate recognized the new security evidence inventory",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 202600,
+      "expectedFailure": "Traceability correctly reported 25 manifests and 263 proof files while the explicit inventory regression still expected the previous 24 manifests and 261 proof files"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Updated explicit evidence inventory and traceability",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts --reporter=dot; pnpm evidence:check",
+      "exitCode": 0,
+      "durationMs": 4200
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete optimized-production deterministic repository gate",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 461200
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout latest-main Ubuntu and Windows verification",
+      "command": "GitHub Actions CI run 29875318319",
+      "exitCode": 0,
+      "durationMs": 480000
+    }
+  ],
+  "testSummary": {
+    "files": 97,
+    "passed": 380,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": false,
+    "rationale": "This prerequisite pins two finite advisory version ranges; generated inputs do not add assurance beyond the exact lockfile and audit assertions. The full SEC-01 boundary properties remain required before task completion.",
+    "results": []
+  },
+  "bdd": {
+    "applicable": false,
+    "rationale": "Dependency resolution has no user-visible workflow. SEC-01 adversarial browser scenarios remain required before task completion.",
+    "scenarios": []
+  },
+  "visualEvidence": {
+    "applicable": false,
+    "rationale": "This prerequisite changes only the resolved production dependency graph and security regression. It changes no UI, browser state, finding, receipt, or recovery screen.",
+    "assets": []
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "tests/security/dependency-advisories.test.ts",
+      "description": "Permanent lockfile regression rejecting the two vulnerable transitive ranges and requiring their patched resolutions"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/SEC-01/README.md",
+      "description": "Sanitized red/green dependency-audit record, compatibility result, applicability decisions, and partial-task boundary"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T18:36:00.000-04:00",
+    "findings": []
+  },
+  "knownLimitations": [
+    "This is a narrow SEC-01 prerequisite, not completion of the threat suite; prompt injection, cross-workspace access, tampering, retention, publication, and safe-recovery cases remain outstanding.",
+    "The production audit reports advisories known to the configured package registry at run time; a clean result does not prove that the dependency graph is vulnerability-free.",
+    "No product safety, compliance, approval, or real-world effectiveness claim follows from a clean dependency audit."
+  ],
+  "reviewer": "codex-agent"
+}
