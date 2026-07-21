@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0.0",
+  "repairId": "23232323-2323-4323-8323-232323232323",
+  "repairHash": "dfedb69328633534d2976a4bc91f7b820f674d2d28a5c0c1cecc212348e5adb0",
+  "sourceReplayVersionId": "13131313-1313-4313-8313-131313131313",
+  "sourceSnapshotHash": "6bdd4848753a7e4645d5dd1a8332db9e64a01581521cd93e72636359b3726789",
+  "arm": "MODEL_ASSISTED_REPAIR_VERIFICATION",
+  "proposalModelInvocationCount": 3,
+  "verificationModelInvocationCount": 0,
+  "state": "COMPLETED",
+  "startedAt": "2026-07-21T11:18:30.679Z",
+  "completedAt": "2026-07-21T11:18:30.916Z",
+  "trace": [
+    {
+      "sequence": 1,
+      "operationId": "open-student-workspace",
+      "kind": "NAVIGATE",
+      "status": "COMPLETED",
+      "observedAt": "2026-07-21T11:18:30.783Z"
+    },
+    {
+      "sequence": 2,
+      "operationId": "check-student-email",
+      "kind": "ASSERT_VALUE",
+      "status": "COMPLETED",
+      "observedAt": "2026-07-21T11:18:30.819Z",
+      "valueHash": "1ec8b52be2cfb8d2d4415b01762932ec238a048d7d8f1bd4776b8eba0b79a159"
+    },
+    {
+      "sequence": 3,
+      "operationId": "enter-student-response",
+      "kind": "FILL",
+      "status": "COMPLETED",
+      "observedAt": "2026-07-21T11:18:30.835Z",
+      "valueHash": "2f2c4e675aeb07f7eef5a9a304d45bc56f6943e64202a77bfada7f250825e999"
+    },
+    {
+      "sequence": 4,
+      "operationId": "submit-student-response",
+      "kind": "CLICK",
+      "status": "COMPLETED",
+      "observedAt": "2026-07-21T11:18:30.889Z"
+    },
+    {
+      "sequence": 5,
+      "operationId": "observe-submission-request",
+      "kind": "CHECKPOINT",
+      "status": "COMPLETED",
+      "observedAt": "2026-07-21T11:18:30.890Z"
+    },
+    {
+      "sequence": 6,
+      "operationId": "confirm-visible-completion",
+      "kind": "ASSERT_TEXT",
+      "status": "COMPLETED",
+      "observedAt": "2026-07-21T11:18:30.916Z"
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpointId": "submission-request",
+      "status": "VERIFIED"
+    }
+  ],
+  "limitations": [
+    "This verifies the frozen checkpoint in a controlled named test; it does not establish safety or compliance."
+  ]
+}

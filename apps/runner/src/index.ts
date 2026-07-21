@@ -7,5 +7,6 @@ export const runnerService = Object.freeze({
 export * from "./deterministic-replay.js";
 export * from "./deterministic-recorder.js";
 export * from "./computer-use.js";
+export * from "./journey-repair.js";
 export * from "./isolated-browser.js";
 export * from "./playwright-replay.js";

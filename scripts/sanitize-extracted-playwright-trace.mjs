@@ -11,20 +11,24 @@ if (!traceRootCandidate || !repositoryRootCandidate) {
 
 const traceRoot = path.resolve(traceRootCandidate);
 const repositoryRoot = path.resolve(repositoryRootCandidate);
-const expectedParent = path.resolve(
+const verificationRoot = path.resolve(
   process.cwd(),
   "artifacts",
   "verification",
-  "RUN-03",
 );
-const relativeTraceRoot = path.relative(expectedParent, traceRoot);
+const relativeTraceRoot = path.relative(verificationRoot, traceRoot);
+const traceSegments = relativeTraceRoot.split(path.sep);
 if (
   relativeTraceRoot === "" ||
   relativeTraceRoot === ".." ||
   relativeTraceRoot.startsWith(`..${path.sep}`) ||
-  path.isAbsolute(relativeTraceRoot)
+  path.isAbsolute(relativeTraceRoot) ||
+  traceSegments.length < 2 ||
+  !/^[A-Z][A-Z0-9-]{1,31}$/u.test(traceSegments[0] ?? "")
 ) {
-  throw new Error("The extracted trace root must stay inside RUN-03 artifacts.");
+  throw new Error(
+    "The extracted trace root must stay inside a task-specific verification artifact directory.",
+  );
 }
 
 async function filesUnder(directory) {
