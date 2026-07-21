@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "PACTWIRE_PLAYWRIGHT_TRACE_SANITIZER",
+  "scannedTextFiles": 3,
+  "repositoryPathReplacements": 8,
+  "credentialPatternsFound": 0,
+  "passed": true
+}

@@ -1,0 +1,67 @@
+name: Live GPT-5.6 computer use
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - live/run-03-computer-use
+
+permissions:
+  contents: read
+
+jobs:
+  run-03-live-computer-use:
+    name: RUN-03 fictional journey on GPT-5.6 Sol
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CI: "true"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Configure Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install isolated browser runtime
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build controlled fixture and runner
+        run: pnpm --filter @pactwire/fixture build && pnpm --filter @pactwire/runner build
+
+      - name: Run required live GPT-5.6 computer-use journey
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: pnpm test:live-computer-use
+
+      - name: Sanitize the browser recording and stage an explicit upload set
+        shell: bash
+        run: |
+          mkdir -p artifacts/verification/RUN-03/live-trace-expanded
+          mkdir -p artifacts/verification/RUN-03/live-upload
+          unzip -q artifacts/verification/RUN-03/live-raw/live-browser-trace-raw.zip -d artifacts/verification/RUN-03/live-trace-expanded
+          node scripts/sanitize-extracted-playwright-trace.mjs artifacts/verification/RUN-03/live-trace-expanded "$GITHUB_WORKSPACE"
+          (cd artifacts/verification/RUN-03/live-trace-expanded && zip -q -r ../live-upload/live-browser-trace-sanitized.zip .)
+          cp artifacts/verification/RUN-03/live-raw/live-computer-use.json artifacts/verification/RUN-03/live-upload/
+          cp artifacts/verification/RUN-03/live-raw/live-actions.json artifacts/verification/RUN-03/live-upload/
+          cp artifacts/verification/RUN-03/live-raw/live-recorder.json artifacts/verification/RUN-03/live-upload/
+          cp artifacts/verification/RUN-03/live-raw/live-completed-desktop.png artifacts/verification/RUN-03/live-upload/
+          cp artifacts/verification/RUN-03/live-trace-expanded/sanitization.json artifacts/verification/RUN-03/live-upload/
+
+      - name: Upload only sanitized live evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-03-live-computer-use-${{ github.run_id }}
+          path: artifacts/verification/RUN-03/live-upload/
+          if-no-files-found: error
+          retention-days: 14

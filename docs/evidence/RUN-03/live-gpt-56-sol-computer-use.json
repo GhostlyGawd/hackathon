@@ -1,0 +1,207 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "RUN-03",
+  "fixture": "controlled-fictional-classroom-baseline",
+  "requestedModel": "gpt-5.6-sol",
+  "returnedModels": [
+    "gpt-5.6-sol"
+  ],
+  "responseIdSha256": [
+    "5c83ee5c0888b482e2d1e144ff3a97dd5ccf5005968ab7fd226273bea98a0d2f",
+    "fbd5d46e3663ab936dab6df86ca061fd7e205ba0db5caad24916d2d375c4c0fc"
+  ],
+  "status": "COMPLETED",
+  "reason": "DETERMINISTIC_COMPLETION_OBSERVED",
+  "turns": 2,
+  "transportAttempts": 2,
+  "actionCount": 2,
+  "policyViolationCount": 0,
+  "deterministicVisibility": "VISIBLE",
+  "observedDispatchCount": 1,
+  "usage": [
+    {
+      "input_tokens": 947,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 0
+      },
+      "output_tokens": 33,
+      "output_tokens_details": {
+        "reasoning_tokens": 13
+      },
+      "total_tokens": 980
+    },
+    {
+      "input_tokens": 2382,
+      "input_tokens_details": {
+        "cache_write_tokens": 2379,
+        "cached_tokens": 0
+      },
+      "output_tokens": 52,
+      "output_tokens_details": {
+        "reasoning_tokens": 15
+      },
+      "total_tokens": 2434
+    }
+  ],
+  "responseContracts": [
+    {
+      "responseFields": [
+        "background",
+        "billing",
+        "completed_at",
+        "created_at",
+        "error",
+        "frequency_penalty",
+        "id",
+        "incomplete_details",
+        "instructions",
+        "max_output_tokens",
+        "max_tool_calls",
+        "metadata",
+        "model",
+        "moderation",
+        "object",
+        "output",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "previous_response_id",
+        "prompt_cache_key",
+        "prompt_cache_retention",
+        "reasoning",
+        "safety_identifier",
+        "service_tier",
+        "status",
+        "store",
+        "temperature",
+        "text",
+        "tool_choice",
+        "tool_usage",
+        "tools",
+        "top_logprobs",
+        "top_p",
+        "truncation",
+        "usage",
+        "user"
+      ],
+      "output": [
+        {
+          "type": "reasoning",
+          "fields": [
+            "content",
+            "encrypted_content",
+            "id",
+            "summary",
+            "type"
+          ],
+          "actions": []
+        },
+        {
+          "type": "computer_call",
+          "fields": [
+            "actions",
+            "call_id",
+            "id",
+            "status",
+            "type"
+          ],
+          "actions": [
+            {
+              "type": "screenshot",
+              "fields": [
+                "type"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "responseFields": [
+        "background",
+        "billing",
+        "completed_at",
+        "created_at",
+        "error",
+        "frequency_penalty",
+        "id",
+        "incomplete_details",
+        "instructions",
+        "max_output_tokens",
+        "max_tool_calls",
+        "metadata",
+        "model",
+        "moderation",
+        "object",
+        "output",
+        "parallel_tool_calls",
+        "presence_penalty",
+        "previous_response_id",
+        "prompt_cache_key",
+        "prompt_cache_retention",
+        "reasoning",
+        "safety_identifier",
+        "service_tier",
+        "status",
+        "store",
+        "temperature",
+        "text",
+        "tool_choice",
+        "tool_usage",
+        "tools",
+        "top_logprobs",
+        "top_p",
+        "truncation",
+        "usage",
+        "user"
+      ],
+      "output": [
+        {
+          "type": "reasoning",
+          "fields": [
+            "content",
+            "encrypted_content",
+            "id",
+            "summary",
+            "type"
+          ],
+          "actions": []
+        },
+        {
+          "type": "computer_call",
+          "fields": [
+            "actions",
+            "call_id",
+            "id",
+            "status",
+            "type"
+          ],
+          "actions": [
+            {
+              "type": "click",
+              "fields": [
+                "button",
+                "keys",
+                "type",
+                "x",
+                "y"
+              ]
+            },
+            {
+              "type": "wait",
+              "fields": [
+                "type"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "latencyMs": 10016,
+  "rawResponseIncluded": false,
+  "responseIdIncluded": false,
+  "screenshotDataIncluded": false,
+  "apiKeyIncluded": false,
+  "passed": true
+}

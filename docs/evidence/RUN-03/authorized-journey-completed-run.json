@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0.0",
+  "workspaceId": "11111111-1111-4111-8111-111111111111",
+  "runId": "61616161-6161-4161-8161-616161616161",
+  "model": "gpt-5.6-sol",
+  "status": "COMPLETED",
+  "reason": "DETERMINISTIC_COMPLETION_OBSERVED",
+  "turns": 2,
+  "transportAttempts": 2,
+  "actionCount": 3,
+  "completionObserved": true,
+  "policyViolationCount": 0,
+  "responseIds": [
+    "resp_run03_01",
+    "resp_run03_02"
+  ],
+  "actionSummaries": [
+    {
+      "sequence": 0,
+      "actionType": "screenshot",
+      "outcome": "EXECUTED",
+      "reason": "SAFE_NON_MUTATING_ACTION",
+      "summary": "The screenshot action stayed inside the authorized browser.",
+      "controlId": null,
+      "authorizationAction": null
+    },
+    {
+      "sequence": 1,
+      "actionType": "move",
+      "outcome": "EXECUTED",
+      "reason": "SAFE_NON_MUTATING_ACTION",
+      "summary": "The move action stayed inside the authorized browser.",
+      "controlId": null,
+      "authorizationAction": null
+    },
+    {
+      "sequence": 2,
+      "actionType": "click",
+      "outcome": "EXECUTED",
+      "reason": "TRUSTED_CONTROL",
+      "summary": "The reviewed SUBMIT control is allowed by this run.",
+      "controlId": "submit-assignment",
+      "authorizationAction": "SUBMIT"
+    }
+  ]
+}
