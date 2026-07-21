@@ -163,6 +163,7 @@ describe("core domain migrations", () => {
       "0008",
       "0009",
       "0010",
+      "0011",
     ]);
   });
 
@@ -181,6 +182,7 @@ describe("core domain migrations", () => {
       "0008",
       "0009",
       "0010",
+      "0011",
     ]);
     await expect(applyCoreMigrations(service.database)).resolves.toEqual([]);
     const tables = await service.database.query<{ table_name: string }>(
@@ -200,6 +202,9 @@ describe("core domain migrations", () => {
         "requirement_proposal_runs",
         "requirement_versions",
         "deterministic_replay_versions",
+        "journey_repair_drafts",
+        "journey_repair_verifications",
+        "journey_repair_promotions",
         "runs",
         "run_events",
         "observations",
@@ -209,7 +214,7 @@ describe("core domain migrations", () => {
         "audit_events",
       ]),
     );
-    expect(tables.rows).toHaveLength(28);
+    expect(tables.rows).toHaveLength(31);
   });
 
   it("requires immutable, latest-source lineage for human requirement reviews", async () => {

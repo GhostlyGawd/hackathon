@@ -1,0 +1,246 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "RUN-04",
+  "title": "Implement model-assisted journey repair",
+  "status": "IN_PROGRESS",
+  "prdSections": [3, 12],
+  "functionalRequirements": ["FR-025"],
+  "sourceCommitSha": "0000000000000000000000000000000000000000",
+  "startedAt": "2026-07-21T10:18:36.000Z",
+  "artifactRoot": "artifacts/verification/RUN-04/",
+  "curatedEvidenceRoot": "docs/evidence/RUN-04/",
+  "environment": {
+    "os": "Windows local; source-bound CI and live GPT-5.6 Sol run pending",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing journey-repair domain",
+      "command": "pnpm exec vitest run --project unit tests/unit/journey-repair.test.ts",
+      "exitCode": 1,
+      "durationMs": 2500,
+      "expectedFailure": "The focused unit suite failed to import the not-yet-created journey-repair module"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing model-action repair adapter",
+      "command": "pnpm exec vitest run --project unit tests/unit/journey-repair-adapter.test.ts",
+      "exitCode": 1,
+      "durationMs": 3400,
+      "expectedFailure": "The focused adapter suite failed to import the not-yet-created runner repair adapter"
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined repair and unresolved recovery stories",
+      "command": "PACTWIRE_BDD_TAGS=@RUN-04 pnpm test:bdd -- --production",
+      "exitCode": 1,
+      "durationMs": 47000,
+      "expectedFailure": "Both RUN-04 scenarios reported fourteen undefined steps before their isolated-browser bindings existed"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Focused repair domain and adapter examples",
+      "command": "pnpm exec vitest run --project unit tests/unit/journey-repair.test.ts tests/unit/journey-repair-adapter.test.ts",
+      "exitCode": 0,
+      "durationMs": 4700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Seeded frozen-scope and checkpoint properties",
+      "command": "pnpm exec vitest run --project property tests/property/journey-repair.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 4500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Real browser repair and PostgreSQL history integrations",
+      "command": "pnpm exec vitest run --project integration tests/integration/journey-repair.test.ts tests/integration/deterministic-replay-persistence.test.ts",
+      "exitCode": 0,
+      "durationMs": 48000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Optimized-production bounded and unresolved repair stories",
+      "command": "PACTWIRE_BDD_TAGS=@RUN-04 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 49700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Repair source, workflow, and test type and lint gates",
+      "command": "pnpm typecheck and pnpm lint",
+      "exitCode": 0,
+      "durationMs": 62600
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory required RUN-04 ownership",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 6200,
+      "expectedFailure": "The evidence checker rejected five orphan RUN-04 test files before this in-progress manifest claimed them"
+    },
+    {
+      "phase": "RED",
+      "name": "Forged hash-valid repair envelope crossed the frozen boundary",
+      "command": "pnpm exec vitest run --project unit tests/unit/journey-repair.test.ts tests/unit/journey-repair-adapter.test.ts",
+      "exitCode": 1,
+      "durationMs": 3500,
+      "expectedFailure": "Both regressions proved that a forged bounded envelope could alter the frozen checkpoint assertion, execute browser operations, and produce a promoted replay"
+    },
+    {
+      "phase": "RED",
+      "name": "Database trusted a fabricated verified-checkpoint summary",
+      "command": "pnpm exec vitest run --project integration tests/integration/deterministic-replay-persistence.test.ts",
+      "exitCode": 1,
+      "durationMs": 8700,
+      "expectedFailure": "PostgreSQL accepted a VERIFIED_DRAFT payload whose checkpoint summary named the frozen checkpoint while its actual checkpoint array was empty"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Frozen-source runtime and promotion hardening",
+      "command": "pnpm exec vitest run --project unit tests/unit/journey-repair.test.ts tests/unit/journey-repair-adapter.test.ts",
+      "exitCode": 0,
+      "durationMs": 3200
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Database-derived checkpoint and repair-hash hardening",
+      "command": "pnpm exec vitest run --project integration tests/integration/deterministic-replay-persistence.test.ts",
+      "exitCode": 0,
+      "durationMs": 8500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete deterministic repository gate after authority-boundary hardening",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 365300
+    }
+  ],
+  "testSummary": {
+    "files": 73,
+    "passed": 293,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-05-generated-scope-change-never-bounded",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      },
+      {
+        "id": "PROP-05-no-promotion-without-every-frozen-checkpoint",
+        "seed": 20260721,
+        "numRuns": 250,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "failure-recovery.feature",
+        "scenario": "A bounded model repair stays draft until the original checkpoint is verified and a person promotes it",
+        "passed": true
+      },
+      {
+        "feature": "failure-recovery.feature",
+        "scenario": "An unrepairable path remains not tested and cannot be promoted",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": false,
+    "rationale": "RUN-04 is still in progress. Browser captures exist only as local raw artifacts; source-bound deterministic and live screenshots plus sanitized traces are required before completion and are not yet claimed as proof.",
+    "assets": []
+  },
+  "proofs": [
+    {
+      "kind": "schema",
+      "path": "packages/core/src/journey-repair.ts",
+      "description": "Bounded draft assessment, exact checkpoint verification, human-only promotion, and append-only in-memory and PostgreSQL history"
+    },
+    {
+      "kind": "schema",
+      "path": "packages/core/migrations/0011_journey_repairs.sql",
+      "description": "Database-enforced model provenance, frozen repair scope, deterministic verification, human promotion, and immutable history"
+    },
+    {
+      "kind": "schema",
+      "path": "apps/runner/src/journey-repair.ts",
+      "description": "Executed trusted-control observation and deterministic path/selector candidate derivation"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/journey-repair.test.ts",
+      "description": "Bounded diff, scope-review, missing-checkpoint, and named-human promotion examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/journey-repair-adapter.test.ts",
+      "description": "Executed control-to-replay candidate contract and ambiguity rejection"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/journey-repair.property.test.ts",
+      "description": "Seeded PROP-05 authorization, operation, binding, checkpoint, and promotion invariants"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/journey-repair.test.ts",
+      "description": "Real isolated-browser drift discovery, fresh deterministic checkpoint verification, recorder visibility, and unresolved path"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/deterministic-replay-persistence.test.ts",
+      "description": "Append-only repair draft, verification, replay, and promotion history in memory and PostgreSQL"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/failure-recovery.feature",
+      "description": "Successful bounded repair and unresolved-not-tested recovery stories"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/journey-repair.steps.mjs",
+      "description": "Isolated source drift, model discovery, shared-recorder verification, human promotion, and evidence capture bindings"
+    },
+    {
+      "kind": "test",
+      "path": "tests/live-openai/journey-repair.live.test.ts",
+      "description": "Required opt-in GPT-5.6 Sol repair against the seeded interface drift with deterministic verification"
+    },
+    {
+      "kind": "config",
+      "path": ".github/workflows/live-journey-repair.yml",
+      "description": "No-main opt-in live repair workflow with encrypted key and explicit sanitized upload allowlist"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/RUN-04/README.md",
+      "description": "Current deterministic proof, pending live and source-bound evidence gates, and bounded claim"
+    }
+  ],
+  "sanitization": {
+    "reviewed": false,
+    "reviewedAt": "2026-07-21T10:45:26.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "The required source-bound live GPT-5.6 Sol repair has not run yet, so RUN-04 is not complete.",
+    "Current deterministic coverage proves one seeded relative-path and selector change plus one outage; it does not establish repair effectiveness on arbitrary products.",
+    "A verified repair remains a draft until a named human appends the deterministic replay version; scope-changing proposals never enter the same replay lineage.",
+    "A verified named test is not evidence of safety, compliance, or behavior outside the frozen checkpoint scope."
+  ],
+  "reviewer": "codex-agent"
+}

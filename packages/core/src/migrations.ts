@@ -63,6 +63,11 @@ const migrationFiles = [
     name: "deterministic_replay_versions",
     fileName: "0010_deterministic_replay_versions.sql",
   },
+  {
+    version: "0011",
+    name: "journey_repairs",
+    fileName: "0011_journey_repairs.sql",
+  },
 ] as const;
 
 export async function loadCoreMigrations(): Promise<readonly CoreMigration[]> {
