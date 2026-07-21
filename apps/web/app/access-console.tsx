@@ -184,6 +184,14 @@ function canReadAudit(roles: readonly RoleAssignment[]): boolean {
   );
 }
 
+function canReviewEvidence(roles: readonly RoleAssignment[]): boolean {
+  return roles.some((assignment) =>
+    ["PRIVACY_OFFICER", "REVIEWER", "SECURITY_REVIEWER"].includes(
+      assignment.role,
+    ),
+  );
+}
+
 export function AccessConsole() {
   const [selectedUser, setSelectedUser] = useState("officer");
   const [principal, setPrincipal] = useState<Principal>();
@@ -566,6 +574,7 @@ export function AccessConsole() {
               />
               <RunHistoryPanel workspaceId={principal.activeWorkspaceId} />
               <FindingEvaluationPanel
+                canReviewEvidence={canReviewEvidence(roles)}
                 key={`findings:${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
               />

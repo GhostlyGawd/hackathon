@@ -146,8 +146,10 @@ function PathList({
 }
 
 export function FindingEvaluationPanel({
+  canReviewEvidence,
   workspaceId,
 }: {
+  readonly canReviewEvidence: boolean;
   readonly workspaceId: string;
 }) {
   const [response, setResponse] = useState<FindingResponse>();
@@ -469,10 +471,12 @@ export function FindingEvaluationPanel({
             </article>
           </div>
 
-          <EvidenceReceiptPanel
-            findingId={selected.finding.id}
-            workspaceId={workspaceId}
-          />
+          {canReviewEvidence ? (
+            <EvidenceReceiptPanel
+              findingId={selected.finding.id}
+              workspaceId={workspaceId}
+            />
+          ) : null}
 
           <details className="finding-decision-table">
             <summary>View the deterministic decision order</summary>
