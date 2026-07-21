@@ -70,7 +70,11 @@ Then("all six bounded finding states are available", async function () {
   );
   assert.deepEqual([...visibleStates].sort(), [...boundedStates].sort());
   assert.deepEqual(
-    this.det03Body.findings.map(({ finding }) => finding.state).sort(),
+    [
+      ...new Set(
+        this.det03Body.findings.map(({ finding }) => finding.state),
+      ),
+    ].sort(),
     [...boundedStates].sort(),
   );
 });

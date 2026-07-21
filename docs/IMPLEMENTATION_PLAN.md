@@ -251,7 +251,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | DET-02 | P0 | JRN-01, RUN-02 | Deterministic canary matcher | IN PROGRESS |
 | DET-03 | P0 | AGR-03, DET-01, DET-02, RUN-05 | Bounded finding evaluator | IN PROGRESS |
 | DET-04 | P0 | DET-03, AGR-01, RUN-05 | Verifiable evidence receipts | IN PROGRESS |
-| DET-05 | P0 + P1 follow-on | AUT-02, DET-03, DET-04 | Hold, human restore, and approval audit | NOT STARTED |
+| DET-05 | P0 + P1 follow-on | AUT-02, DET-03, DET-04 | Hold, human restore, and approval audit | COMPLETE (P0) |
 | UX-01 | P0 | AUT-02, AUT-03, FND-03, AGR-01, JRN-01 | Inventory and setup experience | NOT STARTED |
 | UX-02 | P0 | AGR-03, JRN-02, UX-01 | Agreement and journey review | NOT STARTED |
 | UX-03 | P0 | RUN-05, DET-04, DET-05, UX-01 | Run, finding, receipt, and hold experience | NOT STARTED |
@@ -596,6 +596,8 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 - **Complete when:** an independent process can recompute every hash and detect any mutation.
 
 #### DET-05 — Implement hold, human restoration, approval audit, and P1 notifications
+
+- **Status:** COMPLETE (P0) — receipt-linked conflict holds, retry-gated visibility-loss holds, human-only restoration, append-only history, source-bound browser evidence, and clean-checkout Ubuntu/Windows verification pass at completion head `9c925a72ae4da3cec31854bf0ca589aec3864e5b`. FR-056 remains DEFERRED (P1).
 
 - **Deliver:** idempotent witnessed-conflict hold; retry-gated visibility-loss hold with distinct reason; append-only history; human restore/reject/retire decision; P1 bounded webhooks.
 - **PRD:** FR-050, FR-051, FR-052, FR-053, FR-054, FR-055, and FR-056; Sections 10.1 and 12.7.
