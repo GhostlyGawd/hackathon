@@ -253,7 +253,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | DET-04 | P0 | DET-03, AGR-01, RUN-05 | Verifiable evidence receipts | NOT STARTED |
 | DET-05 | P0 + P1 follow-on | AUT-02, DET-03, DET-04 | Hold, human restore, and approval audit | NOT STARTED |
 | UX-01 | P0 | AUT-02, AUT-03, FND-03, AGR-01, JRN-01 | Inventory and setup experience | IN PROGRESS |
-| UX-02 | P0 | AGR-03, JRN-02, UX-01 | Agreement and journey review | NOT STARTED |
+| UX-02 | P0 | AGR-03, JRN-02, UX-01 | Agreement and journey review | IN PROGRESS |
 | UX-03 | P0 | RUN-05, DET-04, DET-05, UX-01 | Run, finding, receipt, and hold experience | NOT STARTED |
 | QLT-01 | P0 | UX-01, UX-02, UX-03, RUN-05 | Quality and observability gates | NOT STARTED |
 | SEC-01 | P0 | AUT-04, RUN-03, DET-05, UX-03 | Security and privacy threat suite | NOT STARTED |
@@ -624,6 +624,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### UX-02 — Build agreement and journey review experiences
 
+- **Status:** IN PROGRESS — source commit `e7cb2398df668bc47bf93b71e55dc52250abe2ff` enforces exact cited-page inspection before any requirement decision, role-aware controls, direct model/human/browser authority explanations, generated-state action gates, keyboard and Axe browser acceptance, responsive agreement and journey review, and honest replay/repair empty histories. Local optimized-production acceptance is green; required clean-checkout Ubuntu and Windows CI remains pending.
 - **Deliver:** source/proposal split view, citation navigation, confirm/edit/reject/ambiguous controls, version history, persona setup, journey editor, checkpoint and visibility controls, replay/repair history.
 - **PRD:** Sections 12.3 and 12.4.
 - **Depends on:** AGR-03, JRN-02, and UX-01.

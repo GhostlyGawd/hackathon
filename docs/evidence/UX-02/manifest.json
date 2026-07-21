@@ -1,0 +1,385 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "UX-02",
+  "title": "Build agreement and journey review experiences",
+  "status": "IN_PROGRESS",
+  "prdSections": [12],
+  "functionalRequirements": ["FR-012", "FR-013", "FR-014", "FR-020", "FR-022", "FR-024", "FR-025"],
+  "sourceCommitSha": "e7cb2398df668bc47bf93b71e55dc52250abe2ff",
+  "startedAt": "2026-07-21T16:34:00.000Z",
+  "artifactRoot": "artifacts/verification/UX-02/",
+  "curatedEvidenceRoot": "docs/evidence/UX-02/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "node": "24.14.1",
+    "pnpm": "11.6.0"
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing requirement and journey UI gate module",
+      "command": "pnpm exec vitest run --project unit apps/web/tests/unit/review-experience.test.ts",
+      "exitCode": 1,
+      "durationMs": 844,
+      "expectedFailure": "The focused example suite could not import the not-yet-created review-experience module"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing generated-state UI gate module",
+      "command": "pnpm exec vitest run --project property tests/property/review-experience.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 438,
+      "expectedFailure": "The focused property suite could not import the not-yet-created review-experience module"
+    },
+    {
+      "phase": "RED",
+      "name": "Undefined agreement and journey review browser behavior",
+      "command": "PACTWIRE_BDD_TAGS=@UX-02 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 97500,
+      "expectedFailure": "All shared fixture setup passed while nine initial UX-02 scenarios and twenty-three review steps remained undefined"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Focused review-gate examples and seeded properties",
+      "command": "pnpm exec vitest run --project unit apps/web/tests/unit/review-experience.test.ts --project property tests/property/review-experience.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 1240
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "TypeScript and whole-repository lint",
+      "command": "pnpm typecheck and pnpm lint",
+      "exitCode": 0,
+      "durationMs": 39700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Optimized production build",
+      "command": "pnpm build",
+      "exitCode": 0,
+      "durationMs": 153500
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-bound optimized-production UX-02 browser acceptance",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=UX-02 PACTWIRE_BDD_TAGS=@UX-02 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 94400
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory requires UX-02 reconciliation",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 19900,
+      "expectedFailure": "The repository evidence checker observed 19 manifests and 187 proof files while the fixed regression expectation still described the prior 18 manifests and 181 proof files"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Reconciled evidence inventory",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts --reporter=dot",
+      "exitCode": 0,
+      "durationMs": 4900
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency vulnerability audit",
+      "command": "pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 2300
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete deterministic verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 460400
+    }
+  ],
+  "testSummary": {
+    "files": 75,
+    "passed": 295,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-17-ux-decision-requires-authority-source-and-human-input",
+        "seed": 20260721,
+        "numRuns": 500,
+        "passed": true
+      },
+      {
+        "id": "PROP-25-ux-journey-save-requires-runnable-chain-and-visible-checkpoint",
+        "seed": 20260721,
+        "numRuns": 500,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "requirement-review.feature",
+        "scenario": "The privacy officer edits and confirms a source-bound test rule",
+        "passed": true
+      },
+      {
+        "feature": "requirement-review.feature",
+        "scenario": "An unclear proposal remains visibly ambiguous and non-executable",
+        "passed": true
+      },
+      {
+        "feature": "requirement-review.feature",
+        "scenario": "A rejected proposal remains in immutable history",
+        "passed": true
+      },
+      {
+        "feature": "requirement-review.feature",
+        "scenario": "A read-only reviewer can inspect the source but cannot record a requirement decision",
+        "passed": true
+      },
+      {
+        "feature": "requirement-review.feature",
+        "scenario": "Agreement review has no automatically detectable accessibility violations",
+        "passed": true
+      },
+      {
+        "feature": "requirement-review.feature",
+        "scenario": "Every requirement decision remains reachable by keyboard",
+        "passed": true
+      },
+      {
+        "feature": "journey-authoring.feature",
+        "scenario": "The officer creates a runnable teacher journey with a causal chain",
+        "passed": true
+      },
+      {
+        "feature": "journey-authoring.feature",
+        "scenario": "A student journey edit appends immutable version history",
+        "passed": true
+      },
+      {
+        "feature": "journey-authoring.feature",
+        "scenario": "Required visibility cannot be omitted from a runnable journey",
+        "passed": true
+      },
+      {
+        "feature": "journey-authoring.feature",
+        "scenario": "Journey review has no automatically detectable accessibility violations",
+        "passed": true
+      },
+      {
+        "feature": "journey-authoring.feature",
+        "scenario": "Required journey visibility remains reachable by keyboard",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "rationale": "UX-02 changes agreement and journey review, authority explanations, citation navigation, role denial, decision readiness, responsive layouts, keyboard focus, and replay/repair empty states. Twelve source-bound optimized-production screenshots cover those visible states.",
+    "assets": [
+      {
+        "path": "docs/evidence/UX-02/requirement-source-required-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T17:03:28.951Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop agreement review with a complete fictional rule draft, exact quote, required-source message, and all three decision controls disabled before the cited page is opened.",
+        "caption": "Complete review fields cannot bypass the exact-source inspection gate.",
+        "provenance": "captured",
+        "sourceCommitSha": "e7cb2398df668bc47bf93b71e55dc52250abe2ff"
+      },
+      {
+        "path": "docs/evidence/UX-02/citation-page-keyboard-focus-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T17:03:30.212Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Focused stored agreement page containing the exact fictional classroom-purpose sentence, page offsets, hash, and a return-to-reviewed-draft button.",
+        "caption": "Citation navigation lands on the deterministic stored page rather than trusting the model quote alone.",
+        "provenance": "captured",
+        "sourceCommitSha": "e7cb2398df668bc47bf93b71e55dc52250abe2ff"
+      },
+      {
+        "path": "docs/evidence/UX-02/requirement-confirm-keyboard-focus-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T17:03:56.192Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop source-beside-rule review with citation inspected, decision ready, and a visible cyan keyboard-focus ring on Confirm as test rule.",
+        "caption": "Confirm becomes keyboard reachable only after source inspection and complete human input.",
+        "provenance": "captured",
+        "sourceCommitSha": "e7cb2398df668bc47bf93b71e55dc52250abe2ff"
+      },
+      {
+        "path": "docs/evidence/UX-02/requirement-ambiguous-keyboard-focus-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T17:03:56.819Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop source-beside-rule review with a visible keyboard-focus ring on Mark ambiguous while source and human rationale remain visible.",
+        "caption": "Keyboard order reaches the non-executable ambiguity decision after Confirm.",
+        "provenance": "captured",
+        "sourceCommitSha": "e7cb2398df668bc47bf93b71e55dc52250abe2ff"
+      },
+      {
+        "path": "docs/evidence/UX-02/requirement-reject-keyboard-focus-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T17:03:57.397Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop source-beside-rule review with a visible keyboard-focus ring on Reject draft and the exact fictional citation still present.",
+        "caption": "Keyboard order reaches Reject without changing or hiding the source-bound review.",
+        "provenance": "captured",
+        "sourceCommitSha": "e7cb2398df668bc47bf93b71e55dc52250abe2ff"
+      },
+      {
+        "path": "docs/evidence/UX-02/requirement-confirmed-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T17:03:31.122Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop human-confirmed executable test rule beside its exact fictional source, reviewer rationale, direct model-human-browser authority explanation, and immutable history.",
+        "caption": "A named person creates a bounded test instruction; the screen does not call it a legal or safety conclusion.",
+        "provenance": "captured",
+        "sourceCommitSha": "e7cb2398df668bc47bf93b71e55dc52250abe2ff"
+      },
+      {
+        "path": "docs/evidence/UX-02/requirement-version-history-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T17:03:31.344Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Immutable requirement history with human-confirmed version 2 above preserved non-executable model proposal version 1, including actors, times, rationale, and change count.",
+        "caption": "Human review appends a version without rewriting the model draft or its citation.",
+        "provenance": "captured",
+        "sourceCommitSha": "e7cb2398df668bc47bf93b71e55dc52250abe2ff"
+      },
+      {
+        "path": "docs/evidence/UX-02/requirement-ambiguous-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T17:03:35.923Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow agreement review with three stacked authority explanations and an ambiguous non-executable human decision beside the exact fictional source and immutable history.",
+        "caption": "Ambiguity remains direct, non-executable, source-bound, and readable at the narrow viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "e7cb2398df668bc47bf93b71e55dc52250abe2ff"
+      },
+      {
+        "path": "docs/evidence/UX-02/requirement-rejected-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T17:03:41.554Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop rejected non-executable model draft beside its exact fictional source, recorded human rationale, actor, time, and preserved two-version history.",
+        "caption": "Rejection cannot create an executable rule or erase proposal provenance.",
+        "provenance": "captured",
+        "sourceCommitSha": "e7cb2398df668bc47bf93b71e55dc52250abe2ff"
+      },
+      {
+        "path": "docs/evidence/UX-02/teacher-journey-editor-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T17:02:43.280Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop teacher journey with authority explanation, current rule, active authorization, fictional teacher, allowed and prohibited actions, required checkpoint, causal chain, immutable version, and separate empty replay and repair histories.",
+        "caption": "The complete journey configuration shows why it is runnable without implying that a browser run occurred.",
+        "provenance": "captured",
+        "sourceCommitSha": "e7cb2398df668bc47bf93b71e55dc52250abe2ff"
+      },
+      {
+        "path": "docs/evidence/UX-02/student-journey-editor-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T17:02:52.128Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow student journey with fictional actor, direct authority explanation, actions, required visibility, causal chain, two immutable versions, and separate replay and repair empty histories.",
+        "caption": "Journey configuration and claim boundaries remain readable without horizontal clipping at the narrow viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "e7cb2398df668bc47bf93b71e55dc52250abe2ff"
+      },
+      {
+        "path": "docs/evidence/UX-02/journey-checkpoint-keyboard-focus-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T17:03:22.325Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop unsaved teacher journey with a visible cyan keyboard-focus treatment around required checkpoint visibility and honest empty current, causal, version, replay, and repair states.",
+        "caption": "Required visibility is keyboard reachable before the first immutable journey version is saved.",
+        "provenance": "captured",
+        "sourceCommitSha": "e7cb2398df668bc47bf93b71e55dc52250abe2ff"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "test",
+      "path": "apps/web/tests/unit/review-experience.test.ts",
+      "description": "Focused source-inspection, role, checkpoint, and journey-authority gate examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/review-experience.property.test.ts",
+      "description": "Five-hundred-run fixed-seed PROP-17 and PROP-25 UI action-gate invariants"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/requirement-review.feature",
+      "description": "Source-required confirmation, citation navigation, keyboard decisions, role denial, authority comprehension, ambiguity, rejection, history, and Axe coverage"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/journey-authoring.feature",
+      "description": "Runnable teacher and student configuration, required visibility, causal lineage, replay and repair history states, keyboard focus, and Axe coverage"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/synthetic-personas.feature",
+      "description": "Existing fictional persona setup, likely-real-data refusal, reserved destinations, and per-run field isolation"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/workspace-access.steps.mjs",
+      "description": "Real browser, API, keyboard, focus, response, Axe, invariant, and source-bound visual assertions"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/lib/review-experience.ts",
+      "description": "Pure requirement-decision and journey-save gates consumed by the production UI and generated-state tests"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/review-authority-legend.tsx",
+      "description": "Direct model proposal, human-confirmed rule, and observed browser fact explanation"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/agreement-intake-panel.tsx",
+      "description": "Source navigation, focus return, role-aware decision readiness, human controls, and immutable requirement history"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/journey-authoring-panel.tsx",
+      "description": "Role-aware journey gate, prerequisite chain, fictional persona, checkpoints, causal history, and separate replay and repair states"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/globals.css",
+      "description": "Existing Pactwire design-system treatments for authority lanes, source focus, decision state, responsive stacking, and replay and repair history"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/UX-02/README.md",
+      "description": "Curated red-green record, source-bound visual review, claim boundaries, and remaining completion gate"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T17:10:00.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "Required clean-checkout Ubuntu and Windows GitHub Actions jobs have not yet passed for the UX-02 source commit, so the task remains IN_PROGRESS.",
+    "The current UX branch displays truthful empty replay and repair histories; populated records require the owning deterministic-replay and model-repair APIs and workflows.",
+    "Automated Axe checks cover WCAG A and AA rules, while comprehensive manual screen-reader and WCAG 2.2 review remains QLT-01.",
+    "A confirmed requirement is a bounded human test instruction, not legal meaning, software approval, safety, or compliance; a runnable journey is not evidence that a browser run occurred or passed.",
+    "All browser evidence uses the controlled fictional district, fictional people, synthetic values, and reserved .invalid destinations."
+  ],
+  "reviewer": "codex-agent"
+}
