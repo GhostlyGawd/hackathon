@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { SecretIsolationPanel } from "./secret-isolation-panel";
 import { AgreementIntakePanel } from "./agreement-intake-panel";
 import { JourneyAuthoringPanel } from "./journey-authoring-panel";
+import { RunHistoryPanel } from "./run-history-panel";
 import { SoftwareInventory } from "./software-inventory";
 import { SyntheticDataPanel } from "./synthetic-data-panel";
 import { TestAuthorizationPanel } from "./test-authorization-panel";
@@ -390,8 +391,10 @@ export function AccessConsole() {
           ) : null}
           <a href="#authorization">Authorization</a>
           <a href="#agreements">Agreement</a>
+          <a href="#credentials">Credentials</a>
           <a href="#synthetic-data">Test data</a>
           <a href="#journeys">Journeys</a>
+          <a href="#run-history">Runs</a>
         </nav>
         <span className="environment-badge">
           <span aria-hidden="true" /> Controlled fixture
@@ -586,6 +589,7 @@ export function AccessConsole() {
                 workspaceId={principal.activeWorkspaceId}
                 principalUserId={principal.userId}
               />
+              <RunHistoryPanel workspaceId={principal.activeWorkspaceId} />
               <div className="workspace-grid">
               <div className="workspace-column">
                 <article className="workspace-card">

@@ -2,6 +2,8 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import {
   deterministicReplayVersionSchema,
+  journeyRepairDraftSchema,
+  journeyRepairMatchesFrozenSource,
   runSnapshotSchema,
   type DeterministicReplayOperation,
   type DeterministicReplayVersion,
@@ -287,4 +289,171 @@ export async function executeDeterministicReplay(input: {
     ],
   });
   return immutableClone(outcome);
+}
+
+const journeyRepairCandidateOutcomeSchema = z
+  .object({
+    schemaVersion: z.literal("1.0.0"),
+    repairId: z.string().uuid(),
+    repairHash: z.string().regex(/^[a-f0-9]{64}$/u),
+    sourceReplayVersionId: z.string().uuid(),
+    sourceSnapshotHash: z.string().regex(/^[a-f0-9]{64}$/u),
+    arm: z.literal("MODEL_ASSISTED_REPAIR_VERIFICATION"),
+    proposalModelInvocationCount: z.number().int().positive(),
+    verificationModelInvocationCount: z.literal(0),
+    state: z.enum(["COMPLETED", "DRIFTED", "FAILED"]),
+    startedAt: z.string().datetime({ offset: true }),
+    completedAt: z.string().datetime({ offset: true }),
+    trace: z.array(traceEventSchema),
+    checkpoints: z.array(
+      z
+        .object({
+          checkpointId: z.string().min(1),
+          status: z.enum(["VERIFIED", "MISSING", "NOT_REACHED"]),
+        })
+        .strict(),
+    ),
+    limitations: z.array(z.string().min(1)).min(1),
+  })
+  .strict();
+export type JourneyRepairCandidateOutcome = z.infer<
+  typeof journeyRepairCandidateOutcomeSchema
+>;
+
+export class FrozenRepairScopeError extends Error {
+  readonly code = "FROZEN_REPAIR_SCOPE_MISMATCH";
+
+  constructor() {
+    super("The repair candidate does not match its frozen source replay.");
+    this.name = "FrozenRepairScopeError";
+  }
+}
+
+export async function executeJourneyRepairCandidate(input: {
+  readonly repair: unknown;
+  readonly sourceReplay: DeterministicReplayVersion;
+  readonly snapshot: RunSnapshot;
+  readonly baseUrl: string;
+  readonly bindingValues: Readonly<Record<string, string>>;
+  readonly adapter: DeterministicReplayAdapter;
+  readonly evidence?: DeterministicReplayEvidenceSink;
+  readonly now?: () => string;
+}): Promise<JourneyRepairCandidateOutcome> {
+  const repair = journeyRepairDraftSchema.parse(input.repair);
+  const sourceReplay = deterministicReplayVersionSchema.parse(input.sourceReplay);
+  const snapshot = runSnapshotSchema.parse(input.snapshot);
+  if (
+    repair.status !== "BOUNDED_DRAFT" ||
+    repair.candidate === null ||
+    repair.workspaceId !== sourceReplay.workspaceId ||
+    repair.softwareId !== sourceReplay.softwareId ||
+    repair.journeyVersionId !== sourceReplay.journeyVersionId ||
+    repair.authorizationId !== sourceReplay.authorizationId ||
+    repair.sourceReplayVersionId !== sourceReplay.id ||
+    repair.sourceReplayHash !== sourceReplay.replayHash ||
+    repair.sourceSnapshotHash !== sourceReplay.snapshot.snapshotHash ||
+    !journeyRepairMatchesFrozenSource(repair, sourceReplay) ||
+    !sameSnapshot(sourceReplay.snapshot, snapshot)
+  ) {
+    throw new FrozenRepairScopeError();
+  }
+  const baseUrl = new URL(input.baseUrl);
+  if (!["http:", "https:"].includes(baseUrl.protocol)) {
+    throw new Error("Repair replay base URL must use HTTP or HTTPS");
+  }
+  const expectedBindings = sourceReplay.bindings.map(
+    (binding) => binding.bindingId,
+  );
+  const suppliedBindings = Object.keys(input.bindingValues);
+  if (
+    expectedBindings.length !== suppliedBindings.length ||
+    expectedBindings.some(
+      (bindingId) =>
+        !suppliedBindings.includes(bindingId) || !input.bindingValues[bindingId],
+    )
+  ) {
+    throw new Error("Repair values must match the frozen binding set exactly");
+  }
+
+  const now = input.now ?? (() => new Date().toISOString());
+  const startedAt = new Date(now()).toISOString();
+  const trace: z.infer<typeof traceEventSchema>[] = [];
+  const checkpoints = new Map<
+    string,
+    "VERIFIED" | "MISSING" | "NOT_REACHED"
+  >(
+    sourceReplay.requiredCheckpointIds.map((checkpointId) => [
+      checkpointId,
+      "NOT_REACHED" as const,
+    ]),
+  );
+  let state: "COMPLETED" | "DRIFTED" | "FAILED" = "COMPLETED";
+
+  for (const operation of repair.candidate.operations) {
+    const materialized = materialize(operation, input.bindingValues);
+    const result = await input.adapter.execute(materialized, {
+      baseUrl: baseUrl.toString(),
+    });
+    await input.evidence?.recordOperation({
+      sequence: trace.length + 1,
+      operationId: operation.operationId,
+      operationKind: operation.kind,
+      outcome: result.status,
+    });
+    const bindingValue =
+      materialized.kind === "FILL" || materialized.kind === "ASSERT_VALUE"
+        ? materialized.value
+        : undefined;
+    trace.push({
+      sequence: trace.length + 1,
+      operationId: operation.operationId,
+      kind: operation.kind,
+      status: result.status,
+      observedAt: new Date(now()).toISOString(),
+      ...(bindingValue ? { valueHash: valueHash(bindingValue) } : {}),
+      ...(result.status === "COMPLETED"
+        ? {}
+        : { reasonCode: result.reasonCode }),
+    });
+    if (result.status !== "COMPLETED") {
+      state = result.status;
+      if (operation.kind === "CHECKPOINT") {
+        checkpoints.set(operation.checkpointId, "MISSING");
+      }
+      break;
+    }
+    if (operation.kind === "CHECKPOINT") {
+      checkpoints.set(operation.checkpointId, "VERIFIED");
+    }
+  }
+  if (
+    state === "COMPLETED" &&
+    [...checkpoints.values()].some((status) => status !== "VERIFIED")
+  ) {
+    state = "DRIFTED";
+  }
+
+  return immutableClone(
+    journeyRepairCandidateOutcomeSchema.parse({
+      schemaVersion: "1.0.0",
+      repairId: repair.id,
+      repairHash: repair.repairHash,
+      sourceReplayVersionId: sourceReplay.id,
+      sourceSnapshotHash: sourceReplay.snapshot.snapshotHash,
+      arm: "MODEL_ASSISTED_REPAIR_VERIFICATION",
+      proposalModelInvocationCount: repair.modelInvocationCount,
+      verificationModelInvocationCount: 0,
+      state,
+      startedAt,
+      completedAt: new Date(now()).toISOString(),
+      trace,
+      checkpoints: sourceReplay.requiredCheckpointIds.map((checkpointId) => ({
+        checkpointId,
+        status: checkpoints.get(checkpointId) ?? "NOT_REACHED",
+      })),
+      limitations: [
+        "This verifies the frozen checkpoint in a controlled named test; it does not establish safety or compliance.",
+      ],
+    }),
+  );
 }

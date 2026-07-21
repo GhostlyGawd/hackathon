@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 10,
-  "totalTables": 26,
+  "migrationCount": 12,
+  "totalTables": 33,
   "migrations": [
     {
       "version": "0001",
@@ -127,6 +127,38 @@
       ],
       "immutableTables": [
         "deterministic_replay_versions"
+      ]
+    },
+    {
+      "version": "0011",
+      "name": "journey_repairs",
+      "sha256": "2e7a0a91a0e2e16c7ca1f7c7fef5566315d693ef4fb0ebc53772b628b66f25bf",
+      "tables": [
+        "journey_repair_drafts",
+        "journey_repair_verifications",
+        "journey_repair_promotions"
+      ],
+      "immutableTables": [
+        "journey_repair_drafts",
+        "journey_repair_verifications",
+        "journey_repair_promotions"
+      ]
+    },
+    {
+      "version": "0012",
+      "name": "run_orchestration",
+      "sha256": "1ee0264bc7386b020fe0c0589cd7f05ed7d56d0f97724dc1c725aee90713c870",
+      "tables": [
+        "run_execution_scopes",
+        "run_worker_leases",
+        "run_manifests",
+        "run_orchestration_commands"
+      ],
+      "immutableTables": [
+        "run_execution_scopes",
+        "run_worker_leases",
+        "run_manifests",
+        "run_orchestration_commands"
       ]
     }
   ]

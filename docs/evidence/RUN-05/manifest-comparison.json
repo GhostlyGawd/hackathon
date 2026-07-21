@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "1.0.0",
+  "fixture": "controlled-fictional-run-history",
+  "sourceRunIdsAreFictional": true,
+  "runs": [
+    {
+      "runId": "57575757-5757-4757-8757-000000000001",
+      "state": "COMPLETED",
+      "retryOfRunId": null,
+      "snapshotHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "executionScopeHash": "5577c5a9d3e80e0d3b410f1df9d682ce1516de6842ebe623b8d940128a882297",
+      "manifestHash": "0413e4ea8018a92c22e133b0158d9b92f7ef72d47e58b3fffb165e4194599abe",
+      "observations": 2,
+      "checkpointCoverage": [
+        {
+          "checkpointId": "submission-request",
+          "status": "VERIFIED"
+        },
+        {
+          "checkpointId": "completion-visible",
+          "status": "VERIFIED"
+        }
+      ],
+      "integrityFailure": null
+    },
+    {
+      "runId": "57575757-5757-4757-8757-000000000006",
+      "state": "PARTIAL",
+      "retryOfRunId": null,
+      "snapshotHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "executionScopeHash": "ddd431954efeda64c8e25cbb80841dd24c25d5e254aff2dca679d28f0a03d232",
+      "manifestHash": "446058b86b7135eda923f1d221c6d1d3c409bcf529dce0f0157f5e2878263533",
+      "observations": 1,
+      "checkpointCoverage": [
+        {
+          "checkpointId": "submission-request",
+          "status": "VERIFIED"
+        },
+        {
+          "checkpointId": "completion-visible",
+          "status": "NOT_VISIBLE",
+          "reason": "The completion signal was outside recorder visibility."
+        }
+      ],
+      "integrityFailure": null
+    },
+    {
+      "runId": "57575757-5757-4757-8757-000000000011",
+      "state": "FAILED",
+      "retryOfRunId": null,
+      "snapshotHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "executionScopeHash": "61b7dcb44c48686a835730855bcb52302ea3bc1072de91931724b8b5915cf8c6",
+      "manifestHash": "bc9e99e3123ccc60584319d03a0c154b67d8ecb647f887487f637a38af74f0cb",
+      "observations": 0,
+      "checkpointCoverage": [
+        {
+          "checkpointId": "submission-request",
+          "status": "NOT_TESTED",
+          "reason": "Execution stopped before this checkpoint."
+        },
+        {
+          "checkpointId": "completion-visible",
+          "status": "NOT_TESTED",
+          "reason": "Execution stopped before this checkpoint."
+        }
+      ],
+      "integrityFailure": null
+    },
+    {
+      "runId": "57575757-5757-4757-8757-000000000016",
+      "state": "FAILED",
+      "retryOfRunId": null,
+      "snapshotHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "executionScopeHash": "9b7b2033b7c051fe943d27305bf4c6787d33c3c3f62afabe8b53e1dede49ea43",
+      "manifestHash": null,
+      "observations": 0,
+      "checkpointCoverage": [],
+      "integrityFailure": {
+        "code": "WORKER_LEASE_EXPIRED",
+        "message": "The worker lease expired before a terminal manifest could be finalized."
+      }
+    },
+    {
+      "runId": "57575757-5757-4757-8757-000000000020",
+      "state": "COMPLETED",
+      "retryOfRunId": "57575757-5757-4757-8757-000000000016",
+      "snapshotHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "executionScopeHash": "ea52da715a9298ca5c18b3e2379448713d4a1078337700921f1a7b26c80baa84",
+      "manifestHash": "089669ae11f818da9271b33c5ffeb766f2e45dff710db0a8cd68a010161e7c27",
+      "observations": 2,
+      "checkpointCoverage": [
+        {
+          "checkpointId": "submission-request",
+          "status": "VERIFIED"
+        },
+        {
+          "checkpointId": "completion-visible",
+          "status": "VERIFIED"
+        }
+      ],
+      "integrityFailure": null
+    }
+  ],
+  "retryConfigurationMatchesSource": true
+}
