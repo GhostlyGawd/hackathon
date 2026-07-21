@@ -270,7 +270,10 @@ Then(
   "the recorder contains the authorized request hashes and response metadata",
   function () {
     const facts = recorderNetworkFacts(this.run02.report).find(
-      ({ request }) => request.host === "classroom-service.pactwire.test",
+      ({ request }) =>
+        request.host === "classroom-service.pactwire.test" &&
+        request.method === "POST" &&
+        request.path === "/collect",
     );
     assert.ok(facts);
     assert.equal(facts.request.method, "POST");

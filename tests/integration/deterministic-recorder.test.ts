@@ -147,6 +147,16 @@ function networkFacts(report: DeterministicRecorderReport) {
     .map((result) => result.data);
 }
 
+function isStudentSubmissionRequest(
+  facts: ReturnType<typeof networkFacts>[number],
+) {
+  return (
+    facts.request.host === "classroom-service.pactwire.test" &&
+    facts.request.method === "POST" &&
+    facts.request.path === "/collect"
+  );
+}
+
 describe("real Chromium deterministic recording", () => {
   it("captures independently ordered browser, network, screenshot, action, response, and storage facts without raw bodies", async () => {
     const context = await runContext(
@@ -186,9 +196,7 @@ describe("real Chromium deterministic recording", () => {
       true,
     );
 
-    const request = networkFacts(report).find(
-      (facts) => facts.request.host === "classroom-service.pactwire.test",
-    );
+    const request = networkFacts(report).find(isStudentSubmissionRequest);
     expect(request).toMatchObject({
       kind: "NETWORK_REQUEST",
       request: {
@@ -241,9 +249,7 @@ describe("real Chromium deterministic recording", () => {
     const report = await context.recorder.stop();
 
     expect(
-      networkFacts(report).some(
-        ({ request }) => request.host === "classroom-service.pactwire.test",
-      ),
+      networkFacts(report).some(isStudentSubmissionRequest),
     ).toBe(true);
     expect(report.visibility).toMatchObject({
       state: "NOT_VISIBLE",
@@ -278,9 +284,7 @@ describe("real Chromium deterministic recording", () => {
     await submitStudent(context.session, context.recorder);
     const report = await context.recorder.stop();
 
-    const request = networkFacts(report).find(
-      (facts) => facts.request.host === "classroom-service.pactwire.test",
-    );
+    const request = networkFacts(report).find(isStudentSubmissionRequest);
     expect(request?.request.authorizedFieldCapture).toBe("MISSING_FIELDS");
     expect(request?.request.authorizedFields).toEqual(
       expect.arrayContaining([
