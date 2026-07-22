@@ -74,7 +74,11 @@ scenario-level results.
 The exact evidence-bearing tree passed the complete uninterrupted `pnpm verify`
 gate in 588.9 seconds: 125 test files, 447 tests, 82 optimized-production BDD
 scenarios, and 961 steps, with zero failure, skip, or retry. Clean-checkout
-Ubuntu and Windows CI remain required before task completion.
+evidence head `dec884917478553d23019e43bc18bc32c182ad2c` then passed the
+same gate on
+[Ubuntu](https://github.com/GhostlyGawd/hackathon/actions/runs/29894214354/job/88840831642)
+and
+[Windows](https://github.com/GhostlyGawd/hackathon/actions/runs/29894214354/job/88840831589).
 
 ## Visual evidence
 

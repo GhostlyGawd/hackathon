@@ -257,7 +257,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | UX-03 | P0 | RUN-05, DET-04, DET-05, UX-01 | Run, finding, receipt, and hold experience | COMPLETE |
 | QLT-01 | P0 | UX-01, UX-02, UX-03, RUN-05 | Quality and observability gates | COMPLETE |
 | SEC-01 | P0 | AUT-04, RUN-03, DET-05, UX-03 | Security and privacy threat suite | COMPLETE |
-| VAL-01 | P0 | FIX-01, DET-05, SEC-01 | Blinded mechanism corpus | IN PROGRESS |
+| VAL-01 | P0 | FIX-01, DET-05, SEC-01 | Blinded mechanism corpus | COMPLETE |
 | VAL-02 | P0 claim gate | JRN-03, RUN-03, RUN-04, VAL-01 | Model-ablation decision | NOT STARTED |
 | VAL-03 | P0 claim gate | UX-03, VAL-01 | Workflow and comprehension validation | NOT STARTED |
 | DOC-01 | P0 | QLT-01, SEC-01, implemented P0 tasks | Productization documentation and visuals | NOT STARTED |
@@ -682,7 +682,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### VAL-01 — Build and run the blinded mechanism-correctness corpus
 
-- **Status:** IN PROGRESS — the source implementation, 120-case blinded run, focused tests, properties, seven BDD scenarios, curated mechanism reports, and complete local deterministic suite pass; clean-checkout Linux/Windows CI remains the completion gate.
+- **Status:** COMPLETE — the 120-case blinded corpus met every threshold with exact denominators and confidence intervals; focused and complete local gates passed, and evidence head `dec884917478553d23019e43bc18bc32c182ad2c` passed clean-checkout Ubuntu and Windows CI.
 - **Deliver:** at least 100 reproducible cases with at least 40 instrumentable conflicts, required transform/destination/visibility/drift/injection classes, hidden ground truth, scorer, confidence intervals, and error analysis.
 - **PRD:** Section 19.1.
 - **Depends on:** FIX-01, DET-05, and SEC-01.

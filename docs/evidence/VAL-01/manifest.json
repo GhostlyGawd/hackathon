@@ -2,17 +2,34 @@
   "schemaVersion": "1.0.0",
   "taskId": "VAL-01",
   "title": "Build and run the blinded mechanism-correctness corpus",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [19],
   "functionalRequirements": [],
   "sourceCommitSha": "275dc630e55281c8d424ec612acd5f8a0e63d3c3",
   "startedAt": "2026-07-22T04:37:00.000Z",
+  "completedAt": "2026-07-22T05:44:23.872Z",
   "artifactRoot": "artifacts/verification/VAL-01/",
   "curatedEvidenceRoot": "docs/evidence/VAL-01/",
   "environment": {
-    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29894214354",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29894214354/job/88840831642",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29894214354/job/88840831589",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -73,6 +90,13 @@
       "command": "pnpm verify",
       "exitCode": 0,
       "durationMs": 588900
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout Ubuntu and Windows verification on evidence head dec884917478553d23019e43bc18bc32c182ad2c",
+      "command": "GitHub Actions CI run 29894214354",
+      "exitCode": 0,
+      "durationMs": 508000
     }
   ],
   "testSummary": {
