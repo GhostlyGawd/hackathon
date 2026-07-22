@@ -96,9 +96,10 @@ task seeds and permanent shrunk regressions.
 
 The evidence-reconciled tree also passed the uninterrupted `pnpm verify` gate in
 539 seconds: 121 test files, 437 tests, 75 optimized-production browser
-scenarios, and 904 steps, with zero failure, skip, or retry. SEC-01 remains in
-progress only until the exact pushed head passes clean-checkout Ubuntu and
-Windows CI.
+scenarios, and 904 steps, with zero failure, skip, or retry. Evidence head
+`46da20a0733e64c968920e3adde08f0413c63857` then passed the same clean-checkout
+gate on [Ubuntu](https://github.com/GhostlyGawd/hackathon/actions/runs/29891082669/job/88831505721)
+and [Windows](https://github.com/GhostlyGawd/hackathon/actions/runs/29891082669/job/88831505724).
 
 ## Claim boundary
 

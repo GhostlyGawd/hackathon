@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "taskId": "SEC-01",
   "title": "Execute the security, privacy, and prompt-injection threat suite",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [16, 17],
   "functionalRequirements": [
     "FR-003",
@@ -18,12 +18,29 @@
   ],
   "sourceCommitSha": "e7b074c1bc233ee6ee49d1039bf3ab30edd08a93",
   "startedAt": "2026-07-21T18:25:00.000-04:00",
+  "completedAt": "2026-07-22T04:35:37.740Z",
   "artifactRoot": "artifacts/verification/SEC-01/",
   "curatedEvidenceRoot": "docs/evidence/SEC-01/",
   "environment": {
-    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29891082669",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29891082669/job/88831505721",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29891082669/job/88831505724",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -124,6 +141,13 @@
       "command": "pnpm verify",
       "exitCode": 0,
       "durationMs": 539000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout Ubuntu and Windows verification on evidence head 46da20a0733e64c968920e3adde08f0413c63857",
+      "command": "GitHub Actions CI run 29891082669",
+      "exitCode": 0,
+      "durationMs": 499000
     }
   ],
   "testSummary": {
@@ -408,8 +432,7 @@
     "The repository scanner covers configured high-confidence patterns and the package audit covers registry-known advisories at run time; neither proves an absence of every secret or vulnerability.",
     "The 30-day duration is a Pactwire product default rather than a legal requirement, and infrastructure-wide deletion still requires production validation across backups, replicas, caches, object storage, and encryption keys.",
     "Pactwire denies product-operated public delivery, but a human can copy a private export outside the product after download.",
-    "Deterministic adapters validate the threat boundaries but do not establish live GPT-5.6 effectiveness; that claim remains owned by VAL-02.",
-    "Exact-head clean-checkout Ubuntu and Windows CI remain outstanding, so this manifest stays IN_PROGRESS."
+    "Deterministic adapters validate the threat boundaries but do not establish live GPT-5.6 effectiveness; that claim remains owned by VAL-02."
   ],
   "reviewer": "codex-agent"
 }

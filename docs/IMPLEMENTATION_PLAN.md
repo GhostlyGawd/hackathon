@@ -256,7 +256,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | UX-02 | P0 | AGR-03, JRN-02, UX-01 | Agreement and journey review | COMPLETE |
 | UX-03 | P0 | RUN-05, DET-04, DET-05, UX-01 | Run, finding, receipt, and hold experience | COMPLETE |
 | QLT-01 | P0 | UX-01, UX-02, UX-03, RUN-05 | Quality and observability gates | COMPLETE |
-| SEC-01 | P0 | AUT-04, RUN-03, DET-05, UX-03 | Security and privacy threat suite | IN PROGRESS |
+| SEC-01 | P0 | AUT-04, RUN-03, DET-05, UX-03 | Security and privacy threat suite | COMPLETE |
 | VAL-01 | P0 | FIX-01, DET-05, SEC-01 | Blinded mechanism corpus | NOT STARTED |
 | VAL-02 | P0 claim gate | JRN-03, RUN-03, RUN-04, VAL-01 | Model-ablation decision | NOT STARTED |
 | VAL-03 | P0 claim gate | UX-03, VAL-01 | Workflow and comprehension validation | NOT STARTED |
@@ -668,7 +668,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### SEC-01 — Execute the security, privacy, and prompt-injection threat suite
 
-- **Status:** IN PROGRESS — implementation commit `e7b074c1bc233ee6ee49d1039bf3ab30edd08a93` passes the focused threat gates and the evidence-reconciled tree passes the complete deterministic local gate: 121 test files, 437 tests, and all 75 optimized-production browser scenarios / 904 steps. Exact-head clean-checkout Ubuntu/Windows CI remains outstanding.
+- **Status:** COMPLETE — implementation commit `e7b074c1bc233ee6ee49d1039bf3ab30edd08a93` enforces the threat, retention, deletion, private-release, and repository-scan boundaries. Evidence head `46da20a0733e64c968920e3adde08f0413c63857` passes the complete deterministic local gate with 121 test files, 437 tests, and all 75 optimized-production browser scenarios / 904 steps plus clean-checkout Ubuntu and Windows [CI run 29891082669](https://github.com/GhostlyGawd/hackathon/actions/runs/29891082669).
 
 - **Deliver:** executable cases for real-data entry, prompt injection, credential leakage, egress, harmful actions, cross-workspace access, tampering, false attribution, incomplete capture, publication permission, and retention/deletion.
 - **PRD:** Section 16 and the security cases in Section 17.
