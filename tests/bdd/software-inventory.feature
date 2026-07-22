@@ -60,6 +60,7 @@ Feature: District software status keeps its original source
     And I define a current authorization for the fictional Northstar software
     When I upload the fictional two-page text agreement with effective dates
     And I request structured requirement proposals
+    And I inspect the proposal's exact cited source
     And I confirm the requirement with rationale "I checked this bounded rule against the exact cited text."
     And I save an obviously fictional teacher persona
     And I save an obviously fictional student persona
