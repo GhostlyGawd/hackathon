@@ -50,6 +50,17 @@ export async function POST(
       authorizationId,
       attempt: body.attempt,
     });
+    if (!decision.allowed) {
+      runtime.qualityTelemetry.recordLog({
+        workspaceId,
+        lane: "HARNESS",
+        code: "BLOCKED_ACTION",
+        artifact: { kind: "AUTHORIZATION", id: authorizationId },
+        actor: { kind: "HUMAN", id: principal.userId },
+        dimensions: { failureCode: decision.reason },
+        measures: { blockedActionCount: 1 },
+      });
+    }
     return NextResponse.json({ decision });
   } catch (error) {
     return authorizationErrorResponse(error);

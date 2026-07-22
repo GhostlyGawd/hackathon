@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "QLT-01",
+  "capturedAt": "2026-07-22T02:42:56.312Z",
+  "sourceCommitSha": "30d5410e27a06b58153155f9158b44b2063f53fa",
+  "soak": {
+    "telemetryDeliveryAttempts": 10000,
+    "uniqueAnalyticsEvents": 2000,
+    "uniqueStructuredLogs": 2000,
+    "uniquePerformanceMeasurements": 2000,
+    "guardrailMeasurements": 7,
+    "duplicateHandling": "PASS",
+    "report": {
+      "version": "pactwire-quality-report-v1",
+      "profileVersion": "pactwire-quality-profile-v1",
+      "status": "PASS",
+      "counts": {
+        "analyticsEvents": 2000,
+        "structuredLogs": 2000,
+        "performanceSamples": 2000,
+        "guardrailMetrics": 7
+      },
+      "analyticsEvents": {
+        "SOFTWARE_RECORD_CREATED": 0,
+        "AUTHORIZATION_CREATED": 0,
+        "AUTHORIZATION_EXPIRED": 0,
+        "AUTHORIZATION_REVOKED": 0,
+        "AGREEMENT_UPLOADED": 0,
+        "REQUIREMENT_PROPOSED": 0,
+        "REQUIREMENT_CONFIRMED": 0,
+        "REQUIREMENT_REJECTED": 0,
+        "REQUIREMENT_MARKED_AMBIGUOUS": 0,
+        "JOURNEY_CREATED": 0,
+        "JOURNEY_REPLAYED": 0,
+        "JOURNEY_REPAIRED": 0,
+        "JOURNEY_ABANDONED": 0,
+        "RUN_QUEUED": 1000,
+        "RUN_TERMINAL": 1000,
+        "CHECKPOINT_VISIBLE": 0,
+        "CHECKPOINT_INVISIBLE": 0,
+        "CHECKPOINT_TESTED": 0,
+        "CHECKPOINT_UNTESTED": 0,
+        "FINDING_CREATED": 0,
+        "FINDING_SUPERSEDED": 0,
+        "RECEIPT_VIEWED": 0,
+        "RECEIPT_VERIFIED": 0,
+        "RECEIPT_EXPORTED": 0,
+        "APPROVAL_PLACED_ON_HOLD": 0,
+        "HUMAN_DECISION_RECORDED": 0
+      },
+      "performance": {
+        "consoleInteraction": {
+          "sampleCount": 667,
+          "p95Ms": 309,
+          "budgetMs": 500,
+          "passed": true
+        },
+        "runProgress": {
+          "sampleCount": 667,
+          "p95Ms": 1650,
+          "budgetMs": 2000,
+          "passed": true
+        },
+        "evidenceSummary": {
+          "sampleCount": 666,
+          "p95Ms": 417,
+          "budgetMs": 500,
+          "passed": true
+        }
+      },
+      "guardrails": {
+        "AUTOMATED_APPROVAL_OR_RESTORE": {
+          "count": 0,
+          "sampleCount": 1,
+          "passed": true
+        },
+        "OUT_OF_SCOPE_ACTION": {
+          "count": 0,
+          "sampleCount": 1,
+          "passed": true
+        },
+        "REAL_STUDENT_DATA": {
+          "count": 0,
+          "sampleCount": 1,
+          "passed": true
+        },
+        "SECRET_EXPOSURE": {
+          "count": 0,
+          "sampleCount": 1,
+          "passed": true
+        },
+        "UNKNOWN_DESTINATION_ATTRIBUTION": {
+          "count": 0,
+          "sampleCount": 1,
+          "passed": true
+        },
+        "MISSING_FINDING_SCOPE": {
+          "count": 0,
+          "sampleCount": 1,
+          "passed": true
+        },
+        "DEFECTIVE_HOLD": {
+          "count": 0,
+          "sampleCount": 1,
+          "passed": true
+        }
+      },
+      "responsibilityLanes": {
+        "MODEL": 400,
+        "HARNESS": 400,
+        "RECORDER": 400,
+        "RULE_EVALUATION": 400,
+        "HUMAN_DECISION": 400
+      },
+      "observability": {
+        "estimatedCostMicroUsd": 4000,
+        "latencyMs": 0,
+        "retryCount": 1999,
+        "blockedActionCount": 0,
+        "captureGapCount": 0,
+        "modelFailureCount": 0
+      }
+    }
+  },
+  "compatibility": {
+    "packagedChromium": {
+      "status": "SUPPORTED",
+      "reasons": [],
+      "profileVersion": "pactwire-quality-profile-v1"
+    },
+    "firefox": {
+      "status": "BLOCKED",
+      "reasons": [
+        "Only the packaged Chromium runner is supported in P0."
+      ],
+      "profileVersion": "pactwire-quality-profile-v1"
+    },
+    "nativeApplication": {
+      "status": "BLOCKED",
+      "reasons": [
+        "Native applications are not supported in P0."
+      ],
+      "profileVersion": "pactwire-quality-profile-v1"
+    },
+    "unsupportedBrowserFeature": {
+      "status": "BLOCKED",
+      "reasons": [
+        "Unsupported browser features: NATIVE_FILE_SYSTEM."
+      ],
+      "profileVersion": "pactwire-quality-profile-v1"
+    }
+  }
+}

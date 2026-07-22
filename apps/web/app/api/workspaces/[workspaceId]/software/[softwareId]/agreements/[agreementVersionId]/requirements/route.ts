@@ -19,6 +19,17 @@ function requestRecord(candidate: unknown): Readonly<Record<string, unknown>> {
   return candidate as Readonly<Record<string, unknown>>;
 }
 
+function analyticsName(
+  status: "CONFIRMED" | "REJECTED" | "AMBIGUOUS",
+):
+  | "REQUIREMENT_CONFIRMED"
+  | "REQUIREMENT_REJECTED"
+  | "REQUIREMENT_MARKED_AMBIGUOUS" {
+  if (status === "CONFIRMED") return "REQUIREMENT_CONFIRMED";
+  if (status === "REJECTED") return "REQUIREMENT_REJECTED";
+  return "REQUIREMENT_MARKED_AMBIGUOUS";
+}
+
 export async function GET(
   request: NextRequest,
   context: RouteContext,
@@ -60,6 +71,12 @@ export async function POST(
       workspaceId,
       softwareId,
       agreementVersionId,
+    });
+    runtime.qualityTelemetry.recordEvent({
+      workspaceId,
+      name: analyticsName(version.status),
+      artifact: { kind: "REQUIREMENT", id: version.id },
+      actor: { kind: "HUMAN", id: principal.userId },
     });
     return NextResponse.json(version, {
       status: 201,

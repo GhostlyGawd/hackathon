@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "QLT-01",
+  "capturedAt": "2026-07-22T02:43:01.787Z",
+  "sourceCommitSha": "30d5410e27a06b58153155f9158b44b2063f53fa",
+  "target": "WCAG 2.2 AA",
+  "automatedTags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa"
+  ],
+  "browser": {
+    "engine": "Chromium",
+    "version": "149.0.7827.55"
+  },
+  "status": "PASS_WITH_MANUAL_CONTRAST_REVIEW",
+  "results": {
+    "violations": 0,
+    "incomplete": 1,
+    "passes": 31,
+    "inapplicable": 32
+  },
+  "incompleteReview": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "nodeCount": 337,
+      "disposition": "Axe cannot resolve the layered gradient and pseudo-element backgrounds; QLT-01 requires the deterministic token-contrast check and original-resolution visual review."
+    }
+  ]
+}

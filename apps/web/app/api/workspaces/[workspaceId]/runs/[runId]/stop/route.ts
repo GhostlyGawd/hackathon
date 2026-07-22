@@ -30,7 +30,7 @@ export async function POST(
       runId,
     );
     const live = runtime.liveRunReviews.get(runId);
-    if (!entry || !live) {
+    if (!entry || !live || entry.run.state !== "RUNNING") {
       throw new RunOrchestrationConflictError(
         "The selected run is not an active controlled run",
       );
@@ -70,6 +70,36 @@ export async function POST(
         component: "run-recorder-v1",
       },
       idempotencyKey: `ui-stop:${runId}`,
+    });
+    const correlationId = runtime.qualityTelemetry.newCorrelationId();
+    runtime.qualityTelemetry.recordEvent({
+      workspaceId,
+      correlationId,
+      name: "RUN_TERMINAL",
+      artifact: { kind: "RUN", id: runId },
+      actor: { kind: "HUMAN", id: principal.userId },
+      dimensions: { terminalState: "CANCELED" },
+    });
+    runtime.qualityTelemetry.recordLog({
+      workspaceId,
+      correlationId,
+      lane: "HARNESS",
+      code: "HARNESS_ACTION",
+      artifact: { kind: "RUN", id: runId },
+      actor: { kind: "HUMAN", id: principal.userId },
+      dimensions: { terminalState: "CANCELED" },
+    });
+    runtime.qualityTelemetry.recordLog({
+      workspaceId,
+      correlationId,
+      lane: "RECORDER",
+      code: "RECORDER_EVENT",
+      artifact: { kind: "RUN", id: runId },
+      actor: {
+        kind: "AUTOMATION",
+        id: "pactwire-controlled-run-recorder",
+      },
+      dimensions: { terminalState: "CANCELED" },
     });
 
     return NextResponse.json(result, {

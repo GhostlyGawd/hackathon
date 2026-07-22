@@ -76,6 +76,13 @@ export async function POST(
       ...(body.knownVersion ? { knownVersion: body.knownVersion } : {}),
       approval: body.approval,
     });
+    runtime.qualityTelemetry.recordEvent({
+      workspaceId,
+      name: "SOFTWARE_RECORD_CREATED",
+      artifact: { kind: "SOFTWARE", id: item.software.id },
+      actor: { kind: "HUMAN", id: principal.userId },
+      dimensions: { approvalState: item.software.approvalState },
+    });
     return NextResponse.json({ item }, { status: 201 });
   } catch (error) {
     return authorizationErrorResponse(error);

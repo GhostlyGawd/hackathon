@@ -281,7 +281,7 @@ export function RunHistoryPanel({
             coverage and never turn a sampled run into a safety or compliance conclusion.
           </p>
         </div>
-        <div className="run-history-summary" aria-label="Run history summary">
+        <section className="run-history-summary" aria-label="Run history summary">
           <div>
             <strong>{activeRuns.length}</strong>
             <span>active runs</span>
@@ -298,7 +298,7 @@ export function RunHistoryPanel({
             <strong>{missingCount}</strong>
             <span>missing checkpoints</span>
           </div>
-        </div>
+        </section>
       </header>
 
       {loading ? (

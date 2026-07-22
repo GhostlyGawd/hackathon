@@ -29,6 +29,12 @@ export async function POST(
       authorizationId,
       reason: body.reason,
     });
+    runtime.qualityTelemetry.recordEvent({
+      workspaceId,
+      name: "AUTHORIZATION_REVOKED",
+      artifact: { kind: "AUTHORIZATION", id: authorizationId },
+      actor: { kind: "HUMAN", id: principal.userId },
+    });
     return NextResponse.json({ authorization });
   } catch (error) {
     return authorizationErrorResponse(error);

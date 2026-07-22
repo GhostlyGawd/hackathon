@@ -1,0 +1,156 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "QLT-01",
+  "capturedAt": "2026-07-22T02:43:01.091Z",
+  "sourceCommitSha": "30d5410e27a06b58153155f9158b44b2063f53fa",
+  "browser": {
+    "engine": "Chromium",
+    "version": "149.0.7827.55"
+  },
+  "sampleDefinition": {
+    "consoleInteractions": 60,
+    "evidenceSummaryTransitions": 20,
+    "runProgressTransitions": 1
+  },
+  "profile": {
+    "version": "pactwire-quality-profile-v1",
+    "accessibility": {
+      "standard": "WCAG 2.2 AA",
+      "automatedTags": [
+        "wcag2a",
+        "wcag2aa",
+        "wcag21a",
+        "wcag21aa",
+        "wcag22aa"
+      ]
+    },
+    "performance": {
+      "consoleInteractionP95Ms": 500,
+      "runProgressP95Ms": 2000,
+      "evidenceSummaryP95Ms": 500
+    },
+    "compatibility": {
+      "packagedBrowser": "Chromium",
+      "packagedChromiumVersion": "149.0.7827.55",
+      "packagedChromiumRevision": "1228",
+      "supportedFeatures": [
+        "DOM",
+        "FETCH",
+        "FORMS",
+        "NETWORK_OBSERVATION",
+        "STORAGE_OBSERVATION"
+      ]
+    }
+  },
+  "report": {
+    "version": "pactwire-quality-report-v1",
+    "profileVersion": "pactwire-quality-profile-v1",
+    "status": "PASS",
+    "counts": {
+      "analyticsEvents": 0,
+      "structuredLogs": 0,
+      "performanceSamples": 81,
+      "guardrailMetrics": 7
+    },
+    "analyticsEvents": {
+      "SOFTWARE_RECORD_CREATED": 0,
+      "AUTHORIZATION_CREATED": 0,
+      "AUTHORIZATION_EXPIRED": 0,
+      "AUTHORIZATION_REVOKED": 0,
+      "AGREEMENT_UPLOADED": 0,
+      "REQUIREMENT_PROPOSED": 0,
+      "REQUIREMENT_CONFIRMED": 0,
+      "REQUIREMENT_REJECTED": 0,
+      "REQUIREMENT_MARKED_AMBIGUOUS": 0,
+      "JOURNEY_CREATED": 0,
+      "JOURNEY_REPLAYED": 0,
+      "JOURNEY_REPAIRED": 0,
+      "JOURNEY_ABANDONED": 0,
+      "RUN_QUEUED": 0,
+      "RUN_TERMINAL": 0,
+      "CHECKPOINT_VISIBLE": 0,
+      "CHECKPOINT_INVISIBLE": 0,
+      "CHECKPOINT_TESTED": 0,
+      "CHECKPOINT_UNTESTED": 0,
+      "FINDING_CREATED": 0,
+      "FINDING_SUPERSEDED": 0,
+      "RECEIPT_VIEWED": 0,
+      "RECEIPT_VERIFIED": 0,
+      "RECEIPT_EXPORTED": 0,
+      "APPROVAL_PLACED_ON_HOLD": 0,
+      "HUMAN_DECISION_RECORDED": 0
+    },
+    "performance": {
+      "consoleInteraction": {
+        "sampleCount": 60,
+        "p95Ms": 10,
+        "budgetMs": 500,
+        "passed": true
+      },
+      "runProgress": {
+        "sampleCount": 1,
+        "p95Ms": 73,
+        "budgetMs": 2000,
+        "passed": true
+      },
+      "evidenceSummary": {
+        "sampleCount": 20,
+        "p95Ms": 66,
+        "budgetMs": 500,
+        "passed": true
+      }
+    },
+    "guardrails": {
+      "AUTOMATED_APPROVAL_OR_RESTORE": {
+        "count": 0,
+        "sampleCount": 1,
+        "passed": true
+      },
+      "OUT_OF_SCOPE_ACTION": {
+        "count": 0,
+        "sampleCount": 1,
+        "passed": true
+      },
+      "REAL_STUDENT_DATA": {
+        "count": 0,
+        "sampleCount": 1,
+        "passed": true
+      },
+      "SECRET_EXPOSURE": {
+        "count": 0,
+        "sampleCount": 1,
+        "passed": true
+      },
+      "UNKNOWN_DESTINATION_ATTRIBUTION": {
+        "count": 0,
+        "sampleCount": 1,
+        "passed": true
+      },
+      "MISSING_FINDING_SCOPE": {
+        "count": 0,
+        "sampleCount": 1,
+        "passed": true
+      },
+      "DEFECTIVE_HOLD": {
+        "count": 0,
+        "sampleCount": 1,
+        "passed": true
+      }
+    },
+    "responsibilityLanes": {
+      "MODEL": 0,
+      "HARNESS": 0,
+      "RECORDER": 0,
+      "RULE_EVALUATION": 0,
+      "HUMAN_DECISION": 0
+    },
+    "observability": {
+      "estimatedCostMicroUsd": 0,
+      "latencyMs": 0,
+      "retryCount": 0,
+      "blockedActionCount": 0,
+      "captureGapCount": 0,
+      "modelFailureCount": 0
+    }
+  }
+}

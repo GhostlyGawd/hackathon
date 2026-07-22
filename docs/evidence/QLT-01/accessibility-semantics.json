@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "QLT-01",
+  "capturedAt": "2026-07-22T02:43:01.958Z",
+  "sourceCommitSha": "30d5410e27a06b58153155f9158b44b2063f53fa",
+  "inspection": "Automated keyboard focus and DOM accessibility-tree assertions; no external screen-reader session was claimed.",
+  "checks": {
+    "keyboardActivation": "PASS",
+    "textStatusMeaning": "PASS",
+    "contextualImageAlternatives": "PASS"
+  },
+  "observedCounts": {
+    "runStates": 6,
+    "findingStates": 6,
+    "approvalStates": 1,
+    "images": 1
+  }
+}

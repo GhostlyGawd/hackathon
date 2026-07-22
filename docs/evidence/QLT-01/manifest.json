@@ -1,0 +1,460 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "QLT-01",
+  "title": "Add analytics, observability, reliability, accessibility, performance, and compatibility gates",
+  "status": "COMPLETE",
+  "prdSections": [20, 21],
+  "functionalRequirements": ["FR-037", "FR-040", "FR-050"],
+  "sourceCommitSha": "30d5410e27a06b58153155f9158b44b2063f53fa",
+  "startedAt": "2026-07-21T21:56:16-04:00",
+  "completedAt": "2026-07-22T03:10:24Z",
+  "artifactRoot": "artifacts/verification/QLT-01/",
+  "curatedEvidenceRoot": "docs/evidence/QLT-01/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29887341588",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29887341588/job/88820491642",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29887341588/job/88820491645",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Privacy-safe quality telemetry contract did not exist",
+      "command": "pnpm exec vitest run --project unit tests/unit/quality-observability.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "The focused suite could not import the not-yet-created packages/core/src/quality-observability module"
+    },
+    {
+      "phase": "RED",
+      "name": "Health response did not expose a private fixed quality profile",
+      "command": "pnpm exec vitest run --project integration tests/integration/quality-health.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "The health route lacked private no-store response metadata and the declared quality profile"
+    },
+    {
+      "phase": "RED",
+      "name": "Production browser quality helper was absent",
+      "command": "pnpm exec vitest run --project integration tests/integration/quality-browser-performance.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "The browser performance suite could not import the not-yet-created quality browser session helper"
+    },
+    {
+      "phase": "RED",
+      "name": "Performance assertion initially used the wrong stop-control selector",
+      "command": "pnpm exec vitest run --project integration tests/integration/quality-browser-performance.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "The test targeted stop-live-run rather than the existing stop-active-run control; this was a test defect, not a product failure"
+    },
+    {
+      "phase": "RED",
+      "name": "Automated WCAG scan found six real low-contrast nodes",
+      "command": "pnpm exec vitest run --project accessibility tests/a11y/core-flows.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "Axe reported color-contrast violations in untested, invisible, model-lane, compact kicker, and compact permission text"
+    },
+    {
+      "phase": "RED",
+      "name": "Pseudonym property exposed a substring-based test oracle",
+      "command": "pnpm exec vitest run --project property tests/property/quality-observability.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "Seed 20260722 shrank to punctuation values [space, comma]; the permanent example now checks decoded payload structure instead of substrings"
+    },
+    {
+      "phase": "RED",
+      "name": "Quality report omitted structured-log measures and event breakdowns",
+      "command": "pnpm exec vitest run --project unit tests/unit/quality-observability.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "The report ignored log cost, latency, retry, blocked-action, capture-gap, and model-failure measures and did not enumerate allowlisted events"
+    },
+    {
+      "phase": "RED",
+      "name": "Workspace quality endpoint did not exist",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/quality-observability-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "The focused integration suite could not import the not-yet-created signed workspace quality route"
+    },
+    {
+      "phase": "RED",
+      "name": "Real workflow routes emitted no analytics events",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/quality-observability-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "Software, authorization, agreement, requirement, journey, run, receipt, approval, and decision route actions left the quality report at zero"
+    },
+    {
+      "phase": "RED",
+      "name": "Quality aggregates leaked across workspaces",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/quality-observability-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "The Harbor workspace report included Cedar workspace event counts before report filtering was scoped"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing guardrail measurements were presented as passing zeroes",
+      "command": "pnpm exec vitest run --project unit tests/unit/quality-observability.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "An unmeasured guardrail received count zero and passed true instead of sampleCount zero and passed false"
+    },
+    {
+      "phase": "RED",
+      "name": "Approval telemetry omitted the UNKNOWN state",
+      "command": "pnpm build",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "TypeScript rejected the real approval route because the telemetry dimension allowed APPROVED and HOLD but not the existing UNKNOWN state"
+    },
+    {
+      "phase": "RED",
+      "name": "Semantic review found prohibited labels on three roleless elements",
+      "command": "pnpm exec vitest run --project accessibility tests/a11y/core-flows.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "Axe reported aria-prohibited-attr on decision flow, run-history summary, and finding boundary containers"
+    },
+    {
+      "phase": "RED",
+      "name": "Design-token contrast gate caught the faint token below AA",
+      "command": "pnpm exec vitest run --project unit tests/unit/quality-color-tokens.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "The --faint token measured 4.3901:1 against --surface-raised, below the declared 4.5:1 threshold"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Quality report examples and deterministic color-token ratios",
+      "command": "pnpm exec vitest run --project unit tests/unit/quality-observability.test.ts tests/unit/quality-color-tokens.test.ts",
+      "exitCode": 0,
+      "durationMs": 0
+    },
+    {
+      "phase": "GREEN",
+      "name": "Fixed-seed privacy and idempotency properties",
+      "command": "pnpm exec vitest run --project property tests/property/quality-observability.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 0
+    },
+    {
+      "phase": "GREEN",
+      "name": "Telemetry rejection and pseudonym security cases",
+      "command": "pnpm exec vitest run --project security tests/security/quality-observability.test.ts",
+      "exitCode": 0,
+      "durationMs": 0
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Workspace-scoped runtime analytics and signed quality route",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/quality-observability-routes.test.ts tests/integration/quality-health.test.ts tests/integration/quality-gates.test.ts",
+      "exitCode": 0,
+      "durationMs": 0
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Measured production-browser performance and explicit guardrails",
+      "command": "PACTWIRE_WRITE_QUALITY_REPORTS=1 PACTWIRE_EVIDENCE_SOURCE_COMMIT=30d5410e27a06b58153155f9158b44b2063f53fa pnpm exec vitest run --project integration tests/integration/quality-browser-performance.test.ts",
+      "exitCode": 0,
+      "durationMs": 0,
+      "outputPath": "artifacts/verification/QLT-01/reports/performance.json"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Ten-thousand-delivery soak and compatibility matrix",
+      "command": "PACTWIRE_WRITE_QUALITY_REPORTS=1 PACTWIRE_EVIDENCE_SOURCE_COMMIT=30d5410e27a06b58153155f9158b44b2063f53fa pnpm exec vitest run --project integration tests/integration/quality-gates.test.ts",
+      "exitCode": 0,
+      "durationMs": 0,
+      "outputPath": "artifacts/verification/QLT-01/reports/soak-and-compatibility.json"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "WCAG automation, keyboard semantics, and contextual image alternatives",
+      "command": "PACTWIRE_WRITE_QUALITY_REPORTS=1 PACTWIRE_EVIDENCE_SOURCE_COMMIT=30d5410e27a06b58153155f9158b44b2063f53fa pnpm exec vitest run --project accessibility tests/a11y/core-flows.test.ts",
+      "exitCode": 0,
+      "durationMs": 0,
+      "outputPath": "artifacts/verification/QLT-01/reports/accessibility-automated.json"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production keyboard-only review story and curated responsive capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=QLT-01 PACTWIRE_BDD_TAGS=@QLT-01 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 0,
+      "outputPath": "artifacts/verification/QLT-01/reports/cucumber.json"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-static type, lint, and optimized-production gates",
+      "command": "pnpm typecheck; pnpm lint; pnpm build",
+      "exitCode": 0,
+      "durationMs": 0
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory required QLT-01 reconciliation",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 992,
+      "expectedFailure": "The fixed inventory still expected 28 manifests and 288 proof files after the checker observed 29 manifests and 310 proof files"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Evidence traceability and reconciled fixed inventory",
+      "command": "pnpm evidence:check; pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 0,
+      "durationMs": 4100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete deterministic verification on the evidence-reconciled QLT-01 tree",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 494600
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows at the exact QLT-01 evidence head",
+      "command": "GitHub Actions run 29887341588: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 541000
+    }
+  ],
+  "testSummary": {
+    "files": 115,
+    "passed": 421,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-12-quality-identifiers-and-dimensions-never-expose-configured-secrets-or-student-like-values",
+        "seed": 20260722,
+        "numRuns": 500,
+        "passed": true
+      },
+      {
+        "id": "PROP-22-duplicate-record-delivery-and-order-preserve-idempotent-aggregates",
+        "seed": 20260722,
+        "numRuns": 500,
+        "passed": true
+      },
+      {
+        "id": "PROP-22-semantic-transition-retries-do-not-double-count-events",
+        "seed": 20260722,
+        "numRuns": 500,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "quality-gates.feature",
+        "scenario": "Core review controls work from the keyboard and expose their state to assistive technology",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "rationale": "QLT-01 changes semantic regions, visible contrast tokens, keyboard behavior, and quality evidence. Four production screenshots show the complete authority path and selected finding at desktop and narrow viewports.",
+    "assets": [
+      {
+        "path": "docs/evidence/QLT-01/accessible-authority-console-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T02:43:15.367Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Full desktop Pactwire authority console using a fictional privacy-officer session, with setup, authorization, controlled test, live run, finding, approval, and workspace authority regions visible in one source-bound production capture.",
+        "caption": "The complete quality-critical authority path retains textual state meaning, valid semantic regions, and keyboard-operable controls at the desktop viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "30d5410e27a06b58153155f9158b44b2063f53fa"
+      },
+      {
+        "path": "docs/evidence/QLT-01/accessible-authority-console-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T02:43:16.301Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Full narrow Pactwire authority console stacking the fictional privacy-officer setup, authorization, controlled run, finding, approval, and workspace authority regions without clipped controls or color-only state labels.",
+        "caption": "The same authority and evidence path remains legible and operable at the narrow viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "30d5410e27a06b58153155f9158b44b2063f53fa"
+      },
+      {
+        "path": "docs/evidence/QLT-01/accessible-finding-review-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T02:43:13.747Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop finding evaluator showing six text-labeled result meanings and the selected needs-review evidence hierarchy with named scope, deterministic evidence, model prose exclusion, and limitations.",
+        "caption": "Finding meanings and evidence authority are conveyed with text and structure, not color alone.",
+        "provenance": "captured",
+        "sourceCommitSha": "30d5410e27a06b58153155f9158b44b2063f53fa"
+      },
+      {
+        "path": "docs/evidence/QLT-01/accessible-finding-review-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T02:43:14.026Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow finding evaluator stacking all six text-labeled result meanings and the selected finding's named scope, deterministic evidence, excluded model explanation, and limitations without clipping.",
+        "caption": "The accessible finding hierarchy and decision boundary remain intact at the narrow viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "30d5410e27a06b58153155f9158b44b2063f53fa"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "schema",
+      "path": "packages/core/src/quality-observability.ts",
+      "description": "Allowlisted analytics, pseudonymous identities, responsibility-lane logs, quality profile, idempotent store, reports, health, performance, guardrail, and compatibility contracts"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/lib/quality-telemetry-runtime.ts",
+      "description": "Workspace-scoped runtime adapter with immutable record and semantic-transition retry deduplication"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/api/workspaces/[workspaceId]/quality/route.ts",
+      "description": "Signed AUDIT_READ quality endpoint with cross-workspace concealment, private no-store headers, and report-only output"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/health/route.ts",
+      "description": "Private health response exposing the fixed quality profile and derived service status"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/globals.css",
+      "description": "Existing Pactwire design tokens plus corrected AA contrast and semantic-region styling"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/quality-observability.test.ts",
+      "description": "Telemetry, p95, health, compatibility, aggregation, and missing-measurement examples including the punctuation regression"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/quality-color-tokens.test.ts",
+      "description": "Deterministic 4.5:1 contrast enforcement for declared text tokens against product surfaces"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/quality-observability.property.test.ts",
+      "description": "Fixed-seed privacy, delivery-order idempotency, and semantic retry properties"
+    },
+    {
+      "kind": "test",
+      "path": "tests/security/quality-observability.test.ts",
+      "description": "Unsafe telemetry dimension, secret, raw payload, and identity rejection cases"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/quality-observability-routes.test.ts",
+      "description": "Real route event emission, responsibility lanes, report privacy, authorization, and workspace isolation"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/quality-health.test.ts",
+      "description": "Private health endpoint and fixed profile integration contract"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/quality-gates.test.ts",
+      "description": "Ten-thousand-delivery reliability soak, lane coverage, guardrails, budgets, and compatibility fail-closed matrix"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/quality-browser-performance.test.ts",
+      "description": "Measured optimized-production interaction, run-progress, and evidence-summary p95 budgets"
+    },
+    {
+      "kind": "test",
+      "path": "tests/a11y/core-flows.test.ts",
+      "description": "WCAG A/AA Axe scan, keyboard focus, textual status, semantic-state, and contextual-image assertions"
+    },
+    {
+      "kind": "config",
+      "path": "tests/helpers/quality-browser.ts",
+      "description": "Packaged Chromium production-session helper with controlled fictional fixture setup"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/quality-gates.feature",
+      "description": "Keyboard-only critical review story tagged to QLT-01, PRD 20 and 21, and the exercised run, finding, and hold requirements"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/quality-gates.steps.mjs",
+      "description": "Real browser keyboard bindings, semantic state assertions, image alternatives, and responsive production evidence capture"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/QLT-01/performance.json",
+      "description": "Measured production Chromium p95 samples, budgets, explicit guardrail samples, profile, and status"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/QLT-01/soak-and-compatibility.json",
+      "description": "Deterministic ten-thousand-delivery idempotency soak, responsibility-lane coverage, and compatibility matrix"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/QLT-01/accessibility-automated.json",
+      "description": "Axe WCAG result with zero violations and explicit layered-background contrast review disposition"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/QLT-01/accessibility-semantics.json",
+      "description": "Keyboard, textual state, and contextual image checks with the external-screen-reader claim boundary"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/QLT-01/cucumber.json",
+      "description": "Machine-readable production BDD result for the accessible critical review path"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/QLT-01/README.md",
+      "description": "Curated report index, manual accessibility checklist, failing-first record, visual review, and claim limits"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-22T02:50:00Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "Axe could not calculate contrast through layered gradients and pseudo-elements for 337 nodes; the deterministic token test and original-resolution manual review are recorded, and no automated numeric pass is claimed for those nodes.",
+    "No external NVDA, JAWS, or VoiceOver session was performed; evidence is limited to automated keyboard behavior and DOM/accessibility-tree assertions.",
+    "Only the packaged Chromium version and declared web capabilities are supported in P0; Firefox, native applications, and unsupported capabilities fail closed.",
+    "The soak timings are deterministic load-profile inputs rather than observed user latency; measured browser timings are reported separately.",
+    "The analytics catalog contains future journey, checkpoint, and finding transitions that current web routes do not perform, so exhaustive runtime emission is not claimed."
+  ],
+  "reviewer": "codex-agent"
+}

@@ -8,7 +8,7 @@
   --line-strong: #314353;
   --text: #f2f6f8;
   --muted: #97a6b2;
-  --faint: #6f818e;
+  --faint: #768895;
   --cyan: #63d8e5;
   --cyan-soft: rgba(99, 216, 229, 0.12);
   --green: #7de2b8;
@@ -1628,6 +1628,11 @@ body {
   color: var(--amber);
 }
 
+.finding-path-group.path-untested > p,
+.finding-path-group.path-invisible > p {
+  color: var(--muted);
+}
+
 .finding-path-group ul {
   margin: 8px 0 0;
   padding-left: 15px;
@@ -1717,6 +1722,11 @@ body {
 
 .finding-model footer strong {
   color: var(--amber);
+}
+
+.finding-model > .finding-detail-title > span,
+.finding-model > footer > span {
+  color: var(--muted);
 }
 
 .finding-limitations ul {
@@ -5967,6 +5977,11 @@ button:disabled {
   border-radius: 6px;
   color: var(--faint);
   font-size: 8px;
+}
+
+.action-card.compact > .card-title-row .card-kicker,
+.action-card.compact > .card-title-row > .permission-tag {
+  color: var(--muted);
 }
 
 .card-description {

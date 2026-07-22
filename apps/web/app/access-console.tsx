@@ -474,7 +474,7 @@ export function AccessConsole() {
               </span>
             </div>
           </div>
-          <div className="decision-flow" aria-label="Pactwire test evidence flow">
+          <section className="decision-flow" aria-label="Pactwire test evidence flow">
             <p className="flow-label">What Pactwire connects</p>
             <div className="flow-step">
               <span className="step-index">01</span>
@@ -499,7 +499,7 @@ export function AccessConsole() {
                 <span>Observed conflicts stay tied to one rule and named test</span>
               </div>
             </div>
-          </div>
+          </section>
         </section>
 
         <section className="console" id="authority">

@@ -11,6 +11,16 @@ interface RouteContext {
   readonly params: Promise<{ workspaceId: string; softwareId: string }>;
 }
 
+function telemetryDecisionKind(
+  outcome: unknown,
+): "KEEP_HOLD" | "RESTORE_APPROVAL" | "REJECT" | "RETIRE" {
+  if (outcome === "RESTORE_APPROVED") return "RESTORE_APPROVAL";
+  if (outcome === "KEEP_HOLD" || outcome === "REJECT" || outcome === "RETIRE") {
+    return outcome;
+  }
+  throw new TypeError("A recorded human decision needs a known outcome");
+}
+
 export async function POST(
   request: NextRequest,
   context: RouteContext,
@@ -49,6 +59,31 @@ export async function POST(
             },
           }
         : {}),
+    });
+    const correlationId = runtime.qualityTelemetry.newCorrelationId();
+    const decisionKind = telemetryDecisionKind(body["outcome"]);
+    runtime.qualityTelemetry.recordEvent({
+      workspaceId,
+      correlationId,
+      name: "HUMAN_DECISION_RECORDED",
+      artifact: { kind: "APPROVAL", id: softwareId },
+      actor: { kind: "HUMAN", id: principal.userId },
+      dimensions: {
+        decisionKind,
+        approvalState: result.snapshot.state,
+      },
+    });
+    runtime.qualityTelemetry.recordLog({
+      workspaceId,
+      correlationId,
+      lane: "HUMAN_DECISION",
+      code: "HUMAN_DECISION",
+      artifact: { kind: "APPROVAL", id: softwareId },
+      actor: { kind: "HUMAN", id: principal.userId },
+      dimensions: {
+        decisionKind,
+        approvalState: result.snapshot.state,
+      },
     });
     return NextResponse.json(
       { outcome: result.outcome, approval: result.snapshot },

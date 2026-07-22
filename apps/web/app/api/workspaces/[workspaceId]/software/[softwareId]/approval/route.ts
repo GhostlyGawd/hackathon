@@ -171,6 +171,38 @@ export async function POST(
         : `finding:${body.findingId}`,
       ...(visibilityLossProof ? { visibilityLossProof } : {}),
     });
+    const correlationId = runtime.qualityTelemetry.newCorrelationId();
+    runtime.qualityTelemetry.recordLog({
+      workspaceId,
+      correlationId,
+      lane: "RULE_EVALUATION",
+      code: "RULE_EVALUATED",
+      artifact: { kind: "FINDING", id: body.findingId },
+      actor: {
+        kind: "AUTOMATION",
+        id: "pactwire-deterministic-approval-authority",
+      },
+      dimensions: {
+        findingState: findingEvaluation.finding.state,
+        approvalState: result.snapshot.state,
+      },
+    });
+    if (result.outcome === "HOLD_APPLIED") {
+      runtime.qualityTelemetry.recordEvent({
+        workspaceId,
+        correlationId,
+        name: "APPROVAL_PLACED_ON_HOLD",
+        artifact: { kind: "APPROVAL", id: softwareId },
+        actor: {
+          kind: "AUTOMATION",
+          id: "pactwire-deterministic-approval-authority",
+        },
+        dimensions: {
+          findingState: findingEvaluation.finding.state,
+          approvalState: result.snapshot.state,
+        },
+      });
+    }
     return NextResponse.json(
       {
         outcome: result.outcome,

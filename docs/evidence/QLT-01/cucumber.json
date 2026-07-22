@@ -1,0 +1,168 @@
+[
+  {
+    "description": "  A Pactwire reviewer needs the controlled setup, run, finding, receipt, and\n  hold surfaces to remain understandable without relying on color or a mouse.",
+    "elements": [
+      {
+        "description": "",
+        "id": "operate-the-critical-review-path-accessibly;core-review-controls-work-from-the-keyboard-and-expose-their-state-to-assistive-technology",
+        "keyword": "Scenario",
+        "line": 10,
+        "name": "Core review controls work from the keyboard and expose their state to assistive technology",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 186408899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "the fictional workspace access fixture is reset",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:279"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 239557499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 11,
+            "name": "I start a signed session as the \"Privacy officer\"",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:305"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 447040899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "I activate a bounded finding and reach the stop control using only the keyboard",
+            "match": {
+              "location": "tests\\bdd\\quality-gates.steps.mjs:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 285793400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 13,
+            "name": "screen-reader text identifies every visible run, finding, and approval state",
+            "match": {
+              "location": "tests\\bdd\\quality-gates.steps.mjs:36"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 144658399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 14,
+            "name": "every visible product image has a contextual alternative",
+            "match": {
+              "location": "tests\\bdd\\quality-gates.steps.mjs:62"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 4367999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "I capture the QLT-01 accessible review evidence",
+            "match": {
+              "location": "tests\\bdd\\quality-gates.steps.mjs:69"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3861574800
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 64676300
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 190200
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@QLT-01",
+            "line": 1
+          },
+          {
+            "name": "@PRD-20",
+            "line": 1
+          },
+          {
+            "name": "@PRD-21",
+            "line": 1
+          },
+          {
+            "name": "@QLT-01-A11Y",
+            "line": 9
+          },
+          {
+            "name": "@FR-037",
+            "line": 9
+          },
+          {
+            "name": "@FR-040",
+            "line": 9
+          },
+          {
+            "name": "@FR-050",
+            "line": 9
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "operate-the-critical-review-path-accessibly",
+    "line": 2,
+    "keyword": "Feature",
+    "name": "Operate the critical review path accessibly",
+    "tags": [
+      {
+        "name": "@QLT-01",
+        "line": 1
+      },
+      {
+        "name": "@PRD-20",
+        "line": 1
+      },
+      {
+        "name": "@PRD-21",
+        "line": 1
+      }
+    ],
+    "uri": "tests\\bdd\\quality-gates.feature"
+  }
+]
