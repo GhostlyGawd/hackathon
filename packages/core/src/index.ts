@@ -25,3 +25,4 @@ export * from "./canary-matcher.js";
 export * from "./destination-registry.js";
 export * from "./finding-evaluation.js";
 export * from "./evidence-receipt.js";
+export * from "./quality-observability.js";
