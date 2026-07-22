@@ -32,23 +32,33 @@ export async function GET(
       workspaceId,
       softwareId,
     );
-    const runs = history.map(({ run, scope, lease, manifest }) => ({
-      run,
-      scope,
-      ...(lease
-        ? {
-            lease: {
-              id: lease.id,
-              workerId: lease.workerId,
-              acquiredAt: lease.acquiredAt,
-              expiresAt: lease.expiresAt,
-              leaseHash: lease.leaseHash,
-            },
-          }
-        : {}),
-      ...(manifest ? { manifest } : {}),
-    }));
-    return NextResponse.json({ softwareId, runs });
+    const runs = history.map(({ run, scope, lease, manifest }) => {
+      const live =
+        run.state === "RUNNING"
+          ? runtime.liveRunReviews.get(run.id)
+          : undefined;
+      return {
+        run,
+        scope,
+        ...(lease
+          ? {
+              lease: {
+                id: lease.id,
+                workerId: lease.workerId,
+                acquiredAt: lease.acquiredAt,
+                expiresAt: lease.expiresAt,
+                leaseHash: lease.leaseHash,
+              },
+            }
+          : {}),
+        ...(manifest ? { manifest } : {}),
+        ...(live ? { live } : {}),
+      };
+    });
+    return NextResponse.json(
+      { softwareId, runs },
+      { headers: { "cache-control": "private, no-store" } },
+    );
   } catch (error) {
     return authorizationErrorResponse(error);
   }

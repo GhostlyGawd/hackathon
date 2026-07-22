@@ -109,11 +109,48 @@ export interface AccessRuntime {
   readonly destinationRegistryService: DestinationRegistryService;
   readonly runOrchestrationRepository: InMemoryRunOrchestrationRepository;
   readonly runOrchestrationService: RunOrchestrationService;
+  readonly liveRunReviews: ReadonlyMap<string, FixtureLiveRunReview>;
   readonly findingEvaluationRepository: InMemoryFindingEvaluationRepository;
   readonly evidenceReceiptRepository: InMemoryEvidenceReceiptRepository;
   readonly evidenceReceiptService: EvidenceReceiptService;
   readonly approvalAuthorityRepository: InMemoryApprovalAuthorityRepository;
   readonly approvalAuthorityService: ApprovalAuthorityService;
+}
+
+export interface FixtureLiveRunReview {
+  readonly runId: string;
+  readonly journeyName: string;
+  readonly role: "STUDENT";
+  readonly preview: {
+    readonly src: "/api/demo/run-preview";
+    readonly alt: string;
+    readonly capturedAt: string;
+  };
+  readonly allowedScope: {
+    readonly origins: readonly ["https://classroom.pactwire.test"];
+    readonly actions: readonly ["NAVIGATE", "CLICK", "TYPE"];
+  };
+  readonly modelAction: {
+    readonly summary: string;
+    readonly isChainOfThought: false;
+    readonly occurredAt: string;
+  };
+  readonly recorderEvent: {
+    readonly source: "NETWORK";
+    readonly summary: string;
+    readonly occurredAt: string;
+    readonly payloadHash: string;
+  };
+  readonly checkpointCoverage: readonly {
+    readonly checkpointId: string;
+    readonly label: string;
+    readonly status: "VERIFIED" | "PENDING";
+  }[];
+  readonly canaryMatches: readonly {
+    readonly field: "email";
+    readonly destinationHostname: "classroom.pactwire.test";
+    readonly status: "MATCHED";
+  }[];
 }
 
 export function isFixtureMode(): boolean {
@@ -211,7 +248,7 @@ async function seedRunHistory(
   repository: InMemoryRunOrchestrationRepository,
   service: RunOrchestrationService,
   advance: (milliseconds: number) => void,
-): Promise<void> {
+): Promise<ReadonlyMap<string, FixtureLiveRunReview>> {
   const human = {
     kind: "HUMAN" as const,
     actorId: fixtureUsers.officer.userId,
@@ -389,13 +426,65 @@ async function seedRunHistory(
     idempotencyKey: "fixture-retry-finalize",
   });
 
+  const live = await queue("live");
+  const liveClaim = await claim("live");
+  if (!liveClaim || liveClaim.run.id !== live.id) {
+    throw new Error("Live fixture run was not claimed");
+  }
+  const liveReview: FixtureLiveRunReview = {
+    runId: live.id,
+    journeyName: "Student submits fictional assignment",
+    role: "STUDENT",
+    preview: {
+      src: "/api/demo/run-preview",
+      alt: "Latest recorded frame from the controlled fictional classroom journey after the saved student response was submitted.",
+      capturedAt: "2026-07-21T02:30:01.694Z",
+    },
+    allowedScope: {
+      origins: ["https://classroom.pactwire.test"],
+      actions: ["NAVIGATE", "CLICK", "TYPE"],
+    },
+    modelAction: {
+      summary: "Submit the fictional student's saved response.",
+      isChainOfThought: false,
+      occurredAt: "2026-07-22T14:09:01.000Z",
+    },
+    recorderEvent: {
+      source: "NETWORK",
+      summary:
+        "Observed POST /api/submissions to classroom.pactwire.test.",
+      occurredAt: "2026-07-22T14:09:02.000Z",
+      payloadHash: "7".repeat(64),
+    },
+    checkpointCoverage: [
+      {
+        checkpointId: requiredCheckpointIds[0],
+        label: "Submission request recorded",
+        status: "VERIFIED",
+      },
+      {
+        checkpointId: requiredCheckpointIds[1],
+        label: "Completion visible to the student",
+        status: "PENDING",
+      },
+    ],
+    canaryMatches: [
+      {
+        field: "email",
+        destinationHostname: "classroom.pactwire.test",
+        status: "MATCHED",
+      },
+    ],
+  };
+
   const history = await repository.listHistory(
     fixtureWorkspaceIds.cedarRidge,
     fixtureRunHistorySoftwareId,
   );
-  if (history.length !== 6) {
+  if (history.length !== 7) {
     throw new Error("The controlled run-history fixture is incomplete");
   }
+  return new Map([[live.id, Object.freeze(liveReview)]]);
 }
 
 export const fixtureFindingIds = Object.freeze({
@@ -994,7 +1083,7 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
       leaseDurationMs: 300_000,
     },
   );
-  await seedRunHistory(
+  const liveRunReviews = await seedRunHistory(
     runOrchestrationRepository,
     runOrchestrationService,
     runHistoryOptions.advance,
@@ -1083,6 +1172,7 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     destinationRegistryService,
     runOrchestrationRepository,
     runOrchestrationService,
+    liveRunReviews,
     findingEvaluationRepository,
     evidenceReceiptRepository,
     evidenceReceiptService,
