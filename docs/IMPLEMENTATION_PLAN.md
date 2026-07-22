@@ -254,7 +254,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | DET-05 | P0 + P1 follow-on | AUT-02, DET-03, DET-04 | Hold, human restore, and approval audit | COMPLETE (P0) |
 | UX-01 | P0 | AUT-02, AUT-03, FND-03, AGR-01, JRN-01 | Inventory and setup experience | COMPLETE |
 | UX-02 | P0 | AGR-03, JRN-02, UX-01 | Agreement and journey review | COMPLETE |
-| UX-03 | P0 | RUN-05, DET-04, DET-05, UX-01 | Run, finding, receipt, and hold experience | IN PROGRESS |
+| UX-03 | P0 | RUN-05, DET-04, DET-05, UX-01 | Run, finding, receipt, and hold experience | COMPLETE |
 | QLT-01 | P0 | UX-01, UX-02, UX-03, RUN-05 | Quality and observability gates | NOT STARTED |
 | SEC-01 | P0 | AUT-04, RUN-03, DET-05, UX-03 | Security and privacy threat suite | IN PROGRESS |
 | VAL-01 | P0 | FIX-01, DET-05, SEC-01 | Blinded mechanism corpus | NOT STARTED |
@@ -639,7 +639,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### UX-03 — Build run, finding, receipt, hold, and recovery experiences
 
-- **Status:** IN PROGRESS — source commit `b0d390b0c1494951de81ee6be59c62b4385bc7ff` implements the source-bound live recorder view, authorized stop and terminal cancellation, bounded finding and receipt review, signed keep-hold history, and explicit recovery states. Corrected integrated head `b44cd5aa30b1eaa0388d26d9e985f1eddfac3c1e` passes the complete deterministic gate with 106 test files, 403 checks, and all 74 optimized-production browser scenarios / 895 steps; clean-checkout Ubuntu and Windows CI remain pending.
+- **Status:** COMPLETE — source commit `b0d390b0c1494951de81ee6be59c62b4385bc7ff` implements the source-bound live recorder view, authorized stop and terminal cancellation, bounded finding and receipt review, signed keep-hold history, and explicit recovery states. Corrected integrated head `b44cd5aa30b1eaa0388d26d9e985f1eddfac3c1e` passes the complete deterministic gate with 106 test files, 403 checks, and all 74 optimized-production browser scenarios / 895 steps; exact evidence head `6b4d46e00d53810c9c807be3c485851834e1b81d` passed clean-checkout Ubuntu and Windows [CI run 29883796190](https://github.com/GhostlyGawd/hackathon/actions/runs/29883796190).
 - **Deliver:** live run view, model-action/recorder separation, checkpoint coverage, stop control, finding hierarchy, receipt inspection/export, hold review/history, recovery and integrity states.
 - **PRD:** Sections 12.5, 12.6, 12.7, and 17.
 - **Depends on:** RUN-05, DET-04, DET-05, and UX-01.

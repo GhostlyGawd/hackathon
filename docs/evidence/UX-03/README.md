@@ -1,6 +1,6 @@
 # UX-03 verification evidence
 
-UX-03 is **IN PROGRESS** at original feature source `b0d390b0c1494951de81ee6be59c62b4385bc7ff` and corrected combined verification head `b44cd5aa30b1eaa0388d26d9e985f1eddfac3c1e`. The live run, finding, receipt, hold, and recovery experience is implemented, and the complete deterministic gate is green on the integrated dependency tree. Completion still requires clean-checkout Ubuntu and Windows CI.
+UX-03 is **COMPLETE** at original feature source `b0d390b0c1494951de81ee6be59c62b4385bc7ff`, corrected combined verification head `b44cd5aa30b1eaa0388d26d9e985f1eddfac3c1e`, and exact evidence head `6b4d46e00d53810c9c807be3c485851834e1b81d`. The live run, finding, receipt, hold, and recovery experience is implemented; the complete deterministic gate and clean-checkout [Ubuntu and Windows CI run 29883796190](https://github.com/GhostlyGawd/hackathon/actions/runs/29883796190) are green.
 
 ## What this task proves
 
@@ -54,6 +54,6 @@ The two fixed-seed properties use seed `20260722` for 500 generated states each.
 | [Recovery matrix](recovery-state-matrix-desktop.png) | 1440 × 1100 | Active, completed, integrity-failure, failed, partial, and exact frozen retry states. |
 | [Recovery matrix — narrow](recovery-state-matrix-narrow.png) | 390 × 844 | Every recovery meaning and lineage stacked without clipping. |
 
-## Remaining gate and claim boundary
+## Claim boundary
 
-UX-03 remains in progress until both required clean-checkout CI jobs pass the corrected head. The live preview is a source-bound recorder frame, not an interactive embedded browser. A valid receipt proves included bytes have not changed; a sampled run, even when clean, does not prove safety, compliance, approval, or behavior outside the named scope. All evidence uses only the controlled fictional fixture and reserved test destinations.
+The live preview is a source-bound recorder frame, not an interactive embedded browser. A valid receipt proves included bytes have not changed; a sampled run, even when clean, does not prove safety, compliance, approval, or behavior outside the named scope. All evidence uses only the controlled fictional fixture and reserved test destinations.
