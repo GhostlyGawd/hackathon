@@ -74,11 +74,15 @@ Then(
     const image = preview.locator("img");
     await image.waitFor();
     assert.equal(
-      await image.evaluate((candidate) =>
-        candidate.tagName === "IMG" &&
-        candidate.complete &&
-        candidate.naturalWidth > 0,
-      ),
+      await image.evaluate(async (candidate) => {
+        if (!(candidate instanceof HTMLImageElement)) return false;
+        try {
+          await candidate.decode();
+        } catch {
+          return false;
+        }
+        return candidate.complete && candidate.naturalWidth > 0;
+      }),
       true,
       "The latest controlled-fixture frame must load as a real image",
     );
