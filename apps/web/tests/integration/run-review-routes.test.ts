@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { NextRequest } from "next/server";
 import { POST as resetFixture } from "../../app/api/demo/reset/route";
 import { POST as createSession } from "../../app/api/demo/session/route";
-import { GET as getRunPreview } from "../../app/api/demo/run-preview/route";
 import { GET as getRuns } from "../../app/api/workspaces/[workspaceId]/runs/route";
 import { POST as stopRun } from "../../app/api/workspaces/[workspaceId]/runs/[runId]/stop/route";
 import { fixtureWorkspaceIds } from "../../lib/access-fixture";
@@ -10,6 +9,24 @@ import { fixtureWorkspaceIds } from "../../lib/access-fixture";
 const workspaceId = fixtureWorkspaceIds.cedarRidge;
 const runsPath = `/api/workspaces/${workspaceId}/runs`;
 const routeContext = { params: Promise.resolve({ workspaceId }) };
+
+interface TestRunEntry {
+  readonly run: { readonly id: string; readonly state: string };
+  readonly live?: {
+    readonly modelAction: Readonly<Record<string, unknown>>;
+    readonly recorderEvent: Readonly<Record<string, unknown>>;
+  };
+}
+
+interface TestRunsResponse {
+  readonly runs: readonly TestRunEntry[];
+}
+
+function requiredActiveRun(body: TestRunsResponse): TestRunEntry {
+  const active = body.runs.find(({ run }) => run.state === "RUNNING");
+  if (!active) throw new Error("The controlled fixture is missing its active run");
+  return active;
+}
 
 function request(
   pathname: string,
@@ -50,34 +67,14 @@ beforeEach(() => {
 });
 
 describe("UX-03 live run review HTTP boundary", () => {
-  it("serves the real controlled-fixture frame only inside a signed session", async () => {
-    const denied = await getRunPreview(request("/api/demo/run-preview"));
-    expect(denied.status).toBe(401);
-
-    const cookie = await signIn("reviewer");
-    const response = await getRunPreview(
-      request("/api/demo/run-preview", { cookie }),
-    );
-    expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toBe("image/png");
-    expect(response.headers.get("cache-control")).toBe("private, no-store");
-    const bytes = new Uint8Array(await response.arrayBuffer());
-    expect([...bytes.slice(0, 8)]).toEqual([
-      137, 80, 78, 71, 13, 10, 26, 10,
-    ]);
-  });
-
   it("returns an active run with separate model-action and recorder-event facts", async () => {
     const cookie = await signIn("officer");
     const response = await getRuns(request(runsPath, { cookie }), routeContext);
 
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("private, no-store");
-    const body = await response.json();
-    const active = body.runs.find(
-      ({ run }: { readonly run: { readonly state: string } }) =>
-        run.state === "RUNNING",
-    );
+    const body = (await response.json()) as TestRunsResponse;
+    const active = requiredActiveRun(body);
 
     expect(active).toMatchObject({
       live: {
@@ -98,19 +95,15 @@ describe("UX-03 live run review HTTP boundary", () => {
         },
       },
     });
-    expect(active.live.modelAction).not.toHaveProperty("reasoning");
-    expect(active.live.recorderEvent).not.toHaveProperty("requestBody");
+    expect(active.live?.modelAction).not.toHaveProperty("reasoning");
+    expect(active.live?.recorderEvent).not.toHaveProperty("requestBody");
   });
 
   it("lets an authorized operator stop the active run and preserves bounded coverage", async () => {
     const cookie = await signIn("operator");
     const before = await getRuns(request(runsPath, { cookie }), routeContext);
-    const beforeBody = await before.json();
-    const active = beforeBody.runs.find(
-      ({ run }: { readonly run: { readonly state: string } }) =>
-        run.state === "RUNNING",
-    );
-    expect(active?.run.id).toBeTypeOf("string");
+    const beforeBody = (await before.json()) as TestRunsResponse;
+    const active = requiredActiveRun(beforeBody);
 
     const response = await stopRun(
       request(`${runsPath}/${active.run.id}/stop`, {
@@ -121,7 +114,8 @@ describe("UX-03 live run review HTTP boundary", () => {
     );
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toMatchObject({
+    const stoppedBody = (await response.json()) as unknown;
+    expect(stoppedBody).toMatchObject({
       run: { id: active.run.id, state: "CANCELED" },
       manifest: {
         terminalStatus: "CANCELED",
@@ -136,23 +130,19 @@ describe("UX-03 live run review HTTP boundary", () => {
     });
 
     const after = await getRuns(request(runsPath, { cookie }), routeContext);
-    const afterBody = await after.json();
+    const afterBody = (await after.json()) as TestRunsResponse;
     const stopped = afterBody.runs.find(
-      ({ run }: { readonly run: { readonly id: string } }) =>
-        run.id === active.run.id,
+      ({ run }) => run.id === active.run.id,
     );
-    expect(stopped.run.state).toBe("CANCELED");
+    expect(stopped?.run.state).toBe("CANCELED");
     expect(stopped).not.toHaveProperty("live");
   });
 
   it("denies stop control to a reviewer at the server boundary", async () => {
     const cookie = await signIn("reviewer");
     const before = await getRuns(request(runsPath, { cookie }), routeContext);
-    const beforeBody = await before.json();
-    const active = beforeBody.runs.find(
-      ({ run }: { readonly run: { readonly state: string } }) =>
-        run.state === "RUNNING",
-    );
+    const beforeBody = (await before.json()) as TestRunsResponse;
+    const active = requiredActiveRun(beforeBody);
 
     const response = await stopRun(
       request(`${runsPath}/${active.run.id}/stop`, {
@@ -163,7 +153,8 @@ describe("UX-03 live run review HTTP boundary", () => {
     );
 
     expect(response.status).toBe(403);
-    await expect(response.json()).resolves.toMatchObject({
+    const errorBody = (await response.json()) as unknown;
+    expect(errorBody).toMatchObject({
       error: {
         code: "PERMISSION_DENIED",
         auditRecorded: true,

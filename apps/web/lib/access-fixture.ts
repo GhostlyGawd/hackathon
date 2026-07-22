@@ -122,7 +122,6 @@ export interface FixtureLiveRunReview {
   readonly journeyName: string;
   readonly role: "STUDENT";
   readonly preview: {
-    readonly src: "/api/demo/run-preview";
     readonly alt: string;
     readonly capturedAt: string;
   };
@@ -436,7 +435,6 @@ async function seedRunHistory(
     journeyName: "Student submits fictional assignment",
     role: "STUDENT",
     preview: {
-      src: "/api/demo/run-preview",
       alt: "Latest recorded frame from the controlled fictional classroom journey after the saved student response was submitted.",
       capturedAt: "2026-07-21T02:30:01.694Z",
     },

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import controlledFixtureFrame from "../../../docs/evidence/FIX-01/fixture-baseline-desktop.png";
 
 interface RunHistoryEntry {
   readonly run: {
@@ -53,7 +54,6 @@ interface RunHistoryEntry {
     readonly journeyName: string;
     readonly role: "STUDENT";
     readonly preview: {
-      readonly src: "/api/demo/run-preview";
       readonly alt: string;
       readonly capturedAt: string;
     };
@@ -345,8 +345,7 @@ export function RunHistoryPanel({
                       alt={live.preview.alt}
                       height={1100}
                       priority
-                      src={live.preview.src}
-                      unoptimized
+                      src={controlledFixtureFrame}
                       width={1440}
                     />
                     <figcaption>
