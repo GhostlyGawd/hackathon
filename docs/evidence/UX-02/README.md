@@ -1,6 +1,6 @@
 # UX-02 verification evidence
 
-UX-02 is **IN PROGRESS**. The agreement and journey review experience is implemented and locally green at source commit `e7cb2398df668bc47bf93b71e55dc52250abe2ff`. Clean-checkout Ubuntu and Windows CI must still pass before the task can become complete.
+UX-02 is **IN PROGRESS**. The agreement and journey review experience is implemented and locally green at original feature commit `e7cb2398df668bc47bf93b71e55dc52250abe2ff` and corrected combined verification head `030e931fbe91e9d5e31ab5a94f30d8c5f7b8d287`. Clean-checkout Ubuntu and Windows CI must still pass before the task can become complete.
 
 ## What this task proves
 
@@ -21,7 +21,8 @@ The new fixed-seed properties use seed `20260721` for 500 generated states each.
 
 - Four focused example tests and two property tests pass.
 - Eleven optimized-production UX-02 browser scenarios pass all 173 steps, including role denial, source navigation, keyboard focus, automated WCAG A/AA checks, authority explanations, journey configuration, and honest replay/repair empty states.
-- The complete deterministic gate passes 75 test files with 295 tests and 53 optimized-production browser scenarios with all 657 steps.
+- The corrected combined deterministic gate passes 103 test files with 396 checks and 70 optimized-production browser scenarios with all 843 steps. Failures, retries, and skipped required checks are zero.
+- Repository traceability passes with 27 manifests and 278 proof files after reconciling the complete dependency stack.
 - Whole-repository evidence, domain-evidence, TypeScript, lint, production build, security, accessibility, and end-to-end gates pass. The production dependency audit reports no known vulnerabilities.
 - The screenshots below were captured from the optimized production build at the source commit above. They contain only the controlled fictional district, fictional people, and reserved `.invalid` destinations.
 - Every screenshot was reviewed at original resolution and compared with the prior AGR-03 or JRN-02 source-bound screen where one existed. No clipping, overlap, broken focus treatment, or narrow-layout horizontal overflow was observed.
@@ -45,4 +46,4 @@ The new fixed-seed properties use seed `20260721` for 500 generated states each.
 
 ## Remaining gate and claim boundary
 
-The task remains in progress until required GitHub Actions jobs run successfully on both operating systems. The current UX branch can truthfully display empty replay and repair histories; populated replay and repair records require their owning APIs and workflows. A human-confirmed rule is a bounded test instruction, not legal advice, software approval, proof of safety, or proof of compliance. A runnable journey is a complete specification, not evidence that a browser run occurred or passed.
+The task remains in progress until required GitHub Actions jobs run successfully on both operating systems. This task's journey editor truthfully displays empty replay and repair histories; UX-03 owns the populated run, finding, receipt, and hold presentation. A human-confirmed rule is a bounded test instruction, not legal advice, software approval, proof of safety, or proof of compliance. A runnable journey is a complete specification, not evidence that a browser run occurred or passed.

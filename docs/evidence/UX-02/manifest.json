@@ -5,7 +5,7 @@
   "status": "IN_PROGRESS",
   "prdSections": [12],
   "functionalRequirements": ["FR-012", "FR-013", "FR-014", "FR-020", "FR-022", "FR-024", "FR-025"],
-  "sourceCommitSha": "e7cb2398df668bc47bf93b71e55dc52250abe2ff",
+  "sourceCommitSha": "030e931fbe91e9d5e31ab5a94f30d8c5f7b8d287",
   "startedAt": "2026-07-21T16:34:00.000Z",
   "artifactRoot": "artifacts/verification/UX-02/",
   "curatedEvidenceRoot": "docs/evidence/UX-02/",
@@ -95,11 +95,25 @@
       "command": "pnpm verify",
       "exitCode": 0,
       "durationMs": 460400
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Refreshed optimized-production UX-02 browser acceptance on the complete dependency stack",
+      "command": "PACTWIRE_BDD_TAGS=@UX-02 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 92700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete corrected-head deterministic verification on the combined UX-01 and UX-02 tree",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 508400
     }
   ],
   "testSummary": {
-    "files": 75,
-    "passed": 295,
+    "files": 103,
+    "passed": 396,
     "failed": 0,
     "skipped": 0,
     "retries": 0
@@ -376,7 +390,7 @@
   },
   "knownLimitations": [
     "Required clean-checkout Ubuntu and Windows GitHub Actions jobs have not yet passed for the UX-02 source commit, so the task remains IN_PROGRESS.",
-    "The current UX branch displays truthful empty replay and repair histories; populated records require the owning deterministic-replay and model-repair APIs and workflows.",
+    "This task's journey editor truthfully displays empty replay and repair histories; presentation of populated run, finding, receipt, and hold records is owned by UX-03.",
     "Automated Axe checks cover WCAG A and AA rules, while comprehensive manual screen-reader and WCAG 2.2 review remains QLT-01.",
     "A confirmed requirement is a bounded human test instruction, not legal meaning, software approval, safety, or compliance; a runnable journey is not evidence that a browser run occurred or passed.",
     "All browser evidence uses the controlled fictional district, fictional people, synthetic values, and reserved .invalid destinations."
