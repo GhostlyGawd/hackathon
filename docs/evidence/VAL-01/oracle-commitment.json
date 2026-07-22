@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusHash": "0862846c119e68ffc1d1c3962226e2b9b5aa1589e876b8105d3d308425258610",
+  "oracleHash": "489e3dd2cc025b68434abcb2141f1f9644e99bd85de35bd52edf05b17503068a",
+  "entryCount": 120,
+  "disclosure": "The sealed answer manifest was unavailable to the evaluated process; this post-run commitment does not expose its labels."
+}
