@@ -2,17 +2,34 @@
   "schemaVersion": "1.0.0",
   "taskId": "UX-02",
   "title": "Build agreement and journey review experiences",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [12],
   "functionalRequirements": ["FR-012", "FR-013", "FR-014", "FR-020", "FR-022", "FR-024", "FR-025"],
   "sourceCommitSha": "030e931fbe91e9d5e31ab5a94f30d8c5f7b8d287",
   "startedAt": "2026-07-21T16:34:00.000Z",
+  "completedAt": "2026-07-22T00:16:40.000Z",
   "artifactRoot": "artifacts/verification/UX-02/",
   "curatedEvidenceRoot": "docs/evidence/UX-02/",
   "environment": {
-    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29879337839",
+      "jobs": [
+        {
+          "name": "Ubuntu",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29879337839/job/88796511560",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Windows",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29879337839/job/88796511713",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -109,6 +126,13 @@
       "command": "pnpm verify",
       "exitCode": 0,
       "durationMs": 508400
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows at the exact UX-02 head with its complete dependency tree",
+      "command": "GitHub Actions run 29879337839: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 498000
     }
   ],
   "testSummary": {
@@ -389,7 +413,6 @@
     "findings": []
   },
   "knownLimitations": [
-    "Required clean-checkout Ubuntu and Windows GitHub Actions jobs have not yet passed for the UX-02 source commit, so the task remains IN_PROGRESS.",
     "This task's journey editor truthfully displays empty replay and repair histories; presentation of populated run, finding, receipt, and hold records is owned by UX-03.",
     "Automated Axe checks cover WCAG A and AA rules, while comprehensive manual screen-reader and WCAG 2.2 review remains QLT-01.",
     "A confirmed requirement is a bounded human test instruction, not legal meaning, software approval, safety, or compliance; a runnable journey is not evidence that a browser run occurred or passed.",

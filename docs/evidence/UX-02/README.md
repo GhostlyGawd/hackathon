@@ -1,6 +1,6 @@
 # UX-02 verification evidence
 
-UX-02 is **IN PROGRESS**. The agreement and journey review experience is implemented and locally green at original feature commit `e7cb2398df668bc47bf93b71e55dc52250abe2ff` and corrected combined verification head `030e931fbe91e9d5e31ab5a94f30d8c5f7b8d287`. Clean-checkout Ubuntu and Windows CI must still pass before the task can become complete.
+UX-02 is **COMPLETE**. The agreement and journey review experience is implemented and locally green at original feature commit `e7cb2398df668bc47bf93b71e55dc52250abe2ff` and corrected combined verification head `030e931fbe91e9d5e31ab5a94f30d8c5f7b8d287`. The exact UX-02 branch head passed clean-checkout Ubuntu and Windows CI in [run 29879337839](https://github.com/GhostlyGawd/hackathon/actions/runs/29879337839).
 
 ## What this task proves
 
@@ -44,6 +44,6 @@ The new fixed-seed properties use seed `20260721` for 500 generated states each.
 | [Student journey narrow](student-journey-editor-narrow.png) | 390 × 844 | The same journey configuration and history boundaries at a narrow viewport. |
 | [Journey checkpoint focus](journey-checkpoint-keyboard-focus-desktop.png) | 1440 × 1100 | Keyboard focus is visible on required checkpoint visibility before the first journey version is saved. |
 
-## Remaining gate and claim boundary
+## Completion and claim boundary
 
-The task remains in progress until required GitHub Actions jobs run successfully on both operating systems. This task's journey editor truthfully displays empty replay and repair histories; UX-03 owns the populated run, finding, receipt, and hold presentation. A human-confirmed rule is a bounded test instruction, not legal advice, software approval, proof of safety, or proof of compliance. A runnable journey is a complete specification, not evidence that a browser run occurred or passed.
+Required GitHub Actions jobs passed on both operating systems. This task's journey editor truthfully displays empty replay and repair histories; UX-03 owns the populated run, finding, receipt, and hold presentation. A human-confirmed rule is a bounded test instruction, not legal advice, software approval, proof of safety, or proof of compliance. A runnable journey is a complete specification, not evidence that a browser run occurred or passed.
