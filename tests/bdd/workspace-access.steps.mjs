@@ -237,7 +237,9 @@ async function startSession(world, role) {
   const key = roleKeys[role];
   assert.ok(key, `Unknown fixture role: ${role}`);
   await world.page.getByTestId("session-select").selectOption(key);
-  await world.page.getByTestId("start-session").click();
+  const startButton = world.page.getByTestId("start-session");
+  await startButton.waitFor();
+  await startButton.click({ timeout: 15_000 });
   await world.page.getByTestId("workspace-title").waitFor();
   await world.page
     .getByTestId("active-roles")

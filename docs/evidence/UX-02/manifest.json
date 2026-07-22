@@ -2,12 +2,11 @@
   "schemaVersion": "1.0.0",
   "taskId": "UX-02",
   "title": "Build agreement and journey review experiences",
-  "status": "COMPLETE",
+  "status": "IN_PROGRESS",
   "prdSections": [12],
   "functionalRequirements": ["FR-012", "FR-013", "FR-014", "FR-020", "FR-022", "FR-024", "FR-025"],
   "sourceCommitSha": "030e931fbe91e9d5e31ab5a94f30d8c5f7b8d287",
   "startedAt": "2026-07-21T16:34:00.000Z",
-  "completedAt": "2026-07-22T00:16:40.000Z",
   "artifactRoot": "artifacts/verification/UX-02/",
   "curatedEvidenceRoot": "docs/evidence/UX-02/",
   "environment": {
@@ -133,6 +132,21 @@
       "command": "GitHub Actions run 29879337839: pnpm verify",
       "exitCode": 0,
       "durationMs": 498000
+    },
+    {
+      "phase": "RED",
+      "name": "Final closure-head Windows clean-checkout exposed an unbounded session-restore wait",
+      "command": "GitHub Actions run 29880132267: pnpm verify",
+      "exitCode": 1,
+      "durationMs": 464000,
+      "expectedFailure": "Ubuntu passed, but one Windows production-browser scenario remained on the real disabled Restoring session control for 30 seconds because session restoration had no client-side deadline"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Bounded session restoration and complete optimized-production UX-02 regression",
+      "command": "pnpm --filter @pactwire/web build; PACTWIRE_BDD_TAGS=@UX-02 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 113900
     }
   ],
   "testSummary": {
@@ -413,6 +427,7 @@
     "findings": []
   },
   "knownLimitations": [
+    "The final closure-head Windows job exposed an unbounded session-restoration wait. The source now aborts that read after five seconds, but UX-02 remains IN_PROGRESS until the corrected head is green on Ubuntu and Windows.",
     "This task's journey editor truthfully displays empty replay and repair histories; presentation of populated run, finding, receipt, and hold records is owned by UX-03.",
     "Automated Axe checks cover WCAG A and AA rules, while comprehensive manual screen-reader and WCAG 2.2 review remains QLT-01.",
     "A confirmed requirement is a bounded human test instruction, not legal meaning, software approval, safety, or compliance; a runnable journey is not evidence that a browser run occurred or passed.",

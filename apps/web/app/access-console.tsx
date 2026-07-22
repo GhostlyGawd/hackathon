@@ -268,10 +268,13 @@ export function AccessConsole() {
 
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
+    const restoreDeadline = window.setTimeout(() => controller.abort(), 5_000);
     async function restore(): Promise<void> {
       try {
         const result = await api<{ readonly principal: Principal }>(
           "/api/demo/session",
+          { signal: controller.signal },
         );
         if (!active) return;
         setPrincipal(result.principal);
@@ -281,6 +284,7 @@ export function AccessConsole() {
           setPrincipal(undefined);
         }
       } finally {
+        window.clearTimeout(restoreDeadline);
         if (active) {
           setSessionReady(true);
         }
@@ -289,6 +293,8 @@ export function AccessConsole() {
     void restore();
     return () => {
       active = false;
+      window.clearTimeout(restoreDeadline);
+      controller.abort();
     };
   }, [loadWorkspace]);
 
