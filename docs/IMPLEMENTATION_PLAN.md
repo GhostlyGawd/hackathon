@@ -252,7 +252,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | DET-03 | P0 | AGR-03, DET-01, DET-02, RUN-05 | Bounded finding evaluator | IN PROGRESS |
 | DET-04 | P0 | DET-03, AGR-01, RUN-05 | Verifiable evidence receipts | IN PROGRESS |
 | DET-05 | P0 + P1 follow-on | AUT-02, DET-03, DET-04 | Hold, human restore, and approval audit | COMPLETE (P0) |
-| UX-01 | P0 | AUT-02, AUT-03, FND-03, AGR-01, JRN-01 | Inventory and setup experience | IN PROGRESS |
+| UX-01 | P0 | AUT-02, AUT-03, FND-03, AGR-01, JRN-01 | Inventory and setup experience | COMPLETE |
 | UX-02 | P0 | AGR-03, JRN-02, UX-01 | Agreement and journey review | NOT STARTED |
 | UX-03 | P0 | RUN-05, DET-04, DET-05, UX-01 | Run, finding, receipt, and hold experience | NOT STARTED |
 | QLT-01 | P0 | UX-01, UX-02, UX-03, RUN-05 | Quality and observability gates | NOT STARTED |
@@ -613,7 +613,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### UX-01 — Build the product shell, inventory, and setup workflow
 
-- **Status:** IN PROGRESS — source behavior, fixed-seed properties, API/component checks, four real-browser acceptance scenarios, curated source-bound evidence, and the complete local `pnpm verify` gate are green; clean-checkout CI remains required before completion.
+- **Status:** COMPLETE — source behavior, fixed-seed properties, API/component checks, four real-browser acceptance scenarios, curated source-bound evidence, the complete local `pnpm verify` gate, and corrected-head clean-checkout Ubuntu and Windows CI run `29878705897` are green.
 - **Deliver:** accessible navigation, software inventory, status provenance, six-step setup, resumable drafts, authorization blockers, empty/loading/error states, desktop and narrow layouts.
 - **PRD:** Sections 5, 9, 12.1, and 12.2.
 - **Depends on:** AUT-02, AUT-03, FND-03, AGR-01, and JRN-01.
