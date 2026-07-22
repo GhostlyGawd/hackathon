@@ -1,6 +1,6 @@
 # QLT-01 quality and observability evidence
 
-QLT-01 is implemented and locally green at source commit `30d5410e27a06b58153155f9158b44b2063f53fa`. The complete deterministic suite passed with 115 test files, 421 tests, 75 browser scenarios, and 904 BDD steps. This evidence set is intentionally marked **in progress** until exact-head Ubuntu and Windows CI pass.
+QLT-01 is complete at source commit `30d5410e27a06b58153155f9158b44b2063f53fa`. The complete deterministic suite passed with 115 test files, 421 tests, 75 browser scenarios, and 904 BDD steps. [GitHub Actions run 29887341588](https://github.com/GhostlyGawd/hackathon/actions/runs/29887341588) independently passed the same deterministic gate on Ubuntu and Windows at exact evidence head `73088fa4ab726e13de259241b213495cb5af284c`.
 
 ## What this proves
 
@@ -53,4 +53,4 @@ One red was a test defect rather than a product defect: the first performance br
 - The quality report exposes counts and measured boundaries, not raw traffic or identity.
 - The event catalog includes future journey, checkpoint, and finding transitions that current UI routes do not yet perform; no claim of exhaustive runtime emission is made.
 - This evidence uses only fictional identities, reserved destinations, synthetic values, and the controlled fixture.
-- QLT-01 is not complete until exact-head Ubuntu and Windows CI are green.
+- Exact-head clean-checkout CI passed on Ubuntu and Windows; the closure commit changes only this task status and the recorded CI provenance.

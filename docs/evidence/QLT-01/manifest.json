@@ -2,17 +2,34 @@
   "schemaVersion": "1.0.0",
   "taskId": "QLT-01",
   "title": "Add analytics, observability, reliability, accessibility, performance, and compatibility gates",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [20, 21],
   "functionalRequirements": ["FR-037", "FR-040", "FR-050"],
   "sourceCommitSha": "30d5410e27a06b58153155f9158b44b2063f53fa",
   "startedAt": "2026-07-21T21:56:16-04:00",
+  "completedAt": "2026-07-22T03:10:24Z",
   "artifactRoot": "artifacts/verification/QLT-01/",
   "curatedEvidenceRoot": "docs/evidence/QLT-01/",
   "environment": {
-    "os": "Windows local; exact-head GitHub Actions Ubuntu and Windows pending",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29887341588",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29887341588/job/88820491642",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29887341588/job/88820491645",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -215,6 +232,13 @@
       "command": "pnpm verify",
       "exitCode": 0,
       "durationMs": 494600
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows at the exact QLT-01 evidence head",
+      "command": "GitHub Actions run 29887341588: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 541000
     }
   ],
   "testSummary": {
@@ -430,8 +454,7 @@
     "No external NVDA, JAWS, or VoiceOver session was performed; evidence is limited to automated keyboard behavior and DOM/accessibility-tree assertions.",
     "Only the packaged Chromium version and declared web capabilities are supported in P0; Firefox, native applications, and unsupported capabilities fail closed.",
     "The soak timings are deterministic load-profile inputs rather than observed user latency; measured browser timings are reported separately.",
-    "The analytics catalog contains future journey, checkpoint, and finding transitions that current web routes do not perform, so exhaustive runtime emission is not claimed.",
-    "Exact-head Ubuntu and Windows CI are pending while this manifest remains IN_PROGRESS."
+    "The analytics catalog contains future journey, checkpoint, and finding transitions that current web routes do not perform, so exhaustive runtime emission is not claimed."
   ],
   "reviewer": "codex-agent"
 }
