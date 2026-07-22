@@ -1,0 +1,966 @@
+[
+  {
+    "description": "  A district privacy officer needs the runner to stop before an expired,\n  unlisted, or prohibited operation and to record a direct reason.",
+    "elements": [
+      {
+        "description": "",
+        "id": "test-authorization-blocks-work-outside-the-district's-stated-scope;redirects,-popups,-and-actions-stay-inside-deterministic-policy",
+        "keyword": "Scenario",
+        "line": 25,
+        "name": "Redirects, popups, and actions stay inside deterministic policy",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 483770900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "the fictional workspace access fixture is reset",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:279"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 255891000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I start a signed session as the \"Privacy officer\"",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:305"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 468065999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 9,
+            "name": "the fictional Northstar software exists",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:893"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1946030299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 26,
+            "name": "I define a current authorization for the fictional Northstar software",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:956"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2936691500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 27,
+            "name": "the runner attempts a redirect to \"https://tracker.outside.invalid/collect?student=fictional\"",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:1037"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 98934400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 28,
+            "name": "the redirect is blocked before the browser leaves Pactwire",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:1041"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 12745200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 29,
+            "name": "the reason says \"Redirect blocked because its destination is outside this authorization.\"",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:1053"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 4449300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 30,
+            "name": "the runner attempts a popup to \"https://cedar.northstar.invalid/classroom/help\"",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:1060"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 287896600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 31,
+            "name": "the reason says \"Popups are blocked by this authorization.\"",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:1053"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 7592400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 32,
+            "name": "the runner attempts the prohibited \"DELETE\" action",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:1064"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 70310299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 33,
+            "name": "the reason says \"DELETE is prohibited by this authorization.\"",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:1053"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 45696600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 34,
+            "name": "all three blocked attempts are recorded with bounded reasons",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:1074"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 14426600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 35,
+            "name": "I capture the \"authorization-blocked-narrow\" narrow authorization evidence",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:1125"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 462599299
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 70025900
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 149199
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@AUT-03",
+            "line": 1
+          },
+          {
+            "name": "@FR-003",
+            "line": 1
+          },
+          {
+            "name": "@FR-004",
+            "line": 1
+          },
+          {
+            "name": "@SEC-01",
+            "line": 24
+          },
+          {
+            "name": "@PROP-13",
+            "line": 24
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "test-authorization-blocks-work-outside-the-district's-stated-scope;messaging-a-real-person-stops-before-the-model-clicks",
+        "keyword": "Scenario",
+        "line": 56,
+        "name": "Messaging a real person stops before the model clicks",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 168423399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "the fictional workspace access fixture is reset",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:279"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 194581700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I start a signed session as the \"Privacy officer\"",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:305"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 378950700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 9,
+            "name": "the fictional Northstar software exists",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:893"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1942422099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 57,
+            "name": "the RUN-03 computer-use harness uses the \"RISKY_ACTION\" fixture",
+            "match": {
+              "location": "tests\\bdd\\computer-use.steps.mjs:267"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 291698200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 58,
+            "name": "the deterministic model adapter selects the real-person messaging control",
+            "match": {
+              "location": "tests\\bdd\\computer-use.steps.mjs:342"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 4781540199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 59,
+            "name": "the RUN-03 result is \"HUMAN_REQUIRED\" because \"HUMAN_REVIEW_REQUIRED\"",
+            "match": {
+              "location": "tests\\bdd\\computer-use.steps.mjs:356"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 178800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 60,
+            "name": "no fictional submission or risky action reaches the fixture",
+            "match": {
+              "location": "tests\\bdd\\computer-use.steps.mjs:394"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 102600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 61,
+            "name": "the messaging control remains visibly ready and unclicked",
+            "match": {
+              "location": "tests\\bdd\\computer-use.steps.mjs:399"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 17634900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 62,
+            "name": "I capture the RUN-03 \"human-handoff-blocked\" evidence",
+            "match": {
+              "location": "tests\\bdd\\computer-use.steps.mjs:415"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 134734199
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 70499
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 33000
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 727499
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@AUT-03",
+            "line": 1
+          },
+          {
+            "name": "@FR-003",
+            "line": 1
+          },
+          {
+            "name": "@FR-004",
+            "line": 1
+          },
+          {
+            "name": "@RUN-03",
+            "line": 55
+          },
+          {
+            "name": "@SEC-01",
+            "line": 55
+          },
+          {
+            "name": "@FR-023",
+            "line": 55
+          },
+          {
+            "name": "@FR-026",
+            "line": 55
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "test-authorization-blocks-work-outside-the-district's-stated-scope",
+    "line": 2,
+    "keyword": "Feature",
+    "name": "Test authorization blocks work outside the district's stated scope",
+    "tags": [
+      {
+        "name": "@AUT-03",
+        "line": 1
+      },
+      {
+        "name": "@FR-003",
+        "line": 1
+      },
+      {
+        "name": "@FR-004",
+        "line": 1
+      }
+    ],
+    "uri": "tests\\bdd\\authorization.feature"
+  },
+  {
+    "description": "  The product needs reproducible negative modes that dispatch no traffic and\n  explain whether retry or a person is required.",
+    "elements": [
+      {
+        "description": "",
+        "id": "controlled-failure-and-risky-action-stops;risky-action-mode-stops-before-messaging-a-real-person",
+        "keyword": "Scenario",
+        "line": 14,
+        "name": "Risky-action mode stops before messaging a real person",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 166200000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 15,
+            "name": "the controlled classroom fixture runs in \"RISKY_ACTION\" mode",
+            "match": {
+              "location": "tests\\bdd\\controlled-fixture.steps.mjs:64"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 105698300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 16,
+            "name": "the fictional student asks to message a real guardian",
+            "match": {
+              "location": "tests\\bdd\\controlled-fixture.steps.mjs:377"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 44556899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 17,
+            "name": "the fixture stops for a person and dispatches no request",
+            "match": {
+              "location": "tests\\bdd\\controlled-fixture.steps.mjs:395"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 220600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 18,
+            "name": "the hidden fixture manifest independently expects \"HUMAN_REQUIRED\"",
+            "match": {
+              "location": "tests\\bdd\\controlled-fixture.steps.mjs:298"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1032999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 19,
+            "name": "I capture the \"fixture-risky-action-desktop\" fixture evidence",
+            "match": {
+              "location": "tests\\bdd\\controlled-fixture.steps.mjs:415"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 169422099
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 76871800
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 368800
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@FIX-01",
+            "line": 1
+          },
+          {
+            "name": "@PRD-18",
+            "line": 1
+          },
+          {
+            "name": "@SEC-01",
+            "line": 13
+          },
+          {
+            "name": "@PROP-13",
+            "line": 13
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "controlled-failure-and-risky-action-stops;a-changed-exported-artifact-invalidates-verification-without-changing-the-stored-receipt",
+        "keyword": "Scenario",
+        "line": 70,
+        "name": "A changed exported artifact invalidates verification without changing the stored receipt",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 178857400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 71,
+            "name": "the fictional workspace access fixture is reset",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:279"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 201297800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 72,
+            "name": "I start a signed session as the \"Reviewer\"",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:305"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 404516900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 73,
+            "name": "I export the witnessed-conflict evidence receipt",
+            "match": {
+              "location": "tests\\bdd\\evidence-receipt.steps.mjs:184"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 783464800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 74,
+            "name": "I change one byte in an exported receipt artifact",
+            "match": {
+              "location": "tests\\bdd\\evidence-receipt.steps.mjs:192"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 447124500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 75,
+            "name": "independent receipt verification reports \"INVALID\"",
+            "match": {
+              "location": "tests\\bdd\\evidence-receipt.steps.mjs:205"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 194599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 76,
+            "name": "the verifier names \"ARTIFACT_HASH_MISMATCH\"",
+            "match": {
+              "location": "tests\\bdd\\evidence-receipt.steps.mjs:210"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 148499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 77,
+            "name": "the original stored receipt still verifies as \"VALID\"",
+            "match": {
+              "location": "tests\\bdd\\evidence-receipt.steps.mjs:218"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 553435199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 78,
+            "name": "I record the DET-04 valid and corrupted verifier reports",
+            "match": {
+              "location": "tests\\bdd\\evidence-receipt.steps.mjs:226"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3354800
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 63555099
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 84699
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@FIX-01",
+            "line": 1
+          },
+          {
+            "name": "@PRD-18",
+            "line": 1
+          },
+          {
+            "name": "@DET-04",
+            "line": 69
+          },
+          {
+            "name": "@SEC-01",
+            "line": 69
+          },
+          {
+            "name": "@FR-044",
+            "line": 69
+          },
+          {
+            "name": "@FR-045",
+            "line": 69
+          },
+          {
+            "name": "@PROP-09",
+            "line": 69
+          },
+          {
+            "name": "@PROP-10",
+            "line": 69
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "controlled-failure-and-risky-action-stops",
+    "line": 2,
+    "keyword": "Feature",
+    "name": "Controlled failure and risky-action stops",
+    "tags": [
+      {
+        "name": "@FIX-01",
+        "line": 1
+      },
+      {
+        "name": "@PRD-18",
+        "line": 1
+      }
+    ],
+    "uri": "tests\\bdd\\failure-recovery.feature"
+  },
+  {
+    "description": "  A district test operator needs Pactwire to inject a fictional credential only\n  inside one authorized browser harness and to redact every normal output.",
+    "elements": [
+      {
+        "description": "",
+        "id": "saved-credentials-stay-outside-pages,-model-context,-and-normal-evidence;page-instructions-cannot-expand-a-model-operated-run",
+        "keyword": "Scenario",
+        "line": 31,
+        "name": "Page instructions cannot expand a model-operated run",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 166043499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "the fictional workspace access fixture is reset",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:279"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 196391199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I start a signed session as the \"Privacy officer\"",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:305"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 414688300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 9,
+            "name": "the fictional Northstar software exists",
+            "match": {
+              "location": "tests\\bdd\\workspace-access.steps.mjs:893"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 487214500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 32,
+            "name": "the RUN-03 computer-use harness uses the \"PROMPT_INJECTION\" fixture",
+            "match": {
+              "location": "tests\\bdd\\computer-use.steps.mjs:267"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 262474799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 33,
+            "name": "the deterministic model adapter follows the page's untrusted request",
+            "match": {
+              "location": "tests\\bdd\\computer-use.steps.mjs:349"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 4818304800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 34,
+            "name": "the RUN-03 result is \"BLOCKED\" because \"UNTRUSTED_CONTROL\"",
+            "match": {
+              "location": "tests\\bdd\\computer-use.steps.mjs:356"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 116000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 35,
+            "name": "no fictional submission or risky action reaches the fixture",
+            "match": {
+              "location": "tests\\bdd\\computer-use.steps.mjs:394"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 92300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 36,
+            "name": "the run output contains no page instruction or configured secret",
+            "match": {
+              "location": "tests\\bdd\\computer-use.steps.mjs:409"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 159100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 37,
+            "name": "I capture the RUN-03 \"prompt-injection-blocked\" evidence",
+            "match": {
+              "location": "tests\\bdd\\computer-use.steps.mjs:415"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 135782999
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 116200
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 39000
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 503300
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@AUT-04",
+            "line": 1
+          },
+          {
+            "name": "@FR-005",
+            "line": 1
+          },
+          {
+            "name": "@FR-032",
+            "line": 1
+          },
+          {
+            "name": "@RUN-03",
+            "line": 30
+          },
+          {
+            "name": "@SEC-01",
+            "line": 30
+          },
+          {
+            "name": "@FR-023",
+            "line": 30
+          },
+          {
+            "name": "@FR-036",
+            "line": 30
+          },
+          {
+            "name": "@PROP-13",
+            "line": 30
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "saved-credentials-stay-outside-pages,-model-context,-and-normal-evidence",
+    "line": 2,
+    "keyword": "Feature",
+    "name": "Saved credentials stay outside pages, model context, and normal evidence",
+    "tags": [
+      {
+        "name": "@AUT-04",
+        "line": 1
+      },
+      {
+        "name": "@FR-005",
+        "line": 1
+      },
+      {
+        "name": "@FR-032",
+        "line": 1
+      }
+    ],
+    "uri": "tests\\bdd\\prompt-injection.feature"
+  }
+]

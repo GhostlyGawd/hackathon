@@ -668,7 +668,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### SEC-01 — Execute the security, privacy, and prompt-injection threat suite
 
-- **Status:** IN PROGRESS — the production dependency audit prerequisite is green locally with exact lockfile regressions; the adversarial threat matrix, safe-recovery evidence, and clean-checkout CI remain outstanding.
+- **Status:** IN PROGRESS — implementation commit `e7b074c1bc233ee6ee49d1039bf3ab30edd08a93` passes the focused threat gates and the evidence-reconciled tree passes the complete deterministic local gate: 121 test files, 437 tests, and all 75 optimized-production browser scenarios / 904 steps. Exact-head clean-checkout Ubuntu/Windows CI remains outstanding.
 
 - **Deliver:** executable cases for real-data entry, prompt injection, credential leakage, egress, harmful actions, cross-workspace access, tampering, false attribution, incomplete capture, publication permission, and retention/deletion.
 - **PRD:** Section 16 and the security cases in Section 17.

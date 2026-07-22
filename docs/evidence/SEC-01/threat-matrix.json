@@ -1,0 +1,130 @@
+{
+  "reportVersion": "pactwire-security-threat-report-v1",
+  "generatedAt": "2026-07-22T04:00:00.000Z",
+  "status": "PASS",
+  "threats": [
+    {
+      "id": "REAL_DATA_ENTRY",
+      "risk": "A user enters real student information into a controlled test.",
+      "control": "Synthetic-only confirmation and deterministic likely-real-data scanning block persistence and redact the attempted values.",
+      "residualRisk": "Heuristic scanning cannot identify every real value, so operators remain responsible for using fictional accounts and reserved domains.",
+      "threatId": "REAL_DATA_ENTRY",
+      "status": "PASS",
+      "evidence": [
+        "scanSyntheticPersona:BLOCKED_WITHOUT_ECHO"
+      ]
+    },
+    {
+      "id": "PROMPT_INJECTION",
+      "risk": "Untrusted page content attempts to direct the model or expand authority.",
+      "control": "Page content is labeled untrusted and every browser action is checked beneath the model against frozen domain and action scope.",
+      "residualRisk": "A permitted page can still contain adversarial content, so deterministic action mediation remains required for every step.",
+      "threatId": "PROMPT_INJECTION",
+      "status": "PASS",
+      "evidence": [
+        "evaluateComputerActionPolicy:UNTRUSTED_CONTROL"
+      ]
+    },
+    {
+      "id": "CREDENTIAL_LEAKAGE",
+      "risk": "A browser credential appears in model context, logs, evidence, or exports.",
+      "control": "Secret values are isolated from the model and redacted across raw, URL, form, base64, base64url, and JSON representations.",
+      "residualRisk": "Novel encodings are not automatically recognized and require an explicit regression before they are covered.",
+      "threatId": "CREDENTIAL_LEAKAGE",
+      "status": "PASS",
+      "evidence": [
+        "redaction:ALL_CONFIGURED_REPRESENTATIONS",
+        "computer-use:SECRET_BLOCKED"
+      ]
+    },
+    {
+      "id": "OUT_OF_SCOPE_EGRESS",
+      "risk": "A run browses or sends data to a destination outside its authorization.",
+      "control": "Protocol, hostname, popup, redirect, and action checks fail closed against the frozen authorization before execution.",
+      "residualRisk": "Authorization scope must be configured correctly by a human before a run begins.",
+      "threatId": "OUT_OF_SCOPE_EGRESS",
+      "status": "PASS",
+      "evidence": [
+        "evaluateBrowserRequestPolicy:NETWORK_HOST_BLOCKED"
+      ]
+    },
+    {
+      "id": "HARMFUL_AUTHORIZED_ACTION",
+      "risk": "A technically in-scope action could message a person, purchase, delete, or administer data.",
+      "control": "Harmful action classes are prohibited or require a visible human handoff even when the destination itself is authorized.",
+      "residualRisk": "New action classes require explicit classification before they can be automated.",
+      "threatId": "HARMFUL_AUTHORIZED_ACTION",
+      "status": "PASS",
+      "evidence": [
+        "computer-use:MESSAGE_HUMAN_REQUIRED",
+        "computer-use:DELETE_PROHIBITED"
+      ]
+    },
+    {
+      "id": "CROSS_WORKSPACE_LEAKAGE",
+      "risk": "One district can read, mutate, reference, or infer another district's records.",
+      "control": "Signed active-workspace checks and compound workspace keys conceal cross-workspace targets and prevent mutation.",
+      "residualRisk": "Deployment credentials and database roles must preserve the same workspace boundary.",
+      "threatId": "CROSS_WORKSPACE_LEAKAGE",
+      "status": "PASS",
+      "evidence": [
+        "WorkspaceBoundaryStore:CROSS_WORKSPACE_CONCEALED"
+      ]
+    },
+    {
+      "id": "EVIDENCE_TAMPERING",
+      "risk": "Captured evidence is altered after the run.",
+      "control": "Content-addressed artifacts, immutable receipt metadata, and independent hash verification make one-byte changes invalid.",
+      "residualRisk": "Integrity proves that bytes match a receipt; it does not prove that the original observation was complete or meaningful.",
+      "threatId": "EVIDENCE_TAMPERING",
+      "status": "PASS",
+      "evidence": [
+        "verifyEvidenceReceiptBundle:ONE_BYTE_MUTATION_INVALID"
+      ]
+    },
+    {
+      "id": "FALSE_DESTINATION_ATTRIBUTION",
+      "risk": "A hostname is presented as belonging to a company without sufficient evidence.",
+      "control": "Destination identity remains UNKNOWN until a human confirms bounded evidence; model output cannot establish ownership.",
+      "residualRisk": "Corporate ownership can change after a confirmation and must be re-reviewed when evidence changes.",
+      "threatId": "FALSE_DESTINATION_ATTRIBUTION",
+      "status": "PASS",
+      "evidence": [
+        "resolveDestination:UNKNOWN_UNTIL_HUMAN_CONFIRMED"
+      ]
+    },
+    {
+      "id": "INCOMPLETE_CAPTURE_ASSURANCE",
+      "risk": "Missing or invisible paths are presented as a clean, safe, or compliant result.",
+      "control": "Coverage gaps deterministically produce NOT_TESTED, NOT_VISIBLE, or NEEDS_REVIEW and can never produce a clean finding.",
+      "residualRisk": "A complete named run remains bounded to its named journeys, roles, fields, time window, and visible instrumentation.",
+      "threatId": "INCOMPLETE_CAPTURE_ASSURANCE",
+      "status": "PASS",
+      "evidence": [
+        "evaluateBoundedFinding:NOT_VISIBLE"
+      ]
+    },
+    {
+      "id": "UNAUTHORIZED_PUBLICATION",
+      "risk": "Private evidence or an unsupported accusation is published externally.",
+      "control": "The P0 release policy permits only sanitized private review by an authorized human and denies public delivery.",
+      "residualRisk": "A human can still copy a private export outside Pactwire, so exported files carry an explicit private-review boundary.",
+      "threatId": "UNAUTHORIZED_PUBLICATION",
+      "status": "PASS",
+      "evidence": [
+        "evaluateEvidenceReleasePolicy:PUBLICATION_NOT_SUPPORTED"
+      ]
+    },
+    {
+      "id": "EXCESSIVE_EVIDENCE_RETENTION",
+      "risk": "Sensitive evidence remains available longer than the product needs it.",
+      "control": "Pactwire uses a bounded product retention policy, stores artifact bytes only in the encrypted object store, and supports confirmed idempotent deletion with immutable tombstones.",
+      "residualRisk": "Infrastructure backups and replicas need deployment-specific deletion validation before a production retention claim is made.",
+      "threatId": "EXCESSIVE_EVIDENCE_RETENTION",
+      "status": "PASS",
+      "evidence": [
+        "EvidenceReceiptService:METADATA_ONLY_AND_TOMBSTONED_DELETION"
+      ]
+    }
+  ]
+}

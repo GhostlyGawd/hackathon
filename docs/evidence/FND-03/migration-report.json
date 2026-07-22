@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "migrationCount": 15,
-  "totalTables": 35,
+  "migrationCount": 16,
+  "totalTables": 37,
   "migrations": [
     {
       "version": "0001",
@@ -188,6 +188,20 @@
       ],
       "immutableTables": [
         "approval_hold_receipts"
+      ]
+    },
+    {
+      "version": "0016",
+      "name": "security_governance",
+      "sha256": "cbe1effce5c8bd00622206abdf86ecc948839eceb9b530cdf4304c873c2186ae",
+      "tables": [
+        "evidence_retention_policies",
+        "evidence_receipt_deletion_events"
+      ],
+      "immutableTables": [
+        "evidence_receipts",
+        "evidence_retention_policies",
+        "evidence_receipt_deletion_events"
       ]
     }
   ]
