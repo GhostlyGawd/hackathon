@@ -253,7 +253,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | DET-04 | P0 | DET-03, AGR-01, RUN-05 | Verifiable evidence receipts | IN PROGRESS |
 | DET-05 | P0 + P1 follow-on | AUT-02, DET-03, DET-04 | Hold, human restore, and approval audit | COMPLETE (P0) |
 | UX-01 | P0 | AUT-02, AUT-03, FND-03, AGR-01, JRN-01 | Inventory and setup experience | COMPLETE |
-| UX-02 | P0 | AGR-03, JRN-02, UX-01 | Agreement and journey review | NOT STARTED |
+| UX-02 | P0 | AGR-03, JRN-02, UX-01 | Agreement and journey review | COMPLETE |
 | UX-03 | P0 | RUN-05, DET-04, DET-05, UX-01 | Run, finding, receipt, and hold experience | IN PROGRESS |
 | QLT-01 | P0 | UX-01, UX-02, UX-03, RUN-05 | Quality and observability gates | NOT STARTED |
 | SEC-01 | P0 | AUT-04, RUN-03, DET-05, UX-03 | Security and privacy threat suite | IN PROGRESS |
@@ -626,6 +626,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### UX-02 — Build agreement and journey review experiences
 
+- **Status:** COMPLETE — source commit `e7cb2398df668bc47bf93b71e55dc52250abe2ff` enforces exact cited-page inspection before any requirement decision, role-aware controls, direct model/human/browser authority explanations, generated-state action gates, keyboard and Axe browser acceptance, responsive agreement and journey review, and honest replay/repair empty histories. Corrected head `baf2d665f96b8691c7d34b0dc8c4126ef8528cb3` bounds session restoration and passed focused optimized-production acceptance plus clean-checkout Ubuntu and Windows [CI run 29881162864](https://github.com/GhostlyGawd/hackathon/actions/runs/29881162864).
 - **Deliver:** source/proposal split view, citation navigation, confirm/edit/reject/ambiguous controls, version history, persona setup, journey editor, checkpoint and visibility controls, replay/repair history.
 - **PRD:** Sections 12.3 and 12.4.
 - **Depends on:** AGR-03, JRN-02, and UX-01.

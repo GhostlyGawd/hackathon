@@ -105,6 +105,28 @@
       "command": "pnpm evidence:check; pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
       "exitCode": 0,
       "durationMs": 4184
+    },
+    {
+      "phase": "RED",
+      "name": "Integrated UX-02 and UX-03 evidence inventory required exact reconciliation",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 1020,
+      "expectedFailure": "The merge-resolution estimate expected 289 proof files; the repository checker observed 28 manifests and 288 proof files"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Combined dependency-stack evidence traceability",
+      "command": "pnpm evidence:check; pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 0,
+      "durationMs": 3990
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Integrated UX-02 and UX-03 optimized-production acceptance",
+      "command": "pnpm build; PACTWIRE_BDD_TAGS='@UX-02 or @UX-03' pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 125400
     }
   ],
   "testSummary": {

@@ -223,6 +223,17 @@ export function AccessConsole() {
   const [sessionReady, setSessionReady] = useState(false);
   const [setupSoftwareId, setSetupSoftwareId] = useState<string>();
   const [setupStepId, setSetupStepId] = useState<string>();
+  const activePrincipalRoles = principal
+    ? roles
+        .filter((assignment) => assignment.userId === principal.userId)
+        .map((assignment) => assignment.role)
+    : [];
+  const canReviewRequirements = activePrincipalRoles.includes(
+    "PRIVACY_OFFICER",
+  );
+  const canManageJourneys = activePrincipalRoles.some((role) =>
+    ["PRIVACY_OFFICER", "TEST_OPERATOR"].includes(role),
+  );
 
   useEffect(() => {
     const parameters = new URLSearchParams(window.location.search);
@@ -613,6 +624,7 @@ export function AccessConsole() {
                 key={`agreement:${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
                 principalUserId={principal.userId}
+                canReviewRequirements={canReviewRequirements}
               />
               <SyntheticDataPanel
                 key={`synthetic:${principal.activeWorkspaceId}:${principal.userId}`}
@@ -622,6 +634,7 @@ export function AccessConsole() {
               <JourneyAuthoringPanel
                 key={`journey:${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
+                canManageJourneys={canManageJourneys}
               />
               <SecretIsolationPanel
                 key={`${principal.activeWorkspaceId}:${principal.userId}`}

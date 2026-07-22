@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { canSaveJourneyReview } from "../lib/review-experience";
+import { ReviewAuthorityLegend } from "./review-authority-legend";
 
 type PersonaRole = "TEACHER" | "STUDENT";
 type AuthorizationAction =
@@ -231,10 +233,24 @@ function boundedJourneyActions(
   return bounded.length > 0 ? bounded : authorization.allowedActions.slice(0, 1);
 }
 
+function journeySourceFields(persona: Persona | undefined): readonly string[] {
+  if (!persona) return [];
+  const activitySource = Object.keys(persona.fields)[0];
+  return [
+    ...new Set(
+      ["email", activitySource].filter(
+        (source): source is string => Boolean(source),
+      ),
+    ),
+  ];
+}
+
 export function JourneyAuthoringPanel({
   workspaceId,
+  canManageJourneys,
 }: {
   readonly workspaceId: string;
+  readonly canManageJourneys: boolean;
 }) {
   const [role, setRole] = useState<PersonaRole>("TEACHER");
   const [selectedSoftwareId, setSelectedSoftwareId] = useState("");
@@ -258,6 +274,7 @@ export function JourneyAuthoringPanel({
   const journeyAllowedActions = boundedJourneyActions(
     prerequisites?.authorization,
   );
+  const fictionalSources = journeySourceFields(persona);
   const history = prerequisites
     ? prerequisites.history.versions.filter((journey) =>
         current
@@ -272,12 +289,21 @@ export function JourneyAuthoringPanel({
     !prerequisites?.authorization ? "active test authorization" : undefined,
     !persona ? `fictional ${roleLabels[role].toLowerCase()} persona` : undefined,
   ].filter((value): value is string => value !== undefined);
-  const canSave =
-    missing.length === 0 &&
-    form.requiredVisibility &&
-    form.name.trim().length > 0 &&
-    form.goal.trim().length > 0 &&
-    form.startState.trim().length > 0;
+  const canSave = canSaveJourneyReview({
+    canManage: canManageJourneys,
+    hasSoftware: Boolean(prerequisites?.softwareId),
+    hasAgreement: Boolean(prerequisites?.agreement),
+    hasConfirmedRequirement: Boolean(prerequisites?.requirement),
+    hasActiveAuthorization: Boolean(prerequisites?.authorization),
+    hasPersona: Boolean(persona),
+    allowedActionCount: journeyAllowedActions.length,
+    fictionalSourceCount: fictionalSources.length,
+    requiredCheckpointCount: form.requiredVisibility ? 1 : 0,
+    requiredVisibility: form.requiredVisibility,
+    name: form.name,
+    goal: form.goal,
+    startState: form.startState,
+  });
 
   const applyRole = useCallback(
     (nextRole: PersonaRole, state = prerequisites): void => {
@@ -431,12 +457,8 @@ export function JourneyAuthoringPanel({
     }
     setSaving(true);
     setNotice(undefined);
-    const activitySource = Object.keys(persona.fields)[0];
-    const sources = ["email", activitySource].filter(
-      (source): source is string => Boolean(source),
-    );
     const requirementId = prerequisites.requirement.id;
-    const testFields = sources.map((sourceField) => ({
+    const testFields = fictionalSources.map((sourceField) => ({
       fieldId: `${role.toLowerCase()}-${sourceField}`,
       sourceField,
       requirementVersionId: requirementId,
@@ -558,6 +580,25 @@ export function JourneyAuthoringPanel({
           <span aria-hidden="true" /> Human-confirmed rules only
         </span>
       </header>
+
+      <ReviewAuthorityLegend
+        headingId="journey-review-authority-heading"
+        observedState="NOT_RUN"
+      />
+
+      {!canManageJourneys ? (
+        <div
+          className="journey-notice blocked"
+          data-testid="journey-permission-boundary"
+          role="status"
+        >
+          <strong>Read-only access</strong>
+          <span>
+            Your workspace role can inspect named journeys but cannot create or
+            change them.
+          </span>
+        </div>
+      ) : null}
 
       <div className="journey-prerequisite-bar">
         <label htmlFor="journey-software">
@@ -908,11 +949,21 @@ export function JourneyAuthoringPanel({
         ) : (
           <p className="journey-history-empty">No named journey version is stored for this role.</p>
         )}
-        <footer data-testid="journey-future-state">
-          <span>No successful run recorded yet.</span>
-          <span>No repair history recorded yet.</span>
-          <small>Replay and repair are separate tasks and are not claimed here.</small>
-        </footer>
+        <div className="journey-execution-history" data-testid="journey-future-state">
+          <article data-testid="deterministic-replay-history">
+            <span>Deterministic replay history</span>
+            <strong>No replay run recorded for this journey.</strong>
+            <p>A saved journey is a test specification. It is not evidence that a browser replay ran or passed.</p>
+          </article>
+          <article data-testid="model-repair-history">
+            <span>Model-assisted repair history</span>
+            <strong>No repair draft recorded for this journey.</strong>
+            <p>A model repair cannot become active until a person reviews it and the required checkpoint is observed again.</p>
+          </article>
+          <footer>
+            No successful browser run is recorded. These empty histories do not mean the journey passed.
+          </footer>
+        </div>
       </section>
     </section>
   );

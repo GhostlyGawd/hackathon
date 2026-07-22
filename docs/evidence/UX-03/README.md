@@ -24,6 +24,7 @@ The two fixed-seed properties use seed `20260722` for 500 generated states each.
 
 - Two focused unit examples, two fixed-seed properties, and three signed route integration checks pass.
 - Four optimized-production browser scenarios pass all 52 steps.
+- After merging the complete UX-02 dependency, all 15 UX-02 and UX-03 optimized-production scenarios pass all 225 steps together.
 - Sixteen optimized-production screenshots cover desktop and narrow states before and after stop and hold transitions, the full finding and receipt review, the signed keep-hold decision, and terminal recovery states.
 - `live-run-causal-spine.webm` records the authorized live-run inspection and stop transition; its WebM container header was checked after capture.
 - Every screenshot was opened at original resolution and compared beside the existing source-bound FIX-01, DET-03, DET-04, or DET-05 evidence it extends. No development indicator, horizontal overflow, clipping, broken focus treatment, or overlapping control remained. That review caught and fixed an oversized-checkbox layout defect before this production capture.
