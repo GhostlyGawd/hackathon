@@ -10,6 +10,7 @@ Feature: Controlled failure and risky-action stops
     And the hidden fixture manifest independently expects "FAILED"
     And I capture the "fixture-failure-desktop" fixture evidence
 
+  @SEC-01 @PROP-13
   Scenario: Risky-action mode stops before messaging a real person
     Given the controlled classroom fixture runs in "RISKY_ACTION" mode
     When the fictional student asks to message a real guardian
@@ -65,7 +66,7 @@ Feature: Controlled failure and risky-action stops
     And its completed retry links to the source run with the same frozen configuration
     And I capture the "retry-lineage" RUN-05 evidence
 
-  @DET-04 @FR-044 @FR-045 @PROP-09 @PROP-10
+  @DET-04 @SEC-01 @FR-044 @FR-045 @PROP-09 @PROP-10
   Scenario: A changed exported artifact invalidates verification without changing the stored receipt
     Given the fictional workspace access fixture is reset
     And I start a signed session as the "Reviewer"

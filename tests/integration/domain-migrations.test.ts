@@ -168,6 +168,7 @@ describe("core domain migrations", () => {
       "0013",
       "0014",
       "0015",
+      "0016",
     ]);
   });
 
@@ -191,6 +192,7 @@ describe("core domain migrations", () => {
       "0013",
       "0014",
       "0015",
+      "0016",
     ]);
     await expect(applyCoreMigrations(service.database)).resolves.toEqual([]);
     const tables = await service.database.query<{ table_name: string }>(
@@ -223,12 +225,34 @@ describe("core domain migrations", () => {
         "observations",
         "findings",
         "evidence_receipts",
+        "evidence_receipt_deletion_events",
+        "evidence_retention_policies",
         "approval_events",
         "approval_hold_receipts",
         "audit_events",
       ]),
     );
-    expect(tables.rows).toHaveLength(37);
+    expect(tables.rows).toHaveLength(39);
+  });
+
+  it("stores no artifact payload bytes in receipt metadata and bounds retention policy", async () => {
+    const { database } = await migratedDatabase();
+    const receiptColumns = await database.query<{ column_name: string }>(
+      "SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'evidence_receipts' ORDER BY column_name",
+    );
+    const names = receiptColumns.rows.map(({ column_name }) => column_name);
+    expect(names).toContain("bundle_metadata");
+    expect(names).not.toContain("bundle");
+
+    const constraints = await database.query<{ definition: string }>(
+      "SELECT pg_get_constraintdef(oid) AS definition FROM pg_constraint WHERE conrelid IN ('evidence_receipts'::regclass, 'evidence_retention_policies'::regclass) ORDER BY conname",
+    );
+    const definitions = constraints.rows
+      .map(({ definition }) => definition)
+      .join("\n");
+    expect(definitions).toContain("contentBase64");
+    expect(definitions).toMatch(/retention_days >= 1/u);
+    expect(definitions).toMatch(/retention_days <= 365/u);
   });
 
   it("requires immutable, latest-source lineage for human requirement reviews", async () => {

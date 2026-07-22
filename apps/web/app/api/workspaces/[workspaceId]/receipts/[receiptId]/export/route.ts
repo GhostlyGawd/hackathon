@@ -1,4 +1,8 @@
-import { AuthenticationRequiredError } from "@pactwire/core";
+import {
+  AuthenticationRequiredError,
+  EvidenceReleaseDeniedError,
+  evaluateEvidenceReleasePolicy,
+} from "@pactwire/core";
 import { type NextRequest, NextResponse } from "next/server";
 import { getAccessRuntime } from "../../../../../../../lib/access-fixture";
 import { authorizationErrorResponse } from "../../../../../../../lib/route-response";
@@ -27,6 +31,20 @@ export async function GET(
       workspaceId,
       permission: "EVIDENCE_REVIEW",
     });
+    const requestedDelivery = request.nextUrl.searchParams.get("delivery");
+    if (requestedDelivery !== null && requestedDelivery !== "public") {
+      throw new TypeError("delivery must be public when provided");
+    }
+    const releaseDecision = evaluateEvidenceReleasePolicy({
+      actorKind: "HUMAN",
+      delivery:
+        requestedDelivery === "public" ? "EXTERNAL_PUBLIC" : "PRIVATE_REVIEW",
+      sanitized: true,
+      permissions: ["WORKSPACE_EXPORT", "EVIDENCE_REVIEW"],
+    });
+    if (releaseDecision.decision === "DENY") {
+      throw new EvidenceReleaseDeniedError(releaseDecision.reason);
+    }
     const serialized = await runtime.evidenceReceiptService.exportSanitizedBundle(
       workspaceId,
       receiptId,
@@ -42,6 +60,7 @@ export async function GET(
         "cache-control": "private, no-store",
         "content-disposition": `attachment; filename="pactwire-receipt-${receiptId}.json"`,
         "content-type": "application/json; charset=utf-8",
+        "x-pactwire-release-scope": "private-review-only",
       },
     });
   } catch (error) {

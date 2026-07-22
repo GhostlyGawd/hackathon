@@ -43,6 +43,7 @@ export const workspacePermissionSchema = z.enum([
   "EVIDENCE_REVIEW",
   "APPROVAL_RESTORE",
   "DESTINATION_CONFIRM",
+  "EVIDENCE_RETENTION_MANAGE",
 ]);
 export type WorkspacePermission = z.infer<typeof workspacePermissionSchema>;
 
@@ -101,6 +102,7 @@ export const workspacePermissionMatrix: Readonly<
     "EVIDENCE_REVIEW",
     "APPROVAL_RESTORE",
     "DESTINATION_CONFIRM",
+    "EVIDENCE_RETENTION_MANAGE",
   ],
   TEST_OPERATOR: [
     "WORKSPACE_READ",

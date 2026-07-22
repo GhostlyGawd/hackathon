@@ -3,8 +3,9 @@ import {
   createDecipheriv,
   createHash,
   randomBytes,
+  randomUUID,
 } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
 import {
@@ -26,6 +27,11 @@ import {
   type RunManifest,
 } from "./run-orchestration.js";
 import type { MigrationDatabase } from "./migrations.js";
+import {
+  DEFAULT_EVIDENCE_RETENTION_DAYS,
+  evidenceRetentionPolicySchema,
+  type EvidenceRetentionPolicy,
+} from "./security-governance.js";
 
 const uuid = z.string().uuid();
 const timestamp = z.string().datetime({ offset: true });
@@ -88,6 +94,12 @@ export const evidenceReceiptArtifactSchema = z
   .strict();
 export type EvidenceReceiptArtifact = z.infer<
   typeof evidenceReceiptArtifactSchema
+>;
+
+export const storedEvidenceReceiptArtifactSchema =
+  evidenceReceiptArtifactSchema.omit({ contentBase64: true });
+export type StoredEvidenceReceiptArtifact = z.infer<
+  typeof storedEvidenceReceiptArtifactSchema
 >;
 
 const receiptScopeSchema = z
@@ -261,6 +273,55 @@ export const evidenceReceiptBundleSchema = z
 export type EvidenceReceiptBundle = z.infer<
   typeof evidenceReceiptBundleSchema
 >;
+
+export const storedEvidenceReceiptBundleSchema = z
+  .object({
+    schemaVersion: z.literal(EVIDENCE_RECEIPT_SCHEMA_VERSION),
+    receipt: evidenceReceiptManifestSchema,
+    content: evidenceReceiptContentSchema,
+    artifacts: z
+      .array(storedEvidenceReceiptArtifactSchema)
+      .min(requiredArtifactKinds.length),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    const paths = value.artifacts.map((artifact) => artifact.path);
+    if (new Set(paths).size !== paths.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["artifacts"],
+        message: "Stored receipt artifact paths must be unique",
+      });
+    }
+    for (const kind of requiredArtifactKinds) {
+      if (!value.artifacts.some((artifact) => artifact.kind === kind)) {
+        context.addIssue({
+          code: "custom",
+          path: ["artifacts"],
+          message: `Stored receipt requires a ${kind.toLowerCase().replaceAll("_", " ")} artifact`,
+        });
+      }
+    }
+  });
+export type StoredEvidenceReceiptBundle = z.infer<
+  typeof storedEvidenceReceiptBundleSchema
+>;
+
+export function toStoredEvidenceReceiptBundle(
+  candidate: EvidenceReceiptBundle,
+): StoredEvidenceReceiptBundle {
+  const bundle = evidenceReceiptBundleSchema.parse(candidate);
+  return immutableClone(
+    storedEvidenceReceiptBundleSchema.parse({
+      schemaVersion: bundle.schemaVersion,
+      receipt: bundle.receipt,
+      content: bundle.content,
+      artifacts: bundle.artifacts.map(
+        ({ contentBase64: _contentBase64, ...artifact }) => artifact,
+      ),
+    }),
+  );
+}
 
 export interface EvidenceReceiptArtifactInput {
   readonly kind: Exclude<
@@ -1063,6 +1124,8 @@ export class EvidenceReceiptConflictError extends Error {
 
 export class EvidenceReceiptUnavailableError extends Error {
   readonly code = "EVIDENCE_RECEIPT_UNAVAILABLE";
+  readonly status = 404;
+  readonly publicMessage = "Evidence receipt not found or not available.";
 
   constructor(message = "Evidence receipt is unavailable") {
     super(message);
@@ -1070,13 +1133,133 @@ export class EvidenceReceiptUnavailableError extends Error {
   }
 }
 
+export class EvidenceReceiptContentDeletedError extends Error {
+  readonly code = "EVIDENCE_RECEIPT_CONTENT_DELETED";
+  readonly status = 410;
+  readonly publicMessage =
+    "The retained artifact content was deleted. Immutable receipt metadata remains available for audit.";
+
+  constructor() {
+    super("Evidence receipt artifact content has a deletion tombstone");
+    this.name = "EvidenceReceiptContentDeletedError";
+  }
+}
+
+export class EvidenceReceiptDeletionDeniedError extends Error {
+  readonly code = "EVIDENCE_RECEIPT_DELETION_DENIED";
+  readonly status = 403;
+  readonly publicMessage =
+    "Retained evidence was not deleted because explicit human confirmation was missing or invalid.";
+
+  constructor(message: string) {
+    super(message);
+    this.name = "EvidenceReceiptDeletionDeniedError";
+  }
+}
+
+export const evidenceReceiptDeletionEventSchema = z
+  .object({
+    id: uuid,
+    workspaceId: uuid,
+    receiptId: uuid,
+    status: z.enum(["REQUESTED", "COMPLETED"]),
+    trigger: z.enum(["MANUAL", "RETENTION_EXPIRY"]),
+    reason: nonEmpty.max(2_000),
+    occurredAt: timestamp,
+    requestedBy: z.discriminatedUnion("kind", [
+      z
+        .object({ kind: z.literal("HUMAN"), actorId: nonEmpty.max(500) })
+        .strict(),
+      z
+        .object({
+          kind: z.literal("AUTOMATION"),
+          actorId: nonEmpty.max(500),
+        })
+        .strict(),
+    ]),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (
+      (value.trigger === "MANUAL" && value.requestedBy.kind !== "HUMAN") ||
+      (value.trigger === "RETENTION_EXPIRY" &&
+        value.requestedBy.kind !== "AUTOMATION")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["requestedBy", "kind"],
+        message: "Deletion actor must match the deletion trigger",
+      });
+    }
+  });
+export type EvidenceReceiptDeletionEvent = z.infer<
+  typeof evidenceReceiptDeletionEventSchema
+>;
+
+const deleteRetainedContentInputSchema = z
+  .object({
+    workspaceId: uuid,
+    receiptId: uuid,
+    confirmation: nonEmpty.max(100),
+    reason: nonEmpty.max(2_000),
+    requestedAt: timestamp,
+    requestedBy: z
+      .object({ kind: z.literal("HUMAN"), actorId: nonEmpty.max(500) })
+      .strict(),
+  })
+  .strict();
+export type DeleteRetainedContentInput = z.input<
+  typeof deleteRetainedContentInputSchema
+>;
+
+const setRetentionPolicyInputSchema = z
+  .object({
+    workspaceId: uuid,
+    retentionDays: z.number().int().min(1).max(365),
+    updatedAt: timestamp,
+    updatedBy: z
+      .object({ kind: z.literal("HUMAN"), actorId: nonEmpty.max(500) })
+      .strict(),
+  })
+  .strict();
+
+const purgeExpiredContentInputSchema = z
+  .object({
+    workspaceId: uuid,
+    asOf: timestamp,
+    requestedBy: z
+      .object({
+        kind: z.literal("AUTOMATION"),
+        actorId: nonEmpty.max(500),
+      })
+      .strict(),
+  })
+  .strict();
+
 export interface EvidenceReceiptRepository {
-  append(bundle: EvidenceReceiptBundle): Promise<void>;
-  get(workspaceId: string, receiptId: string): Promise<EvidenceReceiptBundle | undefined>;
+  append(bundle: StoredEvidenceReceiptBundle): Promise<void>;
+  get(
+    workspaceId: string,
+    receiptId: string,
+  ): Promise<StoredEvidenceReceiptBundle | undefined>;
   listForFinding(
     workspaceId: string,
     findingId: string,
-  ): Promise<readonly EvidenceReceiptBundle[]>;
+  ): Promise<readonly StoredEvidenceReceiptBundle[]>;
+  appendDeletionEvent(event: EvidenceReceiptDeletionEvent): Promise<void>;
+  listDeletionEvents(
+    workspaceId: string,
+    receiptId: string,
+  ): Promise<readonly EvidenceReceiptDeletionEvent[]>;
+  countRetainedArtifactReferences(sha256: string): Promise<number>;
+  appendRetentionPolicy(policy: EvidenceRetentionPolicy): Promise<void>;
+  getLatestRetentionPolicy(
+    workspaceId: string,
+  ): Promise<EvidenceRetentionPolicy | undefined>;
+  listRetainedCreatedBefore(
+    workspaceId: string,
+    cutoff: string,
+  ): Promise<readonly StoredEvidenceReceiptBundle[]>;
 }
 
 function receiptKey(workspaceId: string, receiptId: string): string {
@@ -1086,10 +1269,12 @@ function receiptKey(workspaceId: string, receiptId: string): string {
 export class InMemoryEvidenceReceiptRepository
   implements EvidenceReceiptRepository
 {
-  readonly #bundles = new Map<string, EvidenceReceiptBundle>();
+  readonly #bundles = new Map<string, StoredEvidenceReceiptBundle>();
+  readonly #deletionEvents = new Map<string, EvidenceReceiptDeletionEvent[]>();
+  readonly #retentionPolicies = new Map<string, EvidenceRetentionPolicy[]>();
 
-  append(candidate: EvidenceReceiptBundle): Promise<void> {
-    const bundle = evidenceReceiptBundleSchema.parse(candidate);
+  append(candidate: StoredEvidenceReceiptBundle): Promise<void> {
+    const bundle = storedEvidenceReceiptBundleSchema.parse(candidate);
     const key = receiptKey(bundle.receipt.workspaceId, bundle.receipt.id);
     if (this.#bundles.has(key)) {
       return Promise.reject(
@@ -1102,7 +1287,10 @@ export class InMemoryEvidenceReceiptRepository
     return Promise.resolve();
   }
 
-  get(workspaceId: string, receiptId: string): Promise<EvidenceReceiptBundle | undefined> {
+  get(
+    workspaceId: string,
+    receiptId: string,
+  ): Promise<StoredEvidenceReceiptBundle | undefined> {
     const bundle = this.#bundles.get(
       receiptKey(uuid.parse(workspaceId), uuid.parse(receiptId)),
     );
@@ -1112,7 +1300,7 @@ export class InMemoryEvidenceReceiptRepository
   listForFinding(
     workspaceId: string,
     findingId: string,
-  ): Promise<readonly EvidenceReceiptBundle[]> {
+  ): Promise<readonly StoredEvidenceReceiptBundle[]> {
     const parsedWorkspaceId = uuid.parse(workspaceId);
     const parsedFindingId = uuid.parse(findingId);
     return Promise.resolve(
@@ -1129,10 +1317,117 @@ export class InMemoryEvidenceReceiptRepository
         .map((bundle) => immutableClone(bundle)),
     );
   }
+
+  appendDeletionEvent(candidate: EvidenceReceiptDeletionEvent): Promise<void> {
+    const event = evidenceReceiptDeletionEventSchema.parse(candidate);
+    const key = receiptKey(event.workspaceId, event.receiptId);
+    if (!this.#bundles.has(key)) {
+      return Promise.reject(new EvidenceReceiptUnavailableError());
+    }
+    const existing = this.#deletionEvents.get(key) ?? [];
+    if (existing.some(({ status }) => status === event.status)) {
+      return Promise.reject(
+        new EvidenceReceiptConflictError(
+          `Evidence receipt deletion already has a ${event.status.toLowerCase()} event`,
+        ),
+      );
+    }
+    this.#deletionEvents.set(key, [...existing, immutableClone(event)]);
+    return Promise.resolve();
+  }
+
+  listDeletionEvents(
+    workspaceId: string,
+    receiptId: string,
+  ): Promise<readonly EvidenceReceiptDeletionEvent[]> {
+    const events =
+      this.#deletionEvents.get(
+        receiptKey(uuid.parse(workspaceId), uuid.parse(receiptId)),
+      ) ?? [];
+    return Promise.resolve(immutableClone(events));
+  }
+
+  countRetainedArtifactReferences(hashCandidate: string): Promise<number> {
+    const hash = sha256.parse(hashCandidate);
+    let count = 0;
+    for (const [key, bundle] of this.#bundles) {
+      if ((this.#deletionEvents.get(key)?.length ?? 0) > 0) continue;
+      if (bundle.artifacts.some((artifact) => artifact.sha256 === hash)) count += 1;
+    }
+    return Promise.resolve(count);
+  }
+
+  appendRetentionPolicy(candidate: EvidenceRetentionPolicy): Promise<void> {
+    const policy = evidenceRetentionPolicySchema.parse(candidate);
+    const existing = this.#retentionPolicies.get(policy.workspaceId) ?? [];
+    if (existing.some(({ updatedAt }) => updatedAt === policy.updatedAt)) {
+      return Promise.reject(
+        new EvidenceReceiptConflictError(
+          "Evidence retention policy timestamp already exists",
+        ),
+      );
+    }
+    this.#retentionPolicies.set(policy.workspaceId, [
+      ...existing,
+      immutableClone(policy),
+    ]);
+    return Promise.resolve();
+  }
+
+  getLatestRetentionPolicy(
+    workspaceId: string,
+  ): Promise<EvidenceRetentionPolicy | undefined> {
+    const policies = this.#retentionPolicies.get(uuid.parse(workspaceId)) ?? [];
+    const latest = [...policies].sort((left, right) =>
+      right.updatedAt.localeCompare(left.updatedAt),
+    )[0];
+    return Promise.resolve(latest ? immutableClone(latest) : undefined);
+  }
+
+  listRetainedCreatedBefore(
+    workspaceId: string,
+    cutoff: string,
+  ): Promise<readonly StoredEvidenceReceiptBundle[]> {
+    const parsedWorkspaceId = uuid.parse(workspaceId);
+    const parsedCutoff = timestamp.parse(cutoff);
+    return Promise.resolve(
+      [...this.#bundles.entries()]
+        .filter(
+          ([key, bundle]) =>
+            bundle.receipt.workspaceId === parsedWorkspaceId &&
+            bundle.receipt.createdAt <= parsedCutoff &&
+            (this.#deletionEvents.get(key)?.length ?? 0) === 0,
+        )
+        .map(([, bundle]) => immutableClone(bundle)),
+    );
+  }
 }
 
 interface ReceiptBundleRow {
-  readonly bundle: unknown;
+  readonly bundle_metadata: unknown;
+}
+
+interface DeletionEventRow {
+  readonly id: string;
+  readonly workspace_id: string;
+  readonly receipt_id: string;
+  readonly status: string;
+  readonly trigger: string;
+  readonly reason: string;
+  readonly occurred_at: string | Date;
+  readonly requested_by: unknown;
+}
+
+interface CountRow {
+  readonly count: string | number;
+}
+
+interface RetentionPolicyRow {
+  readonly workspace_id: string;
+  readonly retention_days: number;
+  readonly basis: string;
+  readonly updated_at: string | Date;
+  readonly updated_by: unknown;
 }
 
 interface ReceiptLineageRow {
@@ -1149,8 +1444,8 @@ export class PostgresEvidenceReceiptRepository
 {
   constructor(private readonly database: MigrationDatabase) {}
 
-  async append(candidate: EvidenceReceiptBundle): Promise<void> {
-    const bundle = evidenceReceiptBundleSchema.parse(candidate);
+  async append(candidate: StoredEvidenceReceiptBundle): Promise<void> {
+    const bundle = storedEvidenceReceiptBundleSchema.parse(candidate);
     const receipt = bundle.receipt;
     const lineage = await this.database.query<ReceiptLineageRow>(
       "SELECT f.state AS finding_state, rm.manifest_hash FROM findings f JOIN run_manifests rm ON rm.workspace_id = f.workspace_id AND rm.run_id = f.run_id WHERE f.workspace_id = $1 AND f.id = $2 AND f.run_id = $3",
@@ -1168,7 +1463,7 @@ export class PostgresEvidenceReceiptRepository
     }
     try {
       await this.database.query(
-        "INSERT INTO evidence_receipts (workspace_id, id, run_id, finding_id, manifest_hash, content_hash, artifact_hashes, supersedes_receipt_id, created_at, receipt_version, finding_state, run_manifest_hash, artifact_byte_lengths, supersedes_finding_id, bundle) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
+        "INSERT INTO evidence_receipts (workspace_id, id, run_id, finding_id, manifest_hash, content_hash, artifact_hashes, supersedes_receipt_id, created_at, receipt_version, finding_state, run_manifest_hash, artifact_byte_lengths, supersedes_finding_id, bundle_metadata) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
         [
           receipt.workspaceId,
           receipt.id,
@@ -1203,27 +1498,157 @@ export class PostgresEvidenceReceiptRepository
   async get(
     workspaceId: string,
     receiptId: string,
-  ): Promise<EvidenceReceiptBundle | undefined> {
+  ): Promise<StoredEvidenceReceiptBundle | undefined> {
     const result = await this.database.query<ReceiptBundleRow>(
-      "SELECT bundle FROM evidence_receipts WHERE workspace_id = $1 AND id = $2",
+      "SELECT bundle_metadata FROM evidence_receipts WHERE workspace_id = $1 AND id = $2",
       [uuid.parse(workspaceId), uuid.parse(receiptId)],
     );
-    const bundle = result.rows[0]?.bundle;
+    const bundle = result.rows[0]?.bundle_metadata;
     return bundle === undefined
       ? undefined
-      : immutableClone(evidenceReceiptBundleSchema.parse(jsonValue(bundle)));
+      : immutableClone(storedEvidenceReceiptBundleSchema.parse(jsonValue(bundle)));
   }
 
   async listForFinding(
     workspaceId: string,
     findingId: string,
-  ): Promise<readonly EvidenceReceiptBundle[]> {
+  ): Promise<readonly StoredEvidenceReceiptBundle[]> {
     const result = await this.database.query<ReceiptBundleRow>(
-      "SELECT bundle FROM evidence_receipts WHERE workspace_id = $1 AND (finding_id = $2 OR supersedes_finding_id = $2) ORDER BY created_at, id",
+      "SELECT bundle_metadata FROM evidence_receipts WHERE workspace_id = $1 AND (finding_id = $2 OR supersedes_finding_id = $2) ORDER BY created_at, id",
       [uuid.parse(workspaceId), uuid.parse(findingId)],
     );
-    return result.rows.map(({ bundle }) =>
-      immutableClone(evidenceReceiptBundleSchema.parse(jsonValue(bundle))),
+    return result.rows.map(({ bundle_metadata }) =>
+      immutableClone(
+        storedEvidenceReceiptBundleSchema.parse(jsonValue(bundle_metadata)),
+      ),
+    );
+  }
+
+  async appendDeletionEvent(candidate: EvidenceReceiptDeletionEvent): Promise<void> {
+    const event = evidenceReceiptDeletionEventSchema.parse(candidate);
+    try {
+      await this.database.query(
+        "INSERT INTO evidence_receipt_deletion_events (workspace_id, id, receipt_id, status, trigger, reason, occurred_at, requested_by) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+        [
+          event.workspaceId,
+          event.id,
+          event.receiptId,
+          event.status,
+          event.trigger,
+          event.reason,
+          event.occurredAt,
+          event.requestedBy,
+        ],
+      );
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        /duplicate|unique|already exists/iu.test(error.message)
+      ) {
+        throw new EvidenceReceiptConflictError(
+          `Evidence receipt deletion already has a ${event.status.toLowerCase()} event`,
+        );
+      }
+      throw error;
+    }
+  }
+
+  async listDeletionEvents(
+    workspaceId: string,
+    receiptId: string,
+  ): Promise<readonly EvidenceReceiptDeletionEvent[]> {
+    const result = await this.database.query<DeletionEventRow>(
+      "SELECT id, workspace_id, receipt_id, status, trigger, reason, occurred_at, requested_by FROM evidence_receipt_deletion_events WHERE workspace_id = $1 AND receipt_id = $2 ORDER BY occurred_at, status DESC",
+      [uuid.parse(workspaceId), uuid.parse(receiptId)],
+    );
+    return result.rows.map((row) =>
+      immutableClone(
+        evidenceReceiptDeletionEventSchema.parse({
+          id: row.id,
+          workspaceId: row.workspace_id,
+          receiptId: row.receipt_id,
+          status: row.status,
+          trigger: row.trigger,
+          reason: row.reason,
+          occurredAt:
+            row.occurred_at instanceof Date
+              ? row.occurred_at.toISOString()
+              : row.occurred_at,
+          requestedBy: jsonValue(row.requested_by),
+        }),
+      ),
+    );
+  }
+
+  async countRetainedArtifactReferences(hashCandidate: string): Promise<number> {
+    const result = await this.database.query<CountRow>(
+      "SELECT count(*) AS count FROM evidence_receipts er WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(er.bundle_metadata->'artifacts') artifact WHERE artifact->>'sha256' = $1) AND NOT EXISTS (SELECT 1 FROM evidence_receipt_deletion_events deletion WHERE deletion.workspace_id = er.workspace_id AND deletion.receipt_id = er.id)",
+      [sha256.parse(hashCandidate)],
+    );
+    return Number(result.rows[0]?.count ?? 0);
+  }
+
+  async appendRetentionPolicy(candidate: EvidenceRetentionPolicy): Promise<void> {
+    const policy = evidenceRetentionPolicySchema.parse(candidate);
+    try {
+      await this.database.query(
+        "INSERT INTO evidence_retention_policies (workspace_id, retention_days, basis, updated_at, updated_by) VALUES ($1, $2, $3, $4, $5)",
+        [
+          policy.workspaceId,
+          policy.retentionDays,
+          policy.basis,
+          policy.updatedAt,
+          policy.updatedBy,
+        ],
+      );
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        /duplicate|unique|already exists/iu.test(error.message)
+      ) {
+        throw new EvidenceReceiptConflictError(
+          "Evidence retention policy timestamp already exists",
+        );
+      }
+      throw error;
+    }
+  }
+
+  async getLatestRetentionPolicy(
+    workspaceId: string,
+  ): Promise<EvidenceRetentionPolicy | undefined> {
+    const result = await this.database.query<RetentionPolicyRow>(
+      "SELECT workspace_id, retention_days, basis, updated_at, updated_by FROM evidence_retention_policies WHERE workspace_id = $1 ORDER BY updated_at DESC LIMIT 1",
+      [uuid.parse(workspaceId)],
+    );
+    const row = result.rows[0];
+    if (!row) return undefined;
+    return immutableClone(
+      evidenceRetentionPolicySchema.parse({
+        workspaceId: row.workspace_id,
+        retentionDays: row.retention_days,
+        basis: row.basis,
+        updatedAt:
+          row.updated_at instanceof Date
+            ? row.updated_at.toISOString()
+            : row.updated_at,
+        updatedBy: jsonValue(row.updated_by),
+      }),
+    );
+  }
+
+  async listRetainedCreatedBefore(
+    workspaceId: string,
+    cutoff: string,
+  ): Promise<readonly StoredEvidenceReceiptBundle[]> {
+    const result = await this.database.query<ReceiptBundleRow>(
+      "SELECT er.bundle_metadata FROM evidence_receipts er WHERE er.workspace_id = $1 AND er.created_at <= $2 AND NOT EXISTS (SELECT 1 FROM evidence_receipt_deletion_events deletion WHERE deletion.workspace_id = er.workspace_id AND deletion.receipt_id = er.id) ORDER BY er.created_at, er.id",
+      [uuid.parse(workspaceId), timestamp.parse(cutoff)],
+    );
+    return result.rows.map(({ bundle_metadata }) =>
+      immutableClone(
+        storedEvidenceReceiptBundleSchema.parse(jsonValue(bundle_metadata)),
+      ),
     );
   }
 }
@@ -1231,6 +1656,7 @@ export class PostgresEvidenceReceiptRepository
 export interface EvidenceObjectStore {
   put(expectedSha256: string, bytes: Uint8Array): Promise<void>;
   get(expectedSha256: string): Promise<Uint8Array | undefined>;
+  delete(expectedSha256: string): Promise<void>;
 }
 
 export class InMemoryEvidenceObjectStore implements EvidenceObjectStore {
@@ -1256,6 +1682,11 @@ export class InMemoryEvidenceObjectStore implements EvidenceObjectStore {
   get(expectedSha256: string): Promise<Uint8Array | undefined> {
     const bytes = this.#objects.get(sha256.parse(expectedSha256));
     return Promise.resolve(bytes ? new Uint8Array(bytes) : undefined);
+  }
+
+  delete(expectedSha256: string): Promise<void> {
+    this.#objects.delete(sha256.parse(expectedSha256));
+    return Promise.resolve();
   }
 }
 
@@ -1369,13 +1800,27 @@ export class FileSystemEvidenceObjectStore implements EvidenceObjectStore {
       throw error;
     }
   }
+
+  async delete(expectedSha256: string): Promise<void> {
+    const objectPath = this.#objectPath(sha256.parse(expectedSha256));
+    await rm(objectPath, { force: true });
+  }
+}
+
+interface EvidenceReceiptServiceOptions {
+  readonly idFactory?: () => string;
 }
 
 export class EvidenceReceiptService {
+  readonly #idFactory: () => string;
+
   constructor(
     private readonly repository: EvidenceReceiptRepository,
     private readonly objectStore: EvidenceObjectStore,
-  ) {}
+    options: EvidenceReceiptServiceOptions = {},
+  ) {
+    this.#idFactory = options.idFactory ?? (() => randomUUID());
+  }
 
   async append(candidate: EvidenceReceiptBundle): Promise<void> {
     const bundle = evidenceReceiptBundleSchema.parse(candidate);
@@ -1405,34 +1850,199 @@ export class EvidenceReceiptService {
         Buffer.from(artifact.contentBase64, "base64"),
       );
     }
-    await this.repository.append(bundle);
+    await this.repository.append(toStoredEvidenceReceiptBundle(bundle));
   }
 
   async get(workspaceId: string, receiptId: string): Promise<EvidenceReceiptBundle> {
-    const bundle = await this.repository.get(workspaceId, receiptId);
-    if (!bundle) throw new EvidenceReceiptUnavailableError();
-    for (const artifact of bundle.artifacts) {
+    const stored = await this.repository.get(workspaceId, receiptId);
+    if (!stored) throw new EvidenceReceiptUnavailableError();
+    if (
+      (await this.repository.listDeletionEvents(workspaceId, receiptId)).length > 0
+    ) {
+      throw new EvidenceReceiptContentDeletedError();
+    }
+    const artifacts: EvidenceReceiptArtifact[] = [];
+    for (const artifact of stored.artifacts) {
       const bytes = await this.objectStore.get(artifact.sha256);
-      if (
-        !bytes ||
-        Buffer.from(bytes).toString("base64") !== artifact.contentBase64
-      ) {
+      if (!bytes || sha256Bytes(bytes) !== artifact.sha256) {
         throw new EvidenceReceiptIntegrityError(
           `Stored artifact ${artifact.path} is unavailable or corrupt`,
         );
       }
+      artifacts.push(
+        evidenceReceiptArtifactSchema.parse({
+          ...artifact,
+          contentBase64: Buffer.from(bytes).toString("base64"),
+        }),
+      );
+    }
+    const bundle = evidenceReceiptBundleSchema.parse({ ...stored, artifacts });
+    const verification = verifyEvidenceReceiptBundle(bundle);
+    if (verification.status !== "VALID") {
+      throw new EvidenceReceiptIntegrityError(
+        `Stored evidence receipt failed verification: ${verification.issues
+          .map(({ code }) => code)
+          .join(", ")}`,
+      );
     }
     return immutableClone(bundle);
   }
 
-  listForFinding(
+  async listForFinding(
     workspaceId: string,
     findingId: string,
   ): Promise<readonly EvidenceReceiptBundle[]> {
-    return this.repository.listForFinding(workspaceId, findingId);
+    const stored = await this.repository.listForFinding(workspaceId, findingId);
+    const active: EvidenceReceiptBundle[] = [];
+    for (const bundle of stored) {
+      const events = await this.repository.listDeletionEvents(
+        bundle.receipt.workspaceId,
+        bundle.receipt.id,
+      );
+      if (events.length === 0) {
+        active.push(
+          await this.get(bundle.receipt.workspaceId, bundle.receipt.id),
+        );
+      }
+    }
+    return immutableClone(active);
   }
 
   async exportSanitizedBundle(workspaceId: string, receiptId: string): Promise<string> {
     return serializeEvidenceReceiptBundle(await this.get(workspaceId, receiptId));
+  }
+
+  async getRetentionPolicy(workspaceId: string): Promise<EvidenceRetentionPolicy> {
+    const parsedWorkspaceId = uuid.parse(workspaceId);
+    const configured =
+      await this.repository.getLatestRetentionPolicy(parsedWorkspaceId);
+    if (configured) return immutableClone(configured);
+    return immutableClone(
+      evidenceRetentionPolicySchema.parse({
+        workspaceId: parsedWorkspaceId,
+        retentionDays: DEFAULT_EVIDENCE_RETENTION_DAYS,
+        basis: "PACTWIRE_PRODUCT_DEFAULT",
+        updatedAt: "1970-01-01T00:00:00.000Z",
+        updatedBy: {
+          kind: "AUTOMATION",
+          actorId: "pactwire-product-default",
+        },
+      }),
+    );
+  }
+
+  async setRetentionPolicy(
+    candidate: z.input<typeof setRetentionPolicyInputSchema>,
+  ): Promise<EvidenceRetentionPolicy> {
+    const input = setRetentionPolicyInputSchema.parse(candidate);
+    const policy = evidenceRetentionPolicySchema.parse({
+      ...input,
+      basis: "HUMAN_CONFIGURED",
+    });
+    await this.repository.appendRetentionPolicy(policy);
+    return immutableClone(policy);
+  }
+
+  async #purgeStoredContent(
+    stored: StoredEvidenceReceiptBundle,
+    input: Readonly<{
+      trigger: "MANUAL" | "RETENTION_EXPIRY";
+      reason: string;
+      occurredAt: string;
+      requestedBy:
+        | Readonly<{ kind: "HUMAN"; actorId: string }>
+        | Readonly<{ kind: "AUTOMATION"; actorId: string }>;
+    }>,
+  ): Promise<EvidenceReceiptDeletionEvent> {
+    const workspaceId = stored.receipt.workspaceId;
+    const receiptId = stored.receipt.id;
+    const existing = await this.repository.listDeletionEvents(
+      workspaceId,
+      receiptId,
+    );
+    const completed = existing.find(({ status }) => status === "COMPLETED");
+    if (completed) return immutableClone(completed);
+
+    const requested = existing.find(({ status }) => status === "REQUESTED");
+    const operationId = requested?.id ?? uuid.parse(this.#idFactory());
+    if (!requested) {
+      await this.repository.appendDeletionEvent(
+        evidenceReceiptDeletionEventSchema.parse({
+          id: operationId,
+          workspaceId,
+          receiptId,
+          status: "REQUESTED",
+          trigger: input.trigger,
+          reason: input.reason,
+          occurredAt: input.occurredAt,
+          requestedBy: input.requestedBy,
+        }),
+      );
+    }
+
+    for (const artifact of stored.artifacts) {
+      const retainedReferences =
+        await this.repository.countRetainedArtifactReferences(artifact.sha256);
+      if (retainedReferences === 0) {
+        await this.objectStore.delete(artifact.sha256);
+      }
+    }
+    const completedEvent = evidenceReceiptDeletionEventSchema.parse({
+      id: operationId,
+      workspaceId,
+      receiptId,
+      status: "COMPLETED",
+      trigger: input.trigger,
+      reason: input.reason,
+      occurredAt: input.occurredAt,
+      requestedBy: input.requestedBy,
+    });
+    await this.repository.appendDeletionEvent(completedEvent);
+    return immutableClone(completedEvent);
+  }
+
+  async deleteRetainedContent(
+    candidate: DeleteRetainedContentInput,
+  ): Promise<EvidenceReceiptDeletionEvent> {
+    const input = deleteRetainedContentInputSchema.parse(candidate);
+    if (input.confirmation !== `DELETE ${input.receiptId}`) {
+      throw new EvidenceReceiptDeletionDeniedError(
+        "Deletion confirmation did not name the exact evidence receipt",
+      );
+    }
+    const stored = await this.repository.get(input.workspaceId, input.receiptId);
+    if (!stored) throw new EvidenceReceiptUnavailableError();
+    return this.#purgeStoredContent(stored, {
+      trigger: "MANUAL",
+      reason: input.reason,
+      occurredAt: input.requestedAt,
+      requestedBy: input.requestedBy,
+    });
+  }
+
+  async purgeExpiredContent(
+    candidate: z.input<typeof purgeExpiredContentInputSchema>,
+  ): Promise<readonly EvidenceReceiptDeletionEvent[]> {
+    const input = purgeExpiredContentInputSchema.parse(candidate);
+    const policy = await this.getRetentionPolicy(input.workspaceId);
+    const cutoff = new Date(
+      new Date(input.asOf).getTime() - policy.retentionDays * 86_400_000,
+    ).toISOString();
+    const expired = await this.repository.listRetainedCreatedBefore(
+      input.workspaceId,
+      cutoff,
+    );
+    const completed: EvidenceReceiptDeletionEvent[] = [];
+    for (const stored of expired) {
+      completed.push(
+        await this.#purgeStoredContent(stored, {
+          trigger: "RETENTION_EXPIRY",
+          reason: "RETENTION_PERIOD_EXPIRED",
+          occurredAt: input.asOf,
+          requestedBy: input.requestedBy,
+        }),
+      );
+    }
+    return immutableClone(completed);
   }
 }

@@ -26,6 +26,7 @@ const permissions = [
   "EVIDENCE_REVIEW",
   "APPROVAL_RESTORE",
   "DESTINATION_CONFIRM",
+  "EVIDENCE_RETENTION_MANAGE",
 ] as const satisfies readonly WorkspacePermission[];
 
 function idFactory(): () => string {

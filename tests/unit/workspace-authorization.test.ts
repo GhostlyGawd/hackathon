@@ -109,6 +109,8 @@ describe("workspace server authorization", () => {
     expect(roleCan("TEST_OPERATOR", "ROLE_ASSIGN")).toBe(false);
     expect(roleCan("REVIEWER", "AUDIT_READ")).toBe(true);
     expect(roleCan("REVIEWER", "RUN_EXECUTE")).toBe(false);
+    expect(roleCan("PRIVACY_OFFICER", "EVIDENCE_RETENTION_MANAGE")).toBe(true);
+    expect(roleCan("REVIEWER", "EVIDENCE_RETENTION_MANAGE")).toBe(false);
   });
 
   it("does not let a forged active-workspace claim write into that workspace's audit", async () => {

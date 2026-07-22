@@ -88,6 +88,11 @@ const migrationFiles = [
     name: "approval_authority",
     fileName: "0015_approval_authority.sql",
   },
+  {
+    version: "0016",
+    name: "security_governance",
+    fileName: "0016_security_governance.sql",
+  },
 ] as const;
 
 export async function loadCoreMigrations(): Promise<readonly CoreMigration[]> {

@@ -14,6 +14,13 @@ const requireFromRoot = createRequire(
   path.join(repositoryRoot, "package.json"),
 );
 
+for (const directory of ["reports", "screenshots", "traces", "bundles"]) {
+  await mkdir(
+    path.join(repositoryRoot, "artifacts", "verification", "SEC-01", directory),
+    { recursive: true },
+  );
+}
+
 await mkdir(
   path.join(
     repositoryRoot,

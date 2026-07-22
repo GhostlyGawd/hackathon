@@ -220,11 +220,21 @@ async function finalizeRun(run, evidenceName) {
     resultPath,
     screenshotPath,
   };
+  const curatedTask = process.env.PACTWIRE_EVIDENCE_TASK;
   if (
     process.env.PACTWIRE_CAPTURE_CURATED_EVIDENCE === "1" &&
-    process.env.PACTWIRE_EVIDENCE_TASK === "RUN-03"
+    (curatedTask === "RUN-03" ||
+      (curatedTask === "SEC-01" &&
+        ["prompt-injection-blocked", "human-handoff-blocked"].includes(
+          evidenceName,
+        )))
   ) {
-    const curatedRoot = path.join(process.cwd(), "docs", "evidence", "RUN-03");
+    const curatedRoot = path.join(
+      process.cwd(),
+      "docs",
+      "evidence",
+      curatedTask,
+    );
     await mkdir(curatedRoot, { recursive: true });
     await Promise.all([
       copyFile(reportPath, path.join(curatedRoot, `${evidenceName}-recorder.json`)),

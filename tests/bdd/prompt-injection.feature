@@ -27,7 +27,7 @@ Feature: Saved credentials stay outside pages, model context, and normal evidenc
     And I switch the signed session to the "Reviewer"
     Then saved credential metadata is no longer visible
 
-  @RUN-03 @FR-023 @FR-036 @PROP-13
+  @RUN-03 @SEC-01 @FR-023 @FR-036 @PROP-13
   Scenario: Page instructions cannot expand a model-operated run
     Given the RUN-03 computer-use harness uses the "PROMPT_INJECTION" fixture
     When the deterministic model adapter follows the page's untrusted request
