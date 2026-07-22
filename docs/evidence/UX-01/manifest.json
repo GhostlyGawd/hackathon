@@ -2,17 +2,34 @@
   "schemaVersion": "1.0.0",
   "taskId": "UX-01",
   "title": "Build the product shell, inventory, and setup workflow",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [5, 9, 12],
   "functionalRequirements": ["FR-002", "FR-003", "FR-006", "FR-010", "FR-012", "FR-020", "FR-022"],
-  "sourceCommitSha": "edee755bb681fa3f8d1e3ed1d6dbe8545fd149ab",
+  "sourceCommitSha": "82bf741b4e53e6d44ec49ac240e580e745513e44",
   "startedAt": "2026-07-21T13:54:00.000Z",
+  "completedAt": "2026-07-21T20:04:45.000-04:00",
   "artifactRoot": "artifacts/verification/UX-01/",
   "curatedEvidenceRoot": "docs/evidence/UX-01/",
   "environment": {
-    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
     "node": "24.14.1",
-    "pnpm": "11.6.0"
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29878705897",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29878705897/job/88794677401",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29878705897/job/88794677369",
+          "status": "SUCCESS"
+        }
+      ]
+    }
   },
   "commands": [
     {
@@ -125,6 +142,35 @@
       "command": "pnpm verify",
       "exitCode": 0,
       "durationMs": 567200
+    },
+    {
+      "phase": "RED",
+      "name": "Windows clean-checkout session restore interception failure",
+      "command": "GitHub Actions CI run 29877593406, Verify on windows-latest",
+      "exitCode": 1,
+      "durationMs": 533000,
+      "expectedFailure": "The RUN-05 retry-lineage scenario reached the real Start session control while the BDD harness still held its globally intercepted session-restore request; the button remained disabled as Restoring session for Playwright's thirty-second action deadline. Ubuntu and the exact local source tree passed."
+    },
+    {
+      "phase": "GREEN",
+      "name": "Exact failed RUN-05 path repeated after removing the global interceptor",
+      "command": "Repeat 3x: PACTWIRE_BDD_TAGS=@RUN-05 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 42300
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete production browser matrix after session harness correction",
+      "command": "pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 253600
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout Ubuntu and Windows verification for the corrected source head",
+      "command": "GitHub Actions CI run 29878705897",
+      "exitCode": 0,
+      "durationMs": 443000
     }
   ],
   "testSummary": {
@@ -396,7 +442,6 @@
     "findings": []
   },
   "knownLimitations": [
-    "Clean-checkout GitHub Actions verification has not yet run successfully for this source commit, so UX-01 remains IN_PROGRESS.",
     "Run-ready means the saved fictional configuration has every named prerequisite; it is not evidence that a run occurred or that software is safe, compliant, or approved by Pactwire.",
     "The web product uses the controlled fictional fixture; production persistence and deployment are outside this task.",
     "Keyboard and automated WCAG A/AA checks pass, while comprehensive manual screen-reader and WCAG 2.2 review remains QLT-01."
