@@ -269,6 +269,7 @@ export function SyntheticDataPanel({
         message:
           "The server scan is clear, the .invalid address cannot receive mail, and the fictional-data attestation is recorded.",
       });
+      window.dispatchEvent(new Event("pactwire:setup-progress-changed"));
     } catch (error) {
       if (error instanceof SyntheticDataApiError && error.code === "LIKELY_REAL_DATA") {
         clearSubmittedValues();

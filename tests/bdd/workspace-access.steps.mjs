@@ -12,6 +12,7 @@ import {
   setDefaultTimeout,
   setWorldConstructor,
 } from "@cucumber/cucumber";
+import AxeBuilder from "@axe-core/playwright";
 import { chromium } from "@playwright/test";
 
 setDefaultTimeout(60_000);
@@ -67,6 +68,9 @@ function isExpectedAuthorizationFailure(response) {
       pathname.endsWith("/proposals") &&
       [422, 502].includes(response.status())) ||
     (method === "GET" &&
+      pathname.endsWith("/setup") &&
+      response.status() === 503) ||
+    (method === "GET" &&
       pathname ===
         "/api/workspaces/22222222-2222-4222-8222-222222222222" &&
       response.status() === 404)
@@ -94,12 +98,6 @@ class AccessWorld {
     this.page = await this.context.newPage();
     this.context.on("page", (openedPage) => {
       if (openedPage !== this.page) this.unexpectedPopupCount += 1;
-    });
-    await this.page.route("**/api/demo/session", async (route) => {
-      if (route.request().method() === "GET") {
-        await new Promise((resolve) => setTimeout(resolve, 350));
-      }
-      await route.continue();
     });
     this.page.on("console", (message) => {
       if (message.type() === "error") this.consoleErrors.push(message.text());
@@ -135,8 +133,10 @@ After(async function ({ result, pickle }) {
   try {
     if (result?.status === "FAILED" && this.page) {
       const slug = pickle.name.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-");
-      const taskId = pickle.tags.some((tag) => tag.name === "@DET-05")
-        ? "DET-05"
+      const taskId = pickle.tags.some((tag) => tag.name === "@UX-01")
+        ? "UX-01"
+        : pickle.tags.some((tag) => tag.name === "@DET-05")
+          ? "DET-05"
         : pickle.tags.some((tag) => tag.name === "@DET-04")
           ? "DET-04"
         : pickle.tags.some((tag) => tag.name === "@DET-03")
@@ -543,6 +543,294 @@ Then(
   },
 );
 
+When("I continue setup for {string}", async function (softwareName) {
+  const card = this.page
+    .getByTestId("software-card")
+    .filter({ hasText: softwareName });
+  await card.getByTestId("continue-setup").click();
+  await this.page.getByTestId("setup-workflow").waitFor();
+});
+
+Then("the inventory explains how to add the first software record", async function () {
+  const empty = this.page.getByTestId("inventory-empty");
+  await empty.getByText("No software matches this view", { exact: true }).waitFor();
+  await empty
+    .getByText("Add a school product or change the search and district-status filters.", {
+      exact: true,
+    })
+    .waitFor();
+});
+
+When("the setup service becomes temporarily unavailable", async function () {
+  this.setupRoutePattern = "**/api/workspaces/*/software/*/setup";
+  await this.page.route(this.setupRoutePattern, async (route) => {
+    await route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({
+        error: { message: "Saved setup status is temporarily unavailable." },
+      }),
+    });
+  });
+});
+
+Then("the setup explains that its saved status is unavailable", async function () {
+  const workflow = this.page.getByTestId("setup-workflow");
+  await workflow.getByRole("heading", { name: "Software setup" }).waitFor();
+  const alert = workflow.getByRole("alert");
+  await alert.getByText("Setup status unavailable", { exact: true }).waitFor();
+  await alert
+    .getByText("Saved setup status is temporarily unavailable.", { exact: true })
+    .waitFor();
+  await alert.getByRole("button", { name: "Try again" }).waitFor();
+});
+
+When("the setup service recovers and I retry", async function () {
+  await this.page.unroute(this.setupRoutePattern);
+  await this.page
+    .getByTestId("setup-workflow")
+    .getByRole("button", { name: "Try again" })
+    .click();
+});
+
+Then("all six setup steps are visible", async function () {
+  const steps = this.page.getByTestId("setup-step");
+  await steps.first().waitFor();
+  assert.equal(await steps.count(), 6);
+});
+
+Then(
+  "setup step {string} needs action",
+  async function (stepName) {
+    const step = this.page.getByTestId("setup-step").filter({ hasText: stepName });
+    await step.getByText("Needs action", { exact: true }).waitFor();
+  },
+);
+
+Then(
+  "setup step {string} explains that authorization is required first",
+  async function (stepName) {
+    const step = this.page.getByTestId("setup-step").filter({ hasText: stepName });
+    await step
+      .getByText("Complete Authorization and allowed scope first.", {
+        exact: true,
+      })
+      .waitFor();
+  },
+);
+
+When("I refresh the setup status", async function () {
+  await this.page.getByTestId("refresh-setup-status").click();
+});
+
+Then(
+  "setup step {string} is complete",
+  async function (stepName) {
+    const step = this.page.getByTestId("setup-step").filter({ hasText: stepName });
+    await step.getByText("Complete", { exact: true }).waitFor();
+  },
+);
+
+When("I reload the Pactwire page", async function () {
+  await this.page.reload();
+  await this.page.getByTestId("workspace-title").waitFor();
+});
+
+Then(
+  "setup for {string} is resumed from the URL",
+  async function (softwareName) {
+    assert.equal(new URL(this.page.url()).searchParams.has("setup"), true);
+    await this.page
+      .getByTestId("setup-workflow")
+      .getByText(softwareName, { exact: true })
+      .waitFor();
+  },
+);
+
+Then("the setup status identifies the original district source", async function () {
+  await this.page
+    .getByTestId("setup-status-provenance")
+    .getByText("Imported from Fictional Cedar Ridge App Registry", {
+      exact: true,
+    })
+    .waitFor();
+});
+
+Then("every setup step is complete", async function () {
+  const steps = this.page.getByTestId("setup-step");
+  await steps.first().waitFor();
+  assert.equal(await steps.count(), 6);
+  assert.equal(
+    await steps.getByText("Complete", { exact: true }).count(),
+    6,
+  );
+});
+
+Then(
+  "the setup is run-ready for a named fictional-data test",
+  async function () {
+    const workflow = this.page.getByTestId("setup-workflow");
+    await workflow.getByText("Run-ready", { exact: true }).waitFor();
+    await workflow
+      .getByText("Queue a named fictional-data test", { exact: true })
+      .waitFor();
+  },
+);
+
+Then(
+  "the inventory next safe action is {string}",
+  async function (actionLabel) {
+    await this.page
+      .getByTestId("software-card")
+      .filter({ hasText: "Northstar Classroom (Fictional)" })
+      .getByText(actionLabel, { exact: true })
+      .waitFor();
+  },
+);
+
+When(
+  "I select setup step {string} using only the keyboard",
+  async function (stepName) {
+    const buttons = this.page
+      .getByTestId("setup-step")
+      .getByRole("button");
+    await buttons.first().focus();
+    const targetIndex = await buttons.evaluateAll(
+      (elements, name) =>
+        elements.findIndex((element) => element.textContent?.includes(name)),
+      stepName,
+    );
+    assert.ok(targetIndex >= 0, `Unknown setup step: ${stepName}`);
+    for (let index = 0; index < targetIndex; index += 1) {
+      await this.page.keyboard.press("Tab");
+    }
+    await this.page.keyboard.press("Enter");
+  },
+);
+
+Then(
+  "setup step {string} is the current step",
+  async function (stepName) {
+    const button = this.page
+      .getByTestId("setup-step")
+      .filter({ hasText: stepName })
+      .getByRole("button");
+    await button.waitFor();
+    assert.equal(await button.getAttribute("aria-current"), "step");
+  },
+);
+
+Then(
+  "the setup has no automatically detectable WCAG A or AA violations",
+  async function () {
+    const popupCountBeforeAxe = this.unexpectedPopupCount;
+    const results = await new AxeBuilder({ page: this.page })
+      .include('[data-testid="setup-workflow"]')
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+      .analyze();
+    // @axe-core/playwright opens and closes one same-context about:blank page
+    // to merge partial results. It is test instrumentation, not a product popup.
+    assert.equal(this.context.pages().length, 1);
+    assert.equal(this.unexpectedPopupCount, popupCountBeforeAxe + 1);
+    this.unexpectedPopupCount = popupCountBeforeAxe;
+    assert.deepEqual(
+      results.violations.map((violation) => ({
+        id: violation.id,
+        impact: violation.impact,
+        nodes: violation.nodes.map((node) => node.target),
+      })),
+      [],
+    );
+  },
+);
+
+async function captureUx01(world, name, locator) {
+  const roots = [
+    path.join(
+      process.cwd(),
+      "artifacts",
+      "verification",
+      "UX-01",
+      "screenshots",
+    ),
+  ];
+  if (shouldCaptureCurated("UX-01")) {
+    roots.push(path.join(process.cwd(), "docs", "evidence", "UX-01"));
+  }
+  for (const root of roots) {
+    await locator.screenshot({ path: path.join(root, `${name}.png`) });
+  }
+}
+
+Then(
+  "I capture the UX-01 blocked setup and six-step evidence",
+  async function () {
+    const workflow = this.page.getByTestId("setup-workflow");
+    const steps = this.page.getByTestId("setup-step");
+    const names = [
+      "software",
+      "authorization",
+      "agreement",
+      "requirements",
+      "test-data",
+      "journey",
+    ];
+    await captureUx01(
+      this,
+      "inventory-desktop",
+      this.page.getByTestId("software-inventory"),
+    );
+    for (let index = 0; index < names.length; index += 1) {
+      await steps.nth(index).getByRole("button").click();
+      await captureUx01(
+        this,
+        `setup-step-${String(index + 1).padStart(2, "0")}-${names[index]}-desktop`,
+        workflow,
+      );
+    }
+    await this.page.setViewportSize({ width: 390, height: 844 });
+    await captureUx01(this, "setup-blocked-narrow", workflow);
+    await captureUx01(
+      this,
+      "inventory-narrow",
+      this.page.getByTestId("software-inventory"),
+    );
+    await this.page.setViewportSize({ width: 1440, height: 1100 });
+  },
+);
+
+Then(
+  "I capture the UX-01 authorization recovery evidence",
+  async function () {
+    await captureUx01(
+      this,
+      "setup-authorization-recovered-desktop",
+      this.page.getByTestId("setup-workflow"),
+    );
+  },
+);
+
+Then("I capture the UX-01 setup error evidence", async function () {
+  const workflow = this.page.getByTestId("setup-workflow");
+  await this.page.setViewportSize({ width: 390, height: 844 });
+  await captureUx01(this, "setup-error-narrow", workflow);
+  await this.page.setViewportSize({ width: 1440, height: 1100 });
+});
+
+Then(
+  "I capture the UX-01 run-ready setup and inventory evidence",
+  async function () {
+    const workflow = this.page.getByTestId("setup-workflow");
+    const inventory = this.page.getByTestId("software-inventory");
+    await captureUx01(this, "setup-run-ready-desktop", workflow);
+    await captureUx01(this, "inventory-run-ready-desktop", inventory);
+    await this.page.setViewportSize({ width: 390, height: 844 });
+    await captureUx01(this, "setup-run-ready-narrow", workflow);
+    await captureUx01(this, "inventory-run-ready-narrow", inventory);
+    await this.page.setViewportSize({ width: 1440, height: 1100 });
+  },
+);
+
 Given("the fictional Northstar software exists", async function () {
   await fillSoftwareForm(this, softwareFixtures.northstar, "APPROVED");
   const creationResponse = this.page.waitForResponse((response) => {
@@ -565,6 +853,18 @@ Given("the fictional Northstar software exists", async function () {
 });
 
 async function defineAuthorization(world, expired) {
+  await world.page.getByTestId("authorization-panel").waitFor();
+  await world.page
+    .getByTestId("authorization-software-select")
+    .locator("option")
+    .filter({ hasText: "Northstar Classroom (Fictional)" })
+    .waitFor({ state: "attached" });
+  await world.page.waitForFunction(() =>
+    Boolean(
+      globalThis.document.querySelector('[data-testid="authorization-form"]') ||
+        globalThis.document.querySelector('[data-testid="new-authorization"]'),
+    ),
+  );
   const form = world.page.getByTestId("authorization-form");
   if ((await form.count()) === 0) {
     await world.page.getByTestId("new-authorization").click();

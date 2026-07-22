@@ -94,11 +94,13 @@ const approvalLabels: Readonly<Record<ApprovalState, string>> = {
 interface SoftwareInventoryProps {
   readonly workspaceId: string;
   readonly principalUserId: string;
+  readonly onContinueSetup?: (softwareId: string) => void;
 }
 
 export function SoftwareInventory({
   workspaceId,
   principalUserId,
+  onContinueSetup,
 }: SoftwareInventoryProps) {
   const [items, setItems] = useState<readonly SoftwareInventoryItem[]>([]);
   const [approvalFilter, setApprovalFilter] = useState<"ALL" | ApprovalState>(
@@ -171,6 +173,30 @@ export function SoftwareInventory({
       active = false;
     };
   }, [fetchInventory, principalUserId]);
+
+  useEffect(() => {
+    const progressChanged = () => {
+      void fetchInventory()
+        .then((nextItems) => {
+          setItems(nextItems);
+          setLoadError(undefined);
+        })
+        .catch((error: unknown) => {
+          setLoadError(
+            error instanceof Error
+              ? error.message
+              : "Pactwire could not refresh this inventory.",
+          );
+        });
+    };
+    window.addEventListener("pactwire:setup-progress-changed", progressChanged);
+    return () => {
+      window.removeEventListener(
+        "pactwire:setup-progress-changed",
+        progressChanged,
+      );
+    };
+  }, [fetchInventory]);
 
   function clearForm(): void {
     setName("");
@@ -651,6 +677,16 @@ export function SoftwareInventory({
                   <strong>{item.nextSafeAction.label}</strong>
                 </div>
                 <span className="mono">{item.nextSafeAction.code}</span>
+                {onContinueSetup ? (
+                  <button
+                    className="secondary-button"
+                    data-testid="continue-setup"
+                    type="button"
+                    onClick={() => onContinueSetup(item.software.id)}
+                  >
+                    Continue setup
+                  </button>
+                ) : null}
               </div>
             </article>
           ))}

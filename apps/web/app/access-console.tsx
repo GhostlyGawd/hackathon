@@ -11,6 +11,7 @@ import { RunHistoryPanel } from "./run-history-panel";
 import { SoftwareInventory } from "./software-inventory";
 import { SyntheticDataPanel } from "./synthetic-data-panel";
 import { TestAuthorizationPanel } from "./test-authorization-panel";
+import { SetupWorkflow } from "./setup-workflow";
 
 type WorkspaceRole =
   | "PRIVACY_OFFICER"
@@ -214,6 +215,14 @@ export function AccessConsole() {
   const [feedback, setFeedback] = useState<Feedback>();
   const [busy, setBusy] = useState(false);
   const [sessionReady, setSessionReady] = useState(false);
+  const [setupSoftwareId, setSetupSoftwareId] = useState<string>();
+  const [setupStepId, setSetupStepId] = useState<string>();
+
+  useEffect(() => {
+    const parameters = new URLSearchParams(window.location.search);
+    setSetupSoftwareId(parameters.get("setup") ?? undefined);
+    setSetupStepId(parameters.get("step") ?? undefined);
+  }, []);
 
   const loadAudit = useCallback(
     async (
@@ -402,13 +411,15 @@ export function AccessConsole() {
           <span>Pactwire</span>
         </a>
         <nav aria-label="Primary navigation">
-          <a href="#overview">Overview</a>
-          <a href="#inventory" aria-current="page">
-            Inventory
-          </a>
+          <a href="#inventory">Inventory</a>
+          {setupSoftwareId ? (
+            <a href="#setup" aria-current="location">Setup</a>
+          ) : null}
           <a href="#authorization">Authorization</a>
+          <a href="#agreements">Agreement</a>
           <a href="#credentials">Credentials</a>
-          <a href="#synthetic-data" aria-current="page">Test data</a>
+          <a href="#synthetic-data">Test data</a>
+          <a href="#journeys">Journeys</a>
           <a href="#run-history">Runs</a>
           <a href="#approval">Approval</a>
         </nav>
@@ -420,45 +431,49 @@ export function AccessConsole() {
       <main id="main">
         <section className="hero" id="overview">
           <div className="hero-copy">
-            <p className="eyebrow">Fictional users and canaries / JRN-01</p>
-            <h1>Create fictional test users without entering real student data.</h1>
+            <p className="eyebrow">Agreement-to-behavior checks</p>
+            <h1>
+              Check whether school software sends student information beyond
+              what the district allowed.
+            </h1>
             <p className="lede">
-              Pactwire blocks likely real identifiers, requires a fictional-data
-              confirmation, and gives each selected field a different traceable
-              value for one prepared run.
+              Pactwire runs authorized tests with fictional student and teacher
+              accounts, records where test data goes, and compares those
+              observations with rules a person confirmed from the district&apos;s
+              agreement.
             </p>
             <div className="principle-row">
               <span>
-                <ShieldIcon /> Human-attested authority
+                <ShieldIcon /> Human-confirmed agreement rules
               </span>
               <span>
-                <AuditIcon /> Every denial recorded
+                <AuditIcon /> Recorded browser evidence
               </span>
             </div>
           </div>
-          <div className="decision-flow" aria-label="District status provenance flow">
-            <p className="flow-label">Before every automated test</p>
+          <div className="decision-flow" aria-label="Pactwire test evidence flow">
+            <p className="flow-label">What Pactwire connects</p>
             <div className="flow-step">
               <span className="step-index">01</span>
               <div>
-                <strong>Block likely real data</strong>
-                <span>Routable addresses and identifier patterns never persist</span>
+                <strong>Confirm what the agreement allows</strong>
+                <span>A person checks every executable rule against cited text</span>
               </div>
             </div>
             <ArrowIcon />
             <div className="flow-step">
               <span className="step-index">02</span>
               <div>
-                <strong>Confirm fictional users</strong>
-                <span>Teacher and student profiles use reserved .invalid addresses</span>
+                <strong>Replay an authorized fictional activity</strong>
+                <span>The runner stays inside the named tenant and action scope</span>
               </div>
             </div>
             <ArrowIcon />
             <div className="flow-step emphasized">
               <span className="step-index">03</span>
               <div>
-                <strong>Trace one run</strong>
-                <span>Every selected field maps to one immutable, non-reused canary</span>
+                <strong>Review the recorded data flow</strong>
+                <span>Observed conflicts stay tied to one rule and named test</span>
               </div>
             </div>
           </div>
@@ -561,18 +576,29 @@ export function AccessConsole() {
               <SoftwareInventory
                 workspaceId={principal.activeWorkspaceId}
                 principalUserId={principal.userId}
+                onContinueSetup={(softwareId) => {
+                  setSetupSoftwareId(softwareId);
+                  setSetupStepId(undefined);
+                }}
               />
-              <AgreementIntakePanel
-                key={`agreement:${principal.activeWorkspaceId}:${principal.userId}`}
-                workspaceId={principal.activeWorkspaceId}
-                principalUserId={principal.userId}
-              />
+              {setupSoftwareId ? (
+                <SetupWorkflow
+                  key={`setup:${principal.activeWorkspaceId}:${setupSoftwareId}`}
+                  workspaceId={principal.activeWorkspaceId}
+                  softwareId={setupSoftwareId}
+                  {...(setupStepId ? { initialStepId: setupStepId } : {})}
+                  onClose={() => {
+                    setSetupSoftwareId(undefined);
+                    setSetupStepId(undefined);
+                  }}
+                />
+              ) : null}
               <TestAuthorizationPanel
                 workspaceId={principal.activeWorkspaceId}
                 principalUserId={principal.userId}
               />
-              <SecretIsolationPanel
-                key={`${principal.activeWorkspaceId}:${principal.userId}`}
+              <AgreementIntakePanel
+                key={`agreement:${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
                 principalUserId={principal.userId}
               />
@@ -584,6 +610,11 @@ export function AccessConsole() {
               <JourneyAuthoringPanel
                 key={`journey:${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
+              />
+              <SecretIsolationPanel
+                key={`${principal.activeWorkspaceId}:${principal.userId}`}
+                workspaceId={principal.activeWorkspaceId}
+                principalUserId={principal.userId}
               />
               <DestinationRegistryPanel
                 key={`destinations:${principal.activeWorkspaceId}:${principal.userId}`}

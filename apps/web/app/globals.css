@@ -3555,6 +3555,260 @@ button:disabled {
   font-size: 8px;
 }
 
+.next-action-row .secondary-button {
+  flex: 0 0 auto;
+}
+
+.setup-workflow {
+  padding: 38px 36px 42px;
+  border-top: 1px solid var(--line);
+  background:
+    linear-gradient(155deg, rgba(99, 216, 229, 0.055), transparent 36rem),
+    #0b1117;
+  scroll-margin-top: 24px;
+}
+
+.setup-heading,
+.setup-heading-actions,
+.setup-summary,
+.setup-step-detail,
+.setup-state {
+  display: flex;
+  align-items: center;
+}
+
+.setup-heading {
+  gap: 28px;
+  justify-content: space-between;
+}
+
+.setup-heading > div:first-child {
+  max-width: 760px;
+}
+
+.setup-heading h2,
+.setup-step-detail h3 {
+  margin: 0;
+  letter-spacing: -0.035em;
+}
+
+.setup-heading h2 {
+  font-size: clamp(25px, 3vw, 38px);
+  font-weight: 520;
+}
+
+.setup-heading > div:first-child > p:last-child {
+  max-width: 720px;
+  margin: 11px 0 0;
+  color: var(--muted);
+}
+
+.setup-heading-actions {
+  flex: 0 0 auto;
+  gap: 10px;
+}
+
+.setup-state {
+  gap: 14px;
+  justify-content: space-between;
+  min-height: 88px;
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.setup-state.danger {
+  border-color: rgba(255, 143, 145, 0.42);
+  background: var(--red-soft);
+}
+
+.setup-state p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.setup-summary {
+  display: grid;
+  grid-template-columns: 0.85fr 1.4fr 1fr;
+  margin-top: 26px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(7, 11, 15, 0.55);
+}
+
+.setup-summary > div {
+  min-width: 0;
+  padding: 17px 18px;
+  border-right: 1px solid var(--line);
+}
+
+.setup-summary > div:last-child {
+  border-right: 0;
+}
+
+.setup-summary span,
+.setup-summary small {
+  display: block;
+  color: var(--faint);
+  font-size: 10px;
+}
+
+.setup-summary > div > span {
+  margin-bottom: 5px;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.setup-summary strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.setup-summary small {
+  margin-top: 5px;
+}
+
+.setup-summary .run-ready strong {
+  color: var(--green);
+}
+
+.setup-summary .next-required strong {
+  color: var(--amber);
+}
+
+.setup-progress-track {
+  height: 4px;
+  margin-top: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.setup-progress-track span {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--cyan);
+  transition: width 180ms ease;
+}
+
+.setup-steps {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.setup-step {
+  min-width: 0;
+}
+
+.setup-step button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  width: 100%;
+  min-height: 86px;
+  padding: 13px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.setup-step button:hover,
+.setup-step.active button {
+  border-color: var(--line-strong);
+  background: var(--surface-raised);
+}
+
+.setup-step.active button {
+  box-shadow: inset 0 -2px 0 var(--cyan);
+}
+
+.setup-step-number {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.setup-step-copy {
+  min-width: 0;
+}
+
+.setup-step-copy strong,
+.setup-step-copy small {
+  display: block;
+}
+
+.setup-step-copy strong {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.setup-step-copy small {
+  margin-top: 8px;
+  color: var(--muted);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.setup-step-copy .setup-step-blocker {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.setup-step.complete .setup-step-copy small {
+  color: var(--green);
+}
+
+.setup-step.action-required .setup-step-copy small {
+  color: var(--amber);
+}
+
+.setup-step-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.78fr);
+  gap: 34px;
+  margin-top: 10px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(7, 11, 15, 0.72);
+}
+
+.setup-step-detail h3 {
+  font-size: 22px;
+  font-weight: 540;
+}
+
+.setup-step-detail > div:first-child > p:last-child,
+.setup-step-decision p {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.setup-step-decision {
+  padding-left: 22px;
+  border-left: 1px solid var(--line);
+}
+
+.setup-step-decision .primary-button {
+  margin-top: 16px;
+}
+
 .agreement-panel {
   padding: 38px 36px 42px;
   border-top: 1px solid var(--line);
@@ -6414,6 +6668,23 @@ footer {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .setup-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .setup-summary > div:nth-child(2) {
+    border-right: 0;
+  }
+
+  .setup-summary > div:last-child {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--line);
+  }
+
+  .setup-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .software-facts > div:nth-child(2) {
     border-right: 0;
   }
@@ -6524,6 +6795,70 @@ footer {
 
   .inventory-panel {
     padding: 22px 16px;
+  }
+
+  .setup-workflow {
+    padding: 27px 16px 31px;
+  }
+
+  .setup-heading,
+  .setup-heading-actions {
+    align-items: stretch;
+  }
+
+  .setup-heading {
+    display: grid;
+  }
+
+  .setup-heading-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .setup-summary,
+  .setup-step-detail {
+    grid-template-columns: 1fr;
+  }
+
+  .setup-summary > div,
+  .setup-summary > div:nth-child(2) {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .setup-summary > div:last-child {
+    grid-column: auto;
+    border-top: 0;
+    border-bottom: 0;
+  }
+
+  .setup-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .setup-step button {
+    min-height: 0;
+  }
+
+  .setup-step-detail {
+    gap: 18px;
+    padding: 18px 14px;
+  }
+
+  .setup-step-decision {
+    padding: 18px 0 0;
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+
+  .setup-step-decision .primary-button,
+  .next-action-row .secondary-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .next-action-row {
+    flex-wrap: wrap;
   }
 
   .agreement-panel {

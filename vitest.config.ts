@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
 const project = (name: string, include: string[]) => ({
@@ -14,11 +15,16 @@ const project = (name: string, include: string[]) => ({
           maxWorkers: 4,
           testTimeout: 30_000,
         }
+      : name === "property"
+        ? {
+            maxWorkers: 1,
+          }
       : {}),
   },
 });
 
 export default defineConfig({
+  plugins: [react()],
   resolve: {
     alias: {
       "@pactwire/core": fileURLToPath(

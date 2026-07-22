@@ -32,10 +32,12 @@
     "verify": "pnpm workspace:check && pnpm toolchain:check && pnpm evidence:check && pnpm domain:evidence:check && pnpm lint && pnpm typecheck && pnpm build && pnpm test:unit && pnpm test:property && pnpm test:integration && pnpm test:bdd -- --production && pnpm test:e2e && pnpm test:security && pnpm test:a11y"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@cucumber/cucumber": "13.1.1",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.61.1",
     "@types/node": "26.1.1",
+    "@vitejs/plugin-react": "^6.0.3",
     "@vitest/coverage-v8": "4.1.10",
     "eslint": "10.7.0",
     "fast-check": "4.9.0",

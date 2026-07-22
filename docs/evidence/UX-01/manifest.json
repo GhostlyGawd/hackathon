@@ -1,0 +1,450 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "UX-01",
+  "title": "Build the product shell, inventory, and setup workflow",
+  "status": "COMPLETE",
+  "prdSections": [5, 9, 12],
+  "functionalRequirements": ["FR-002", "FR-003", "FR-006", "FR-010", "FR-012", "FR-020", "FR-022"],
+  "sourceCommitSha": "82bf741b4e53e6d44ec49ac240e580e745513e44",
+  "startedAt": "2026-07-21T13:54:00.000Z",
+  "completedAt": "2026-07-21T20:04:45.000-04:00",
+  "artifactRoot": "artifacts/verification/UX-01/",
+  "curatedEvidenceRoot": "docs/evidence/UX-01/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29878705897",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29878705897/job/88794677401",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29878705897/job/88794677369",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Missing setup workflow domain module",
+      "command": "pnpm exec vitest run --project unit tests/unit/setup-workflow.test.ts --project property tests/property/setup-workflow.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "The focused suites could not import the not-yet-created setup-workflow module"
+    },
+    {
+      "phase": "RED",
+      "name": "Missing resumable setup browser control",
+      "command": "PACTWIRE_BDD_TAGS=@UX-01 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "The browser timed out waiting for the not-yet-implemented continue-setup control"
+    },
+    {
+      "phase": "RED",
+      "name": "Shrunk untrusted-summary counterexample",
+      "command": "pnpm exec vitest run --project property tests/property/setup-workflow.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "Fast Check shrank arbitrary model prose to one whitespace character; that exact case is now a permanent example regression"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Focused examples, properties, component, and HTTP boundary",
+      "command": "Focused UX-01 unit, property, component, and integration Vitest commands",
+      "exitCode": 0,
+      "durationMs": 7000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "TypeScript and lint gates",
+      "command": "pnpm typecheck and pnpm lint",
+      "exitCode": 0,
+      "durationMs": 45800
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Four optimized-production UX-01 browser stories",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=UX-01 PACTWIRE_BDD_TAGS=@UX-01 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 43000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Optimized production build",
+      "command": "pnpm build",
+      "exitCode": 0,
+      "durationMs": 51700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Production dependency audit",
+      "command": "pnpm audit --prod",
+      "exitCode": 0,
+      "durationMs": 3700
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory required UX-01 totals",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts --reporter=dot",
+      "exitCode": 1,
+      "durationMs": 1480,
+      "expectedFailure": "The repository inventory still expected seventeen manifests and 172 proof files after UX-01 added the eighteenth manifest and nine unique proof paths"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Evidence schema, traceability, and inventory reconciliation",
+      "command": "pnpm evidence:check and pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts --reporter=dot",
+      "exitCode": 0,
+      "durationMs": 5700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete local optimized-production repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 449138
+    },
+    {
+      "phase": "RED",
+      "name": "Latest-main property matrix exceeded existing test deadlines under parallel load",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 170800,
+      "expectedFailure": "DET-04 PROP-10 crossed its five-second deadline and DET-05 PROP-02 crossed its twenty-second deadline while 24 property files competed for the default worker pool; neither invariant produced a counterexample"
+    },
+    {
+      "phase": "RED",
+      "name": "Four property workers still starved the longest generated sequence",
+      "command": "pnpm test:property",
+      "exitCode": 1,
+      "durationMs": 40900,
+      "expectedFailure": "DET-05 PROP-02 reached 25.9 seconds with four property workers, proving that a partial worker cap did not make the unchanged 500-run property deterministic"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Two complete serial property matrices with unchanged seeds, run counts, and deadlines",
+      "command": "Repeat 2x: pnpm test:property",
+      "exitCode": 0,
+      "durationMs": 128100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete security-patched latest-main optimized-production repository verification",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 567200
+    },
+    {
+      "phase": "RED",
+      "name": "Windows clean-checkout session restore interception failure",
+      "command": "GitHub Actions CI run 29877593406, Verify on windows-latest",
+      "exitCode": 1,
+      "durationMs": 533000,
+      "expectedFailure": "The RUN-05 retry-lineage scenario reached the real Start session control while the BDD harness still held its globally intercepted session-restore request; the button remained disabled as Restoring session for Playwright's thirty-second action deadline. Ubuntu and the exact local source tree passed."
+    },
+    {
+      "phase": "GREEN",
+      "name": "Exact failed RUN-05 path repeated after removing the global interceptor",
+      "command": "Repeat 3x: PACTWIRE_BDD_TAGS=@RUN-05 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 42300
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete production browser matrix after session harness correction",
+      "command": "pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 253600
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout Ubuntu and Windows verification for the corrected source head",
+      "command": "GitHub Actions CI run 29878705897",
+      "exitCode": 0,
+      "durationMs": 443000
+    }
+  ],
+  "testSummary": {
+    "files": 101,
+    "passed": 390,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "UX-01-stored-provenance-ignores-model-summary",
+        "seed": 20260720,
+        "numRuns": 500,
+        "passed": true,
+        "counterexample": "A one-space model summary is preserved as an example regression and cannot affect status provenance"
+      },
+      {
+        "id": "UX-01-run-readiness-requires-every-prerequisite",
+        "seed": 20260720,
+        "numRuns": 500,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "software-inventory.feature",
+        "scenario": "A privacy officer can leave and resume an authorized software setup",
+        "passed": true
+      },
+      {
+        "feature": "software-inventory.feature",
+        "scenario": "A new privacy officer reaches an honestly run-ready configuration",
+        "passed": true
+      },
+      {
+        "feature": "software-inventory.feature",
+        "scenario": "The setup workflow works by keyboard and exposes accessible state names",
+        "passed": true
+      },
+      {
+        "feature": "software-inventory.feature",
+        "scenario": "Empty inventory and a temporary setup error explain how to recover",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "rationale": "UX-01 changes the primary inventory and setup experience, including sequential blockers, recovery, and responsive layouts. Fifteen source-bound optimized-production screenshots preserve every setup step plus desktop and narrow transition states.",
+    "assets": [
+      {
+        "path": "docs/evidence/UX-01/inventory-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:14:51.602Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop software inventory with one fictional Northstar record, imported district approval provenance, neutral no-run wording, and a define-authorization next action.",
+        "caption": "The default inventory names the district status source and next safe action without treating Pactwire as the approver.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      },
+      {
+        "path": "docs/evidence/UX-01/setup-step-01-software-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:14:52.010Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop guided setup with software and district status selected as complete and authorization identified as the first missing prerequisite.",
+        "caption": "Step one binds the exact fictional software record to its stored district provenance.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      },
+      {
+        "path": "docs/evidence/UX-01/setup-step-02-authorization-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:14:52.400Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop guided setup with authorization selected as needs action and all four later configuration steps explicitly blocked.",
+        "caption": "No current test authority exists, so the setup directs the user to define tenant, action, and time scope.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      },
+      {
+        "path": "docs/evidence/UX-01/setup-step-03-agreement-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:14:52.799Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop guided setup with agreement upload selected and disabled until the earlier authorization step is complete.",
+        "caption": "The agreement step remains visible while its earlier authorization prerequisite is explained and enforced.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      },
+      {
+        "path": "docs/evidence/UX-01/setup-step-04-requirements-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:14:53.224Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop guided setup with human requirement confirmation selected and blocked by the earlier authorization prerequisite.",
+        "caption": "The screen states that a person must confirm an executable agreement rule, while preserving the sequential blocker.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      },
+      {
+        "path": "docs/evidence/UX-01/setup-step-05-test-data-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:14:53.624Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop guided setup with fictional accounts and test fields selected and blocked by the earlier authorization prerequisite.",
+        "caption": "The test-data step directly requires a fictional account with a test field and cannot bypass earlier setup work.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      },
+      {
+        "path": "docs/evidence/UX-01/setup-step-06-journey-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:14:53.983Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop guided setup with journeys and required visibility selected and blocked by the earlier authorization prerequisite.",
+        "caption": "The final step requires a runnable named journey with visible checkpoints and preserves the upstream blocker.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      },
+      {
+        "path": "docs/evidence/UX-01/setup-blocked-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:14:54.285Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow guided setup showing all six steps, authorization as needs action, later steps blocked, and the disabled out-of-order journey action.",
+        "caption": "The complete blocker chain remains readable and operable without horizontal clipping at the narrow viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      },
+      {
+        "path": "docs/evidence/UX-01/inventory-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:14:54.572Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow software inventory showing fictional Northstar metadata, imported district status source, neutral test counts, and the continue-setup action.",
+        "caption": "Inventory provenance, counts, blockers, and the primary action stack cleanly on a narrow screen.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      },
+      {
+        "path": "docs/evidence/UX-01/setup-authorization-recovered-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:14:58.217Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop guided setup after recovery with authorization complete, two of six steps complete, and agreement upload promoted to the next safe action.",
+        "caption": "After current authority is saved, the server-derived workflow advances exactly one prerequisite to agreement upload.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      },
+      {
+        "path": "docs/evidence/UX-01/setup-run-ready-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:15:09.431Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop guided setup with all six prerequisites complete and a run-ready action to queue one named fictional-data test.",
+        "caption": "Run-ready appears only after the complete persisted prerequisite chain closes with a visible runnable journey.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      },
+      {
+        "path": "docs/evidence/UX-01/inventory-run-ready-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:15:09.754Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop software inventory with agreement version one, authorization review date, and queue-a-named-test as the next safe action.",
+        "caption": "The inventory refreshes from saved configuration and exposes the named-test action without claiming that a test has run.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      },
+      {
+        "path": "docs/evidence/UX-01/setup-run-ready-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:15:10.121Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow guided setup with six of six complete, stored district provenance, run-ready configuration, and the saved journey detail.",
+        "caption": "The complete deterministic setup state remains readable and actionable at a narrow viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      },
+      {
+        "path": "docs/evidence/UX-01/inventory-run-ready-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:15:10.446Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow run-ready inventory with fictional software identity, agreement version, review date, named-test action, and no-run neutral wording.",
+        "caption": "All inventory facts and the next safe action remain visible without a misleading sampled-run result.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      },
+      {
+        "path": "docs/evidence/UX-01/setup-error-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-21T16:15:18.908Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow software setup failure state with direct saved-status-unavailable copy and a visible Try again control.",
+        "caption": "A temporary setup API failure is labeled as an error, retains the setup shell, and offers a tested retry without claiming it is still loading.",
+        "provenance": "captured",
+        "sourceCommitSha": "addb4a04744bf20074c79bfc36fc56d12db45db5"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "schema",
+      "path": "packages/core/src/setup-workflow.ts",
+      "description": "Strict six-step readiness derivation, sequential blockers, stored status provenance, and immutable view output"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/setup-workflow.test.ts",
+      "description": "Visible-step, stored-provenance, complete-readiness, and expired-authorization examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/setup-workflow.property.test.ts",
+      "description": "Fixed-seed status non-interference and complete-prerequisite readiness properties plus the shrunk whitespace regression"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/setup-workflow-route.test.ts",
+      "description": "Signed HTTP aggregation, persisted authorization refresh, inventory next action, and target-neutral missing record"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/unit/setup-workflow-component.test.ts",
+      "description": "Accessible named loading state and refresh control rendering"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/software-inventory.feature",
+      "description": "Resume, complete run-ready, keyboard/Axe, and empty/error/retry user workflows"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/workspace-access.steps.mjs",
+      "description": "Real Next.js, API, fixture, keyboard, Axe, responsive capture, and source-bound evidence bindings"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/lib/setup-workflow-runtime.ts",
+      "description": "Read-only aggregation of persisted authorization, agreement, human requirement, persona, and journey facts"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/setup-workflow.tsx",
+      "description": "Resumable responsive workflow, URL state, progress, blocker, provenance, loading, error, and retry interface"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/api/workspaces/[workspaceId]/software/[softwareId]/setup/route.ts",
+      "description": "Authenticated, target-neutral, private no-store setup read boundary"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/UX-01/README.md",
+      "description": "Curated red/green record, visual catalog, remaining CI gate, and bounded product claim"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-21T16:15:49.524Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "Run-ready means the saved fictional configuration has every named prerequisite; it is not evidence that a run occurred or that software is safe, compliant, or approved by Pactwire.",
+    "The web product uses the controlled fictional fixture; production persistence and deployment are outside this task.",
+    "Keyboard and automated WCAG A/AA checks pass, while comprehensive manual screen-reader and WCAG 2.2 review remains QLT-01."
+  ],
+  "reviewer": "codex-agent"
+}

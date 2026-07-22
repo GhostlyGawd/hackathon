@@ -53,9 +53,10 @@ pnpm verify
 The workspace contains the Next.js web service, browser-runner service, controlled fixture, core domain package, evidence package, and shared testkit. Deterministic database tests use an isolated embedded PostgreSQL service; evidence-storage tests use an isolated temporary filesystem adapter. Docker is not required for the foundation test suite.
 
 Pactwire remains incomplete. The current web demo implements signed fictional
-sessions, software inventory, immutable agreement intake, and non-executable
-requirement proposals with exact source citations. Follow task status and
-acceptance evidence in the [implementation plan](docs/IMPLEMENTATION_PLAN.md).
+sessions, software inventory, a verified resumable six-step setup workflow,
+immutable agreement intake, and non-executable requirement proposals with exact
+source citations. Follow task status and acceptance evidence in the
+[implementation plan](docs/IMPLEMENTATION_PLAN.md).
 
 Requirement proposals use the deterministic fixture adapter by default so local
 development and CI are repeatable. To exercise the real server-side Responses

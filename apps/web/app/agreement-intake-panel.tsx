@@ -325,10 +325,20 @@ export function AgreementIntakePanel({
         });
       });
     };
+    const setupSelected = (event: Event) => {
+      const selected = (event as CustomEvent<{ softwareId?: unknown }>).detail
+        ?.softwareId;
+      if (typeof selected === "string") setSoftwareId(selected);
+    };
     window.addEventListener("pactwire:inventory-changed", inventoryChanged);
+    window.addEventListener("pactwire:setup-software-selected", setupSelected);
     return () => {
       active = false;
       window.removeEventListener("pactwire:inventory-changed", inventoryChanged);
+      window.removeEventListener(
+        "pactwire:setup-software-selected",
+        setupSelected,
+      );
     };
   }, [loadSoftware, principalUserId]);
 
@@ -440,6 +450,7 @@ export function AgreementIntakePanel({
           : "Pactwire stored the exact original bytes and a page map for independent source checks.",
         auditRecorded: true,
       });
+      window.dispatchEvent(new Event("pactwire:setup-progress-changed"));
     } catch (error) {
       const requestError = error instanceof AgreementApiError ? error : undefined;
       setNotice({
@@ -557,6 +568,7 @@ export function AgreementIntakePanel({
             : "This decision remains non-executable. The original model proposal is still preserved in version history.",
         auditRecorded: true,
       });
+      window.dispatchEvent(new Event("pactwire:setup-progress-changed"));
     } catch (error) {
       const requestError = error instanceof AgreementApiError ? error : undefined;
       if (requestError?.code === "REQUIREMENT_REVIEW_CONFLICT") {
