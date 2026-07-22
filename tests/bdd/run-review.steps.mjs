@@ -75,7 +75,9 @@ Then(
     await image.waitFor();
     assert.equal(
       await image.evaluate(async (candidate) => {
-        if (!(candidate instanceof HTMLImageElement)) return false;
+        if (candidate.tagName !== "IMG" || typeof candidate.decode !== "function") {
+          return false;
+        }
         try {
           await candidate.decode();
         } catch {

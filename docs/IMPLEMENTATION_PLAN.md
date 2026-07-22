@@ -254,7 +254,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | DET-05 | P0 + P1 follow-on | AUT-02, DET-03, DET-04 | Hold, human restore, and approval audit | COMPLETE (P0) |
 | UX-01 | P0 | AUT-02, AUT-03, FND-03, AGR-01, JRN-01 | Inventory and setup experience | COMPLETE |
 | UX-02 | P0 | AGR-03, JRN-02, UX-01 | Agreement and journey review | NOT STARTED |
-| UX-03 | P0 | RUN-05, DET-04, DET-05, UX-01 | Run, finding, receipt, and hold experience | NOT STARTED |
+| UX-03 | P0 | RUN-05, DET-04, DET-05, UX-01 | Run, finding, receipt, and hold experience | IN PROGRESS |
 | QLT-01 | P0 | UX-01, UX-02, UX-03, RUN-05 | Quality and observability gates | NOT STARTED |
 | SEC-01 | P0 | AUT-04, RUN-03, DET-05, UX-03 | Security and privacy threat suite | IN PROGRESS |
 | VAL-01 | P0 | FIX-01, DET-05, SEC-01 | Blinded mechanism corpus | NOT STARTED |
@@ -638,6 +638,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### UX-03 — Build run, finding, receipt, hold, and recovery experiences
 
+- **Status:** IN PROGRESS — source commit `b0d390b0c1494951de81ee6be59c62b4385bc7ff` implements the source-bound live recorder view, authorized stop and terminal cancellation, bounded finding and receipt review, signed keep-hold history, and explicit recovery states. Focused examples, fixed-seed properties, route checks, and four optimized-production browser scenarios with 52 passing steps are green; combined deterministic verification and clean-checkout Ubuntu/Windows CI remain pending.
 - **Deliver:** live run view, model-action/recorder separation, checkpoint coverage, stop control, finding hierarchy, receipt inspection/export, hold review/history, recovery and integrity states.
 - **PRD:** Sections 12.5, 12.6, 12.7, and 17.
 - **Depends on:** RUN-05, DET-04, DET-05, and UX-01.
