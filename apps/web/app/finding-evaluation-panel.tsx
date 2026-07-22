@@ -231,11 +231,11 @@ export function FindingEvaluationPanel({
             into an approval or compliance decision.
           </p>
         </div>
-        <div className="finding-boundary" aria-label="Decision boundary">
+        <aside className="finding-boundary" aria-label="Decision boundary">
           <span>Decision owner</span>
           <strong>Deterministic evidence</strong>
           <small>Model prose never changes the state.</small>
-        </div>
+        </aside>
       </header>
 
       {loading ? (

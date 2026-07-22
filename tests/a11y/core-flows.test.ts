@@ -50,6 +50,15 @@ describe("WCAG 2.2 AA core flows", () => {
         nodes: violation.nodes.map((node) => node.target),
       })),
     ).toEqual([]);
+    expect(
+      results.incomplete
+        .filter((result) => result.id !== "color-contrast")
+        .map((result) => ({
+          id: result.id,
+          impact: result.impact,
+          nodes: result.nodes.map((node) => node.target),
+        })),
+    ).toEqual([]);
     await writeReport("accessibility-automated.json", {
       schemaVersion: "1.0.0",
       taskId: "QLT-01",
@@ -58,12 +67,26 @@ describe("WCAG 2.2 AA core flows", () => {
       target: QUALITY_PROFILE.accessibility.standard,
       automatedTags: QUALITY_PROFILE.accessibility.automatedTags,
       browser: { engine: "Chromium", version: session.browser.version() },
+      status:
+        results.violations.length === 0 &&
+        results.incomplete.every((result) => result.id === "color-contrast")
+          ? "PASS_WITH_MANUAL_CONTRAST_REVIEW"
+          : "FAIL",
       results: {
         violations: results.violations.length,
         incomplete: results.incomplete.length,
         passes: results.passes.length,
         inapplicable: results.inapplicable.length,
       },
+      incompleteReview: results.incomplete.map((result) => ({
+        id: result.id,
+        impact: result.impact,
+        nodeCount: result.nodes.length,
+        disposition:
+          result.id === "color-contrast"
+            ? "Axe cannot resolve the layered gradient and pseudo-element backgrounds; QLT-01 requires the deterministic token-contrast check and original-resolution visual review."
+            : "Unresolved automated accessibility review item.",
+      })),
     });
   }, 30_000);
 
