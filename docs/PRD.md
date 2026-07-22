@@ -557,8 +557,8 @@ No table or event should contain a real student identifier. Test fixtures and se
 | Evidence tampering | Immutable source versions, content-addressed artifacts, manifest hashes, append-only audit history | Recompute hashes; mutation test must invalidate receipt |
 | False company attribution | Human-confirmed destination registry and visible unknown state | Unknown-domain case cannot become a witnessed recipient conflict |
 | False assurance after incomplete capture | First-class **NOT_TESTED**, **NOT_VISIBLE**, **PARTIAL**, and **FAILED** states; no green pass | Capture-loss and unexercised-path end-to-end tests |
-| Unsupported public accusation | Bounded language, private-by-default findings, sanitized export, no automatic external publication | Copy review and permission test |
-| Excessive evidence retention | Configurable retention, restricted raw access, redacted export, deletion workflow that preserves only required audit metadata | Retention and deletion tests |
+| Unsupported public accusation | Bounded language, private-by-default findings, sanitized private-review export, and technical denial of external-public delivery in P0 | Copy review and permission test |
+| Excessive evidence retention | 30-day product default configurable from 1–365 days, artifact bytes only in encrypted object storage, restricted raw access, and confirmed idempotent deletion that preserves required audit metadata | Retention and deletion tests |
 
 Production deployment requires a documented threat model, dependency review, encryption key plan, incident response path, and privacy review. The controlled fixture can run locally, but “local” does not remove the need for isolation or authorization.
 
@@ -816,7 +816,7 @@ These decisions may change only through an explicit PRD revision:
 
 The following require architecture or product decision records during implementation:
 
-1. Default evidence-retention period and secure deletion policy.
+1. Default evidence-retention period and secure deletion policy. **Resolved for P0:** [SEC-01 evidence retention and release decision](decisions/SEC-01-evidence-retention-and-release.md).
 2. Credential handoff design for products with multifactor authentication.
 3. Exact retry policy before required visibility loss creates a hold.
 4. Production object-storage and encryption-key provider.

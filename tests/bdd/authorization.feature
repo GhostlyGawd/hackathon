@@ -21,6 +21,7 @@ Feature: Test authorization blocks work outside the district's stated scope
     Then the run queue is blocked because "Authorization expired. Create a new authorization before queuing a run."
     And the blocked run queue attempt is recorded
 
+  @SEC-01 @PROP-13
   Scenario: Redirects, popups, and actions stay inside deterministic policy
     When I define a current authorization for the fictional Northstar software
     And the runner attempts a redirect to "https://tracker.outside.invalid/collect?student=fictional"
@@ -51,7 +52,7 @@ Feature: Test authorization blocks work outside the district's stated scope
     And every model action has a bounded recorder summary
     And I capture the RUN-03 "authorized-journey-completed" evidence
 
-  @RUN-03 @FR-023 @FR-026
+  @RUN-03 @SEC-01 @FR-023 @FR-026
   Scenario: Messaging a real person stops before the model clicks
     Given the RUN-03 computer-use harness uses the "RISKY_ACTION" fixture
     When the deterministic model adapter selects the real-person messaging control

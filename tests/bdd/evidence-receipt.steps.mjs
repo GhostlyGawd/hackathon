@@ -226,21 +226,32 @@ Then("the original stored receipt still verifies as {string}", async function (s
 Then("I record the DET-04 valid and corrupted verifier reports", async function () {
   assert.equal(this.det04ValidVerification.report.status, "VALID");
   assert.equal(this.det04CorruptVerification.report.status, "INVALID");
-  if (!shouldCaptureCurated()) return;
-  const curatedRoot = path.join(process.cwd(), "docs", "evidence", "DET-04");
+  const requestedTask = process.env.PACTWIRE_EVIDENCE_TASK;
+  const captureDet04 = shouldCaptureCurated();
+  const captureSec01 =
+    process.env.PACTWIRE_CAPTURE_CURATED_EVIDENCE === "1" &&
+    requestedTask === "SEC-01";
+  if (!captureDet04 && !captureSec01) return;
+  const curatedRoot = path.join(
+    process.cwd(),
+    "docs",
+    "evidence",
+    captureSec01 ? "SEC-01" : "DET-04",
+  );
   await mkdir(curatedRoot, { recursive: true });
+  const prefix = captureSec01 ? "tamper-" : "";
   await Promise.all([
     copyFile(
       this.det04ValidVerification.bundlePath,
-      path.join(curatedRoot, "sanitized-receipt-bundle.json"),
+      path.join(curatedRoot, `${prefix}sanitized-receipt-bundle.json`),
     ),
     copyFile(
       this.det04ValidVerification.reportPath,
-      path.join(curatedRoot, "verifier-valid.json"),
+      path.join(curatedRoot, `${prefix}verifier-valid.json`),
     ),
     copyFile(
       this.det04CorruptVerification.reportPath,
-      path.join(curatedRoot, "verifier-corrupted.json"),
+      path.join(curatedRoot, `${prefix}verifier-corrupted.json`),
     ),
   ]);
 });

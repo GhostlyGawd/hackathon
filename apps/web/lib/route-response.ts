@@ -12,6 +12,10 @@ import {
   DestinationEvidenceMismatchError,
   DestinationRegistryConflictError,
   DestinationUnavailableError,
+  EvidenceReceiptContentDeletedError,
+  EvidenceReceiptDeletionDeniedError,
+  EvidenceReceiptUnavailableError,
+  EvidenceReleaseDeniedError,
   LikelyRealDataError,
   JourneyPrerequisiteError,
   JourneyVersionConflictError,
@@ -32,6 +36,35 @@ import {
 import { NextResponse } from "next/server";
 
 export function authorizationErrorResponse(error: unknown): NextResponse {
+  if (error instanceof EvidenceReleaseDeniedError) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: error.publicMessage,
+          reason: error.reason,
+          auditRecorded: false,
+        },
+      },
+      { status: error.status },
+    );
+  }
+  if (
+    error instanceof EvidenceReceiptContentDeletedError ||
+    error instanceof EvidenceReceiptDeletionDeniedError ||
+    error instanceof EvidenceReceiptUnavailableError
+  ) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: error.publicMessage,
+          auditRecorded: error instanceof EvidenceReceiptContentDeletedError,
+        },
+      },
+      { status: error.status },
+    );
+  }
   if (
     error instanceof RunOrchestrationConflictError ||
     error instanceof RunLeaseError

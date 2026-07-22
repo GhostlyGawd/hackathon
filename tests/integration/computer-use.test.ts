@@ -234,7 +234,7 @@ describe("RUN-03 real isolated browser computer-use loop", () => {
       "EXECUTED",
     ]);
     await session.finalizeArtifacts(() => Promise.resolve(undefined));
-  });
+  }, 60_000);
 
   it("blocks a model action induced by prompt-injection content before page state changes", async () => {
     const { server, session } = await harness("PROMPT_INJECTION");

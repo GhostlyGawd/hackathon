@@ -24,6 +24,7 @@ export default {
     "json:artifacts/verification/UX-01/reports/cucumber.json",
     "json:artifacts/verification/UX-03/reports/cucumber.json",
     "json:artifacts/verification/QLT-01/reports/cucumber.json",
+    "json:artifacts/verification/SEC-01/reports/cucumber.json",
     "json:artifacts/verification/DET-02/reports/cucumber.json",
     "json:artifacts/verification/DET-03/reports/cucumber.json",
     "json:artifacts/verification/DET-04/reports/cucumber.json",

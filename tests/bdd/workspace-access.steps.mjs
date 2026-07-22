@@ -1088,6 +1088,7 @@ Then(
 async function captureAuthorization(world, name, narrow) {
   if (narrow) await world.page.setViewportSize({ width: 390, height: 844 });
   const capture = async (root) => {
+    await mkdir(root, { recursive: true });
     await world.page.getByTestId("authorization-panel").screenshot({
       path: path.join(root, `${name}.png`),
     });
@@ -1103,6 +1104,13 @@ async function captureAuthorization(world, name, narrow) {
   );
   if (shouldCaptureCurated("AUT-03")) {
     await capture(path.join(process.cwd(), "docs", "evidence", "AUT-03"));
+  }
+  if (
+    process.env.PACTWIRE_CAPTURE_CURATED_EVIDENCE === "1" &&
+    process.env.PACTWIRE_EVIDENCE_TASK === "SEC-01" &&
+    name === "authorization-blocked-narrow"
+  ) {
+    await capture(path.join(process.cwd(), "docs", "evidence", "SEC-01"));
   }
   if (narrow) await world.page.setViewportSize({ width: 1440, height: 1100 });
 }
