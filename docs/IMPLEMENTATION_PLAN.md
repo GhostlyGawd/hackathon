@@ -255,7 +255,7 @@ The final causal-spine scenario must use live GPT-5.6 against the controlled fix
 | UX-01 | P0 | AUT-02, AUT-03, FND-03, AGR-01, JRN-01 | Inventory and setup experience | COMPLETE |
 | UX-02 | P0 | AGR-03, JRN-02, UX-01 | Agreement and journey review | COMPLETE |
 | UX-03 | P0 | RUN-05, DET-04, DET-05, UX-01 | Run, finding, receipt, and hold experience | COMPLETE |
-| QLT-01 | P0 | UX-01, UX-02, UX-03, RUN-05 | Quality and observability gates | NOT STARTED |
+| QLT-01 | P0 | UX-01, UX-02, UX-03, RUN-05 | Quality and observability gates | IN PROGRESS |
 | SEC-01 | P0 | AUT-04, RUN-03, DET-05, UX-03 | Security and privacy threat suite | IN PROGRESS |
 | VAL-01 | P0 | FIX-01, DET-05, SEC-01 | Blinded mechanism corpus | NOT STARTED |
 | VAL-02 | P0 claim gate | JRN-03, RUN-03, RUN-04, VAL-01 | Model-ablation decision | NOT STARTED |
@@ -653,6 +653,8 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 ### Quality, security, validation, and release
 
 #### QLT-01 — Add analytics, observability, reliability, accessibility, performance, and compatibility gates
+
+- **Status:** IN PROGRESS — the privacy-safe telemetry boundary, workspace-scoped quality report, fixed quality profile, accessibility/keyboard checks, performance budgets, packaged-Chromium compatibility policy, soak profile, curated evidence, and complete local deterministic verification are green. Exact-head Ubuntu/Windows CI remains required before completion.
 
 - **Deliver:** privacy-safe analytics events, structured logs by responsibility lane, costs/latency/retries/capture gaps, service health, WCAG 2.2 AA automation/manual checklist, performance budgets, packaged Chromium matrix, and reliability soak tests.
 - **PRD:** Sections 20 and 21.
