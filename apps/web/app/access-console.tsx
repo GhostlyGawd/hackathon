@@ -197,6 +197,12 @@ function canReviewEvidence(roles: readonly RoleAssignment[]): boolean {
   );
 }
 
+function canExecuteRun(roles: readonly RoleAssignment[]): boolean {
+  return roles.some((assignment) =>
+    ["PRIVACY_OFFICER", "TEST_OPERATOR"].includes(assignment.role),
+  );
+}
+
 function canRestoreApproval(roles: readonly RoleAssignment[]): boolean {
   return roles.some((assignment) =>
     ["PRIVACY_OFFICER", "APPLICATION_APPROVER"].includes(assignment.role),
@@ -257,10 +263,13 @@ export function AccessConsole() {
 
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
+    const restoreDeadline = window.setTimeout(() => controller.abort(), 5_000);
     async function restore(): Promise<void> {
       try {
         const result = await api<{ readonly principal: Principal }>(
           "/api/demo/session",
+          { signal: controller.signal },
         );
         if (!active) return;
         setPrincipal(result.principal);
@@ -270,6 +279,7 @@ export function AccessConsole() {
           setPrincipal(undefined);
         }
       } finally {
+        window.clearTimeout(restoreDeadline);
         if (active) {
           setSessionReady(true);
         }
@@ -278,6 +288,8 @@ export function AccessConsole() {
     void restore();
     return () => {
       active = false;
+      window.clearTimeout(restoreDeadline);
+      controller.abort();
     };
   }, [loadWorkspace]);
 
@@ -620,9 +632,13 @@ export function AccessConsole() {
                 key={`destinations:${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
               />
-              <RunHistoryPanel workspaceId={principal.activeWorkspaceId} />
+              <RunHistoryPanel
+                canExecuteRun={canExecuteRun(roles)}
+                workspaceId={principal.activeWorkspaceId}
+              />
               <FindingEvaluationPanel
                 canReviewEvidence={canReviewEvidence(roles)}
+                canRestoreApproval={canRestoreApproval(roles)}
                 key={`findings:${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
               />

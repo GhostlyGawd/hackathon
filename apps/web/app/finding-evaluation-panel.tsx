@@ -147,9 +147,11 @@ function PathList({
 
 export function FindingEvaluationPanel({
   canReviewEvidence,
+  canRestoreApproval,
   workspaceId,
 }: {
   readonly canReviewEvidence: boolean;
+  readonly canRestoreApproval: boolean;
   readonly workspaceId: string;
 }) {
   const [response, setResponse] = useState<FindingResponse>();
@@ -473,6 +475,7 @@ export function FindingEvaluationPanel({
 
           {canReviewEvidence ? (
             <EvidenceReceiptPanel
+              canRestoreApproval={canRestoreApproval}
               findingId={selected.finding.id}
               workspaceId={workspaceId}
             />

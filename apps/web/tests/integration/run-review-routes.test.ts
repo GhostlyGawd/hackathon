@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { NextRequest } from "next/server";
 import { POST as resetFixture } from "../../app/api/demo/reset/route";
 import { POST as createSession } from "../../app/api/demo/session/route";
+import { GET as getRunPreview } from "../../app/api/demo/run-preview/route";
 import { GET as getRuns } from "../../app/api/workspaces/[workspaceId]/runs/route";
 import { POST as stopRun } from "../../app/api/workspaces/[workspaceId]/runs/[runId]/stop/route";
 import { fixtureWorkspaceIds } from "../../lib/access-fixture";
@@ -49,6 +50,23 @@ beforeEach(() => {
 });
 
 describe("UX-03 live run review HTTP boundary", () => {
+  it("serves the real controlled-fixture frame only inside a signed session", async () => {
+    const denied = await getRunPreview(request("/api/demo/run-preview"));
+    expect(denied.status).toBe(401);
+
+    const cookie = await signIn("reviewer");
+    const response = await getRunPreview(
+      request("/api/demo/run-preview", { cookie }),
+    );
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toBe("image/png");
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    expect([...bytes.slice(0, 8)]).toEqual([
+      137, 80, 78, 71, 13, 10, 26, 10,
+    ]);
+  });
+
   it("returns an active run with separate model-action and recorder-event facts", async () => {
     const cookie = await signIn("officer");
     const response = await getRuns(request(runsPath, { cookie }), routeContext);

@@ -24,6 +24,15 @@ await mkdir(
   ),
   { recursive: true },
 );
+
+await mkdir(
+  path.join(repositoryRoot, "artifacts", "verification", "UX-03", "reports"),
+  { recursive: true },
+);
+await mkdir(
+  path.join(repositoryRoot, "artifacts", "verification", "UX-03", "screenshots"),
+  { recursive: true },
+);
 await mkdir(
   path.join(
     repositoryRoot,

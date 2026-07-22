@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { deriveFindingReviewGate } from "../lib/run-review-policy";
 
 interface ReceiptArtifact {
   readonly kind: string;
@@ -110,9 +111,11 @@ function ReceiptStep({
 }
 
 export function EvidenceReceiptPanel({
+  canRestoreApproval,
   workspaceId,
   findingId,
 }: {
+  readonly canRestoreApproval: boolean;
   readonly workspaceId: string;
   readonly findingId: string;
 }) {
@@ -184,6 +187,17 @@ export function EvidenceReceiptPanel({
   const pathsTested = content.scope.visiblePaths.length;
   const pathsNotTested = content.scope.untestedPaths.length;
   const pathsNotVisible = content.scope.notVisiblePaths.length;
+  const reviewGate = deriveFindingReviewGate({
+    findingState: content.finding.state as Parameters<
+      typeof deriveFindingReviewGate
+    >[0]["findingState"],
+    receiptStatus: verification.status,
+    hasNamedScope:
+      content.scope.journeyName.trim().length > 0 &&
+      pathsTested + pathsNotTested + pathsNotVisible > 0,
+    nextHumanDecision: content.nextHumanDecision,
+    canRestoreApproval,
+  });
 
   return (
     <article className="receipt-detail" data-testid="evidence-receipt-detail">
@@ -231,6 +245,24 @@ export function EvidenceReceiptPanel({
           Download receipt bundle
         </a>
       </div>
+
+      <aside
+        className={`receipt-review-gate ${reviewGate.ready ? "ready" : "blocked"}`}
+        data-review-action={reviewGate.action}
+        data-review-ready={reviewGate.ready}
+        data-testid="receipt-review-gate"
+      >
+        <div>
+          <span>Human decision readiness</span>
+          <strong>
+            {reviewGate.ready
+              ? "Evidence ready for bounded review"
+              : "Decision blocked by missing evidence"}
+          </strong>
+        </div>
+        <p>{reviewGate.message}</p>
+        <small>Next: {content.nextHumanDecision}</small>
+      </aside>
 
       <div className="receipt-story" data-testid="receipt-story">
         <ReceiptStep number="01" title="What Pactwire recorded">

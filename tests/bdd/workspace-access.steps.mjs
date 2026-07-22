@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash, randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import {
@@ -84,18 +84,28 @@ class AccessWorld {
   expectedHttpErrorStatuses = [];
   unexpectedHttpFailures = [];
   page;
+  video;
   beforePolicyUrl;
   unexpectedPopupCount = 0;
 
-  async openBrowser() {
+  async openBrowser({ recordVideoDir } = {}) {
     this.browser = await chromium.launch({
       args: ["--host-resolver-rules=MAP *.pactwire.test 127.0.0.1"],
     });
     this.context = await this.browser.newContext({
       baseURL: baseUrl,
       viewport: { width: 1440, height: 1100 },
+      ...(recordVideoDir
+        ? {
+            recordVideo: {
+              dir: recordVideoDir,
+              size: { width: 1440, height: 1100 },
+            },
+          }
+        : {}),
     });
     this.page = await this.context.newPage();
+    this.video = this.page.video();
     this.context.on("page", (openedPage) => {
       if (openedPage !== this.page) this.unexpectedPopupCount += 1;
     });
@@ -125,16 +135,31 @@ class AccessWorld {
 
 setWorldConstructor(AccessWorld);
 
-Before(async function () {
-  await this.openBrowser();
+Before(async function ({ pickle }) {
+  const capturesUx03 = pickle.tags.some((tag) => tag.name === "@UX-03");
+  const videoRoot = capturesUx03
+    ? path.join(
+        process.cwd(),
+        "artifacts",
+        "verification",
+        "UX-03",
+        "videos",
+      )
+    : undefined;
+  if (videoRoot) await mkdir(videoRoot, { recursive: true });
+  await this.openBrowser(
+    videoRoot ? { recordVideoDir: videoRoot } : undefined,
+  );
 });
 
 After(async function ({ result, pickle }) {
   try {
     if (result?.status === "FAILED" && this.page) {
       const slug = pickle.name.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-");
-      const taskId = pickle.tags.some((tag) => tag.name === "@UX-01")
-        ? "UX-01"
+      const taskId = pickle.tags.some((tag) => tag.name === "@UX-03")
+        ? "UX-03"
+        : pickle.tags.some((tag) => tag.name === "@UX-01")
+          ? "UX-01"
         : pickle.tags.some((tag) => tag.name === "@DET-05")
           ? "DET-05"
         : pickle.tags.some((tag) => tag.name === "@DET-04")
@@ -215,7 +240,37 @@ After(async function ({ result, pickle }) {
       );
     }
   } finally {
+    const video = this.video;
     await this.closeBrowser();
+    if (video && pickle.tags.some((tag) => tag.name === "@UX-03")) {
+      const source = await video.path();
+      const slug = pickle.name.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-");
+      const destination = path.join(
+        process.cwd(),
+        "artifacts",
+        "verification",
+        "UX-03",
+        "videos",
+        `${slug}.webm`,
+      );
+      if (source !== destination) await copyFile(source, destination);
+      if (
+        process.env.PACTWIRE_CAPTURE_CURATED_EVIDENCE === "1" &&
+        (!process.env.PACTWIRE_EVIDENCE_TASK ||
+          process.env.PACTWIRE_EVIDENCE_TASK === "UX-03") &&
+        pickle.name ===
+          "An operator watches the recorder and stops the active run without losing evidence"
+      ) {
+        const curatedRoot = path.join(
+          process.cwd(),
+          "docs",
+          "evidence",
+          "UX-03",
+        );
+        await mkdir(curatedRoot, { recursive: true });
+        await copyFile(source, path.join(curatedRoot, "live-run-causal-spine.webm"));
+      }
+    }
   }
 });
 
@@ -235,7 +290,9 @@ async function startSession(world, role) {
   const key = roleKeys[role];
   assert.ok(key, `Unknown fixture role: ${role}`);
   await world.page.getByTestId("session-select").selectOption(key);
-  await world.page.getByTestId("start-session").click();
+  const startButton = world.page.getByTestId("start-session");
+  await startButton.waitFor();
+  await startButton.click({ timeout: 15_000 });
   await world.page.getByTestId("workspace-title").waitFor();
   await world.page
     .getByTestId("active-roles")
