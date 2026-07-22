@@ -5,7 +5,7 @@
   "status": "IN_PROGRESS",
   "prdSections": [12, 17],
   "functionalRequirements": ["FR-037", "FR-040", "FR-042", "FR-043", "FR-044", "FR-045", "FR-050", "FR-051", "FR-052", "FR-053", "FR-054", "FR-055"],
-  "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff",
+  "sourceCommitSha": "b44cd5aa30b1eaa0388d26d9e985f1eddfac3c1e",
   "startedAt": "2026-07-21T20:24:43.000-04:00",
   "artifactRoot": "artifacts/verification/UX-03/",
   "curatedEvidenceRoot": "docs/evidence/UX-03/",
@@ -142,11 +142,18 @@
       "command": "PACTWIRE_BDD_TAGS=@DET-04 pnpm test:bdd -- --production",
       "exitCode": 0,
       "durationMs": 5364
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete corrected-head deterministic verification on the integrated dependency tree",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 632900
     }
   ],
   "testSummary": {
-    "files": 3,
-    "passed": 7,
+    "files": 106,
+    "passed": 403,
     "failed": 0,
     "skipped": 0,
     "retries": 0
@@ -452,7 +459,7 @@
     "A valid receipt proves included bytes have not changed; a clean or sampled run does not prove safety, compliance, approval, or behavior outside the named scope.",
     "Model prose is displayed only as a non-authoritative action summary and is excluded from finding, receipt, approval, and recovery decisions.",
     "Automated accessibility checks are not a substitute for the comprehensive manual WCAG 2.2 and screen-reader review owned by QLT-01.",
-    "Full deterministic verification and clean-checkout Ubuntu and Windows CI remain required before UX-03 can be marked complete."
+    "Clean-checkout Ubuntu and Windows CI remain required before UX-03 can be marked complete."
   ],
   "reviewer": "codex-agent"
 }

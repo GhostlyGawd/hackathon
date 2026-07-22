@@ -1,6 +1,6 @@
 # UX-03 verification evidence
 
-UX-03 is **IN PROGRESS** at source commit `b0d390b0c1494951de81ee6be59c62b4385bc7ff`. The live run, finding, receipt, hold, and recovery experience is implemented and its focused examples, fixed-seed properties, signed API boundaries, and optimized-production browser stories are green. Completion still requires the combined `pnpm verify` gate and clean-checkout Ubuntu and Windows CI after the dependency stack is integrated.
+UX-03 is **IN PROGRESS** at original feature source `b0d390b0c1494951de81ee6be59c62b4385bc7ff` and corrected combined verification head `b44cd5aa30b1eaa0388d26d9e985f1eddfac3c1e`. The live run, finding, receipt, hold, and recovery experience is implemented, and the complete deterministic gate is green on the integrated dependency tree. Completion still requires clean-checkout Ubuntu and Windows CI.
 
 ## What this task proves
 
@@ -27,6 +27,7 @@ The two fixed-seed properties use seed `20260722` for 500 generated states each.
 - Two focused unit examples, two fixed-seed properties, and three signed route integration checks pass.
 - Four optimized-production browser scenarios pass all 52 steps.
 - After merging the complete UX-02 dependency, all 15 UX-02 and UX-03 optimized-production scenarios pass all 225 steps together.
+- The complete corrected-head `pnpm verify` gate passes 106 test files with 403 deterministic checks and all 74 optimized-production browser scenarios with 895 steps. Failures, skips, and retries are zero.
 - Sixteen optimized-production screenshots cover desktop and narrow states before and after stop and hold transitions, the full finding and receipt review, the signed keep-hold decision, and terminal recovery states.
 - `live-run-causal-spine.webm` records the authorized live-run inspection and stop transition; its WebM container header was checked after capture.
 - Every screenshot was opened at original resolution and compared beside the existing source-bound FIX-01, DET-03, DET-04, or DET-05 evidence it extends. No development indicator, horizontal overflow, clipping, broken focus treatment, or overlapping control remained. That review caught and fixed an oversized-checkbox layout defect before this production capture.
@@ -55,4 +56,4 @@ The two fixed-seed properties use seed `20260722` for 500 generated states each.
 
 ## Remaining gate and claim boundary
 
-UX-03 remains in progress until the integrated dependency tree passes the complete deterministic gate and both required clean-checkout CI jobs. The live preview is a source-bound recorder frame, not an interactive embedded browser. A valid receipt proves included bytes have not changed; a sampled run, even when clean, does not prove safety, compliance, approval, or behavior outside the named scope. All evidence uses only the controlled fictional fixture and reserved test destinations.
+UX-03 remains in progress until both required clean-checkout CI jobs pass the corrected head. The live preview is a source-bound recorder frame, not an interactive embedded browser. A valid receipt proves included bytes have not changed; a sampled run, even when clean, does not prove safety, compliance, approval, or behavior outside the named scope. All evidence uses only the controlled fictional fixture and reserved test destinations.

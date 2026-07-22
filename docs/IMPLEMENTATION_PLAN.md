@@ -639,7 +639,7 @@ All tasks begin **NOT STARTED**. The PR that starts a task changes its state to 
 
 #### UX-03 — Build run, finding, receipt, hold, and recovery experiences
 
-- **Status:** IN PROGRESS — source commit `b0d390b0c1494951de81ee6be59c62b4385bc7ff` implements the source-bound live recorder view, authorized stop and terminal cancellation, bounded finding and receipt review, signed keep-hold history, and explicit recovery states. Focused examples, fixed-seed properties, route checks, and four optimized-production browser scenarios with 52 passing steps are green; combined deterministic verification and clean-checkout Ubuntu/Windows CI remain pending.
+- **Status:** IN PROGRESS — source commit `b0d390b0c1494951de81ee6be59c62b4385bc7ff` implements the source-bound live recorder view, authorized stop and terminal cancellation, bounded finding and receipt review, signed keep-hold history, and explicit recovery states. Corrected integrated head `b44cd5aa30b1eaa0388d26d9e985f1eddfac3c1e` passes the complete deterministic gate with 106 test files, 403 checks, and all 74 optimized-production browser scenarios / 895 steps; clean-checkout Ubuntu and Windows CI remain pending.
 - **Deliver:** live run view, model-action/recorder separation, checkpoint coverage, stop control, finding hierarchy, receipt inspection/export, hold review/history, recovery and integrity states.
 - **PRD:** Sections 12.5, 12.6, 12.7, and 17.
 - **Depends on:** RUN-05, DET-04, DET-05, and UX-01.
