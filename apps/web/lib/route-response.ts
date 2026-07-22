@@ -22,6 +22,8 @@ import {
   RawSecretAccessDeniedError,
   RequirementReviewConflictError,
   RequirementVersionUnavailableError,
+  RunLeaseError,
+  RunOrchestrationConflictError,
   SecretUnavailableError,
   SetupSoftwareUnavailableError,
   UnsupportedAgreementTypeError,
@@ -30,6 +32,21 @@ import {
 import { NextResponse } from "next/server";
 
 export function authorizationErrorResponse(error: unknown): NextResponse {
+  if (
+    error instanceof RunOrchestrationConflictError ||
+    error instanceof RunLeaseError
+  ) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: "The run is no longer active or cannot be changed.",
+          auditRecorded: false,
+        },
+      },
+      { status: error.status },
+    );
+  }
   if (
     error instanceof AgreementCorruptError ||
     error instanceof AgreementHashMismatchError ||

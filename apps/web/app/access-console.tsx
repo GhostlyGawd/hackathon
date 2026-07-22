@@ -197,6 +197,12 @@ function canReviewEvidence(roles: readonly RoleAssignment[]): boolean {
   );
 }
 
+function canExecuteRun(roles: readonly RoleAssignment[]): boolean {
+  return roles.some((assignment) =>
+    ["PRIVACY_OFFICER", "TEST_OPERATOR"].includes(assignment.role),
+  );
+}
+
 function canRestoreApproval(roles: readonly RoleAssignment[]): boolean {
   return roles.some((assignment) =>
     ["PRIVACY_OFFICER", "APPLICATION_APPROVER"].includes(assignment.role),
@@ -639,9 +645,13 @@ export function AccessConsole() {
                 key={`destinations:${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
               />
-              <RunHistoryPanel workspaceId={principal.activeWorkspaceId} />
+              <RunHistoryPanel
+                canExecuteRun={canExecuteRun(roles)}
+                workspaceId={principal.activeWorkspaceId}
+              />
               <FindingEvaluationPanel
                 canReviewEvidence={canReviewEvidence(roles)}
+                canRestoreApproval={canRestoreApproval(roles)}
                 key={`findings:${principal.activeWorkspaceId}:${principal.userId}`}
                 workspaceId={principal.activeWorkspaceId}
               />

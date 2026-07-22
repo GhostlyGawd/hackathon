@@ -126,6 +126,10 @@ export function ApprovalAuthorityPanel({
   const [busyAction, setBusyAction] = useState<string>();
   const [rationale, setRationale] = useState("");
   const [namedScopeAcknowledged, setNamedScopeAcknowledged] = useState(false);
+  const [holdDecisionOutcome, setHoldDecisionOutcome] =
+    useState<"KEEP_HOLD" | "REJECT" | "RETIRE">("KEEP_HOLD");
+  const [holdDecisionReason, setHoldDecisionReason] = useState("");
+  const [holdScopeAcknowledged, setHoldScopeAcknowledged] = useState(false);
 
   const endpoint = `/api/workspaces/${workspaceId}/software/${softwareId}/approval`;
 
@@ -248,6 +252,52 @@ export function ApprovalAuthorityPanel({
           caught instanceof Error
             ? caught.message
             : "Approval could not be restored.",
+      });
+    } finally {
+      setBusyAction(undefined);
+    }
+  }
+
+  async function recordHoldDecision(event: FormEvent): Promise<void> {
+    event.preventDefault();
+    const receiptId = approval?.holdReceipts[0]?.receiptId;
+    if (!receiptId) return;
+    setBusyAction("hold-decision");
+    setFeedback(undefined);
+    try {
+      const response = await fetch(`${endpoint}/decision`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          outcome: holdDecisionOutcome,
+          rationale: holdDecisionReason,
+          namedScopeAcknowledged: holdScopeAcknowledged,
+          receiptId,
+        }),
+      });
+      if (!response.ok) throw new Error(await responseMessage(response));
+      const body = (await response.json()) as {
+        readonly approval: ApprovalSnapshot;
+      };
+      setApproval(body.approval);
+      const labels = {
+        KEEP_HOLD: "kept the software on hold",
+        REJECT: "rejected the software",
+        RETIRE: "retired the software",
+      } as const;
+      setFeedback({
+        tone: "success",
+        message: `The signed human decision ${labels[holdDecisionOutcome]} and preserved the exact receipt and reason.`,
+      });
+      setHoldDecisionReason("");
+      setHoldScopeAcknowledged(false);
+    } catch (caught) {
+      setFeedback({
+        tone: "danger",
+        message:
+          caught instanceof Error
+            ? caught.message
+            : "The signed hold decision could not be recorded.",
       });
     } finally {
       setBusyAction(undefined);
@@ -425,6 +475,82 @@ export function ApprovalAuthorityPanel({
                   </p>
                 )}
               </section>
+
+              {approval.state === "HOLD" && canRestoreApproval ? (
+                <section className="approval-hold-decision-card">
+                  <div className="approval-section-title">
+                    <div>
+                      <span>Signed hold review</span>
+                      <h3>Record the person&apos;s decision and notes</h3>
+                    </div>
+                    <small>Exact receipt required</small>
+                  </div>
+                  <form
+                    data-testid="approval-hold-decision-form"
+                    onSubmit={(event) => void recordHoldDecision(event)}
+                  >
+                    <label htmlFor="approval-hold-outcome">
+                      Decision
+                      <select
+                        data-testid="approval-hold-outcome"
+                        id="approval-hold-outcome"
+                        onChange={(event) =>
+                          setHoldDecisionOutcome(
+                            event.target.value as
+                              | "KEEP_HOLD"
+                              | "REJECT"
+                              | "RETIRE",
+                          )
+                        }
+                        value={holdDecisionOutcome}
+                      >
+                        <option value="KEEP_HOLD">Keep hold</option>
+                        <option value="REJECT">Reject software</option>
+                        <option value="RETIRE">Retire software</option>
+                      </select>
+                    </label>
+                    <label htmlFor="approval-hold-reason">
+                      Vendor or internal review note
+                      <textarea
+                        data-testid="approval-hold-reason"
+                        id="approval-hold-reason"
+                        onChange={(event) =>
+                          setHoldDecisionReason(event.target.value)
+                        }
+                        required
+                        rows={4}
+                        value={holdDecisionReason}
+                      />
+                    </label>
+                    <label className="approval-acknowledgement">
+                      <input
+                        checked={holdScopeAcknowledged}
+                        data-testid="approval-hold-scope"
+                        onChange={(event) =>
+                          setHoldScopeAcknowledged(event.target.checked)
+                        }
+                        type="checkbox"
+                      />
+                      <span>
+                        I reviewed the exact receipt and understand this decision
+                        applies to its named test evidence and current district status.
+                      </span>
+                    </label>
+                    <button
+                      className="secondary-button"
+                      data-testid="record-hold-decision"
+                      disabled={
+                        Boolean(busyAction) ||
+                        holdDecisionReason.trim().length === 0 ||
+                        !holdScopeAcknowledged
+                      }
+                      type="submit"
+                    >
+                      Record signed review decision
+                    </button>
+                  </form>
+                </section>
+              ) : null}
             </div>
 
             <aside className="approval-decision-card">

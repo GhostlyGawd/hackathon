@@ -1,0 +1,488 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "UX-03",
+  "title": "Build run, finding, receipt, hold, and recovery experiences",
+  "status": "COMPLETE",
+  "prdSections": [12, 17],
+  "functionalRequirements": ["FR-037", "FR-040", "FR-042", "FR-043", "FR-044", "FR-045", "FR-050", "FR-051", "FR-052", "FR-053", "FR-054", "FR-055"],
+  "sourceCommitSha": "6b4d46e00d53810c9c807be3c485851834e1b81d",
+  "startedAt": "2026-07-21T20:24:43.000-04:00",
+  "completedAt": "2026-07-22T01:49:40.000Z",
+  "artifactRoot": "artifacts/verification/UX-03/",
+  "curatedEvidenceRoot": "docs/evidence/UX-03/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows pending",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29883796190",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29883796190/job/88810067701",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29883796190/job/88810067683",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Active-run representation was absent from the private runs response",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/run-review-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "The route first lacked private no-store response headers and then returned no active live-review record"
+    },
+    {
+      "phase": "RED",
+      "name": "Authorized stop boundary did not exist",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/run-review-routes.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "The focused integration suite could not import the not-yet-created run stop route"
+    },
+    {
+      "phase": "RED",
+      "name": "Bounded review-readiness policy did not exist",
+      "command": "pnpm exec vitest run --project unit apps/web/tests/unit/run-review-policy.test.ts; pnpm exec vitest run --project property apps/web/tests/property/run-review-policy.property.test.ts",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "The example and property suites could not import the not-yet-created run-review-policy module"
+    },
+    {
+      "phase": "RED",
+      "name": "Run review browser workflows were undefined",
+      "command": "PACTWIRE_BDD_TAGS=@UX-03 pnpm test:bdd",
+      "exitCode": 1,
+      "durationMs": 0,
+      "expectedFailure": "Four scenarios were undefined after shared setup, with 30 passing setup steps and 17 undefined review steps"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Review-readiness examples",
+      "command": "pnpm exec vitest run --project unit apps/web/tests/unit/run-review-policy.test.ts",
+      "exitCode": 0,
+      "durationMs": 433
+    },
+    {
+      "phase": "GREEN",
+      "name": "Fixed-seed review-readiness properties",
+      "command": "pnpm exec vitest run --project property apps/web/tests/property/run-review-policy.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 512
+    },
+    {
+      "phase": "GREEN",
+      "name": "Signed live-run read and stop boundaries",
+      "command": "pnpm exec vitest run --project integration apps/web/tests/integration/run-review-routes.test.ts",
+      "exitCode": 0,
+      "durationMs": 2100
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Source-static TypeScript, lint, and evidence-harness gates",
+      "command": "pnpm typecheck; pnpm lint; pnpm evidence:check",
+      "exitCode": 0,
+      "durationMs": 0
+    },
+    {
+      "phase": "RED",
+      "name": "Optimized image acceptance raced the recorder frame decoder",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=UX-03 PACTWIRE_BDD_TAGS=@UX-03 pnpm test:bdd -- --production",
+      "exitCode": 1,
+      "durationMs": 16251,
+      "expectedFailure": "The first scenario checked naturalWidth before the source-bound Next image had finished decoding; the remaining three production scenarios passed"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Optimized-production UX-03 browser acceptance and curated capture",
+      "command": "PACTWIRE_CAPTURE_CURATED_EVIDENCE=1 PACTWIRE_EVIDENCE_TASK=UX-03 PACTWIRE_BDD_TAGS=@UX-03 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 16920,
+      "outputPath": "artifacts/verification/UX-03/reports/cucumber.json"
+    },
+    {
+      "phase": "RED",
+      "name": "Evidence inventory required UX-03 reconciliation",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 1020,
+      "expectedFailure": "The fixed inventory still expected 26 manifests and 272 proof files after the checker observed 27 manifests and 283 proof files"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Evidence traceability and reconciled fixed inventory",
+      "command": "pnpm evidence:check; pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 0,
+      "durationMs": 4184
+    },
+    {
+      "phase": "RED",
+      "name": "Integrated UX-02 and UX-03 evidence inventory required exact reconciliation",
+      "command": "pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 1,
+      "durationMs": 1020,
+      "expectedFailure": "The merge-resolution estimate expected 289 proof files; the repository checker observed 28 manifests and 288 proof files"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Combined dependency-stack evidence traceability",
+      "command": "pnpm evidence:check; pnpm exec vitest run --project integration tests/integration/evidence-harness.test.ts",
+      "exitCode": 0,
+      "durationMs": 3990
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Integrated UX-02 and UX-03 optimized-production acceptance",
+      "command": "pnpm build; PACTWIRE_BDD_TAGS='@UX-02 or @UX-03' pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 125400
+    },
+    {
+      "phase": "RED",
+      "name": "Complete deterministic gate exposed a legacy receipt-story selector ambiguity",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 548200,
+      "expectedFailure": "After 73 of 74 browser scenarios and 891 steps passed, the existing DET-04 assertion matched both the new readiness summary and the numbered next-human-decision row"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Focused receipt-story regression after scoping the next-human-decision assertion",
+      "command": "PACTWIRE_BDD_TAGS=@DET-04 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 5364
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete corrected-head deterministic verification on the integrated dependency tree",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 632900
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout verification on Ubuntu and Windows at the exact UX-03 evidence head",
+      "command": "GitHub Actions run 29883796190: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 475000
+    }
+  ],
+  "testSummary": {
+    "files": 106,
+    "passed": 403,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-04-PROP-21-review-readiness-requires-complete-scope-valid-evidence-and-next-action",
+        "seed": 20260722,
+        "numRuns": 500,
+        "passed": true
+      },
+      {
+        "id": "PROP-03-PROP-11-uncertainty-and-missing-authority-never-enable-status-change",
+        "seed": 20260722,
+        "numRuns": 500,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "run-review.feature",
+        "scenario": "An operator watches the recorder and stops the active run without losing evidence",
+        "passed": true
+      },
+      {
+        "feature": "run-review.feature",
+        "scenario": "A reviewer reaches a decision-ready conflict without relying on model prose",
+        "passed": true
+      },
+      {
+        "feature": "run-review.feature",
+        "scenario": "An authorized person records why the exact receipt remains on hold",
+        "passed": true
+      },
+      {
+        "feature": "run-review.feature",
+        "scenario": "Terminal recovery states remain explicit and retain exact retry lineage",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "rationale": "UX-03 changes live run control, fact separation, terminal transitions, finding and receipt review, signed hold decisions, and recovery states. Sixteen source-bound optimized-production screenshots cover desktop and narrow states before and after transitions, and one browser recording preserves the live-run causal spine.",
+    "assets": [
+      {
+        "path": "docs/evidence/UX-03/live-run-before-stop-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:41.513Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop live run panel with the fictional journey and role, source-bound recorder frame, allowed origin and actions, separate model and recorder facts, one verified checkpoint, one pending checkpoint, a redacted canary match, and focused stop control.",
+        "caption": "Before stopping, the active view exposes the bounded run scope and instrumentation facts without treating model prose as evidence.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/live-run-before-stop-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:41.744Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow live run panel stacking the real fictional fixture frame, allowed scope, separate model and recorder lanes, checkpoint coverage, canary category, and stop control without clipping.",
+        "caption": "The same bounded active-run facts and prominent stop action remain usable at a narrow viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/live-run-stopped-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:42.454Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop run history after stop with zero active runs, a canceled terminal manifest preserving the observed checkpoint, the unfinished checkpoint marked not tested, and immutable completed, partial, failed, and retry records.",
+        "caption": "Stopping finalizes a CANCELED manifest instead of discarding evidence or labeling unfinished coverage as passed.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/live-run-stopped-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:42.860Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow immutable run history after stop with a canceled manifest, verified observed checkpoint, not-tested unfinished checkpoint, and the remaining terminal records stacked below.",
+        "caption": "The before-to-after cancellation result and exact coverage remain readable on a narrow screen.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/live-run-causal-spine.webm",
+        "kind": "video",
+        "capturedAt": "2026-07-22T00:57:43.426Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Browser recording of an authorized operator opening the live fictional run, inspecting bounded recorder evidence, focusing the stop control, and reaching the immutable canceled manifest.",
+        "caption": "The causal-spine recording pairs the interactive transition with the before and after screenshots and deterministic recorder facts.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/finding-state-matrix-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:45.319Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop finding review showing all six bounded result meanings, exact named scope, deterministic evidence, excluded model explanation, limitations, and the linked independently verifiable receipt.",
+        "caption": "Every finding meaning remains grounded in stored scope and deterministic evidence before the reviewer reaches the receipt.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/finding-state-matrix-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:45.722Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow finding and receipt flow with six result meanings, named test boundaries, deterministic evidence, model prose excluded from the decision, eight review questions, and content-addressed lineage.",
+        "caption": "The complete evidence-led review order remains explicit and unclipped at a narrow viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/decision-ready-conflict-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:46.304Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop valid evidence receipt with named next human decision, all eight ordered review questions, sanitized export control, exact artifact hashes, and a warning that validity does not prove safety, compliance, or approval.",
+        "caption": "A witnessed conflict becomes decision-ready only when named scope, a valid receipt, and the next human action are all present.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/decision-ready-conflict-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:46.564Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow valid receipt with human decision readiness, eight ordered evidence questions, download action, artifact hashes, and the bounded validity warning.",
+        "caption": "The full independent-review receipt remains readable and directly actionable on a narrow screen.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/approval-before-hold-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:49.096Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop approval authority before evidence application with APPROVED status, deterministic fixture actions, no hold receipts, disabled restoration, and empty append-only history.",
+        "caption": "The initial imported approval has no automated hold or human decision before the witnessed-conflict receipt is applied.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/approval-before-hold-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:49.313Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow initial approval authority state with APPROVED status, stored-result actions, no hold receipt, unavailable restoration, and empty history.",
+        "caption": "The pre-hold authority state and its empty history stack cleanly at a narrow viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/approval-after-hold-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:49.956Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop approval authority after a witnessed conflict with HOLD status, exact contributing receipt, signed keep-hold and restore forms, scope acknowledgements, and an append-only APPROVED to HOLD transition.",
+        "caption": "The exact receipt moves an existing approval to HOLD and exposes only human-owned decision paths.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/approval-after-hold-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:50.177Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow HOLD state with exact receipt, keep-hold form, restore form, correctly sized acknowledgement checkboxes, and the automated APPROVED to HOLD history event.",
+        "caption": "Both human decision paths and the exact automated transition remain usable without narrow-layout overlap.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/signed-keep-hold-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:51.223Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop HOLD state after an authorized person signs a keep-hold decision with a fictional vendor-review note, exact receipt acknowledgement, identity, time, and append-only decision history.",
+        "caption": "A signed keep-hold review records the person's bounded reason while preserving HOLD and the originating receipt.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/signed-keep-hold-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:51.465Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow signed keep-hold state with exact receipt, human note, identity, scope acknowledgement, disabled automatic restore, and two append-only history records.",
+        "caption": "The signed decision and its authority boundary remain legible at a narrow viewport.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/recovery-state-matrix-desktop.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:53.916Z",
+        "viewport": { "width": 1440, "height": 1100 },
+        "altText": "Desktop run review with one active run and immutable completed, worker-integrity-failure, failed, partial retry, partial original, and completed terminal records with exact frozen retry lineage.",
+        "caption": "Recovery and integrity states remain distinct; a worker failure has no fabricated manifest and retries preserve exact frozen configuration lineage.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      },
+      {
+        "path": "docs/evidence/UX-03/recovery-state-matrix-narrow.png",
+        "kind": "screenshot",
+        "capturedAt": "2026-07-22T00:57:54.527Z",
+        "viewport": { "width": 390, "height": 844 },
+        "altText": "Narrow live and terminal run history with explicit active, complete, integrity failure, failed, partial retry, partial original, and complete states plus frozen retry lineage.",
+        "caption": "Every terminal and recovery meaning remains explicit and unclipped on a narrow screen.",
+        "provenance": "captured",
+        "sourceCommitSha": "b0d390b0c1494951de81ee6be59c62b4385bc7ff"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "schema",
+      "path": "apps/web/lib/run-review-policy.ts",
+      "description": "Pure authority, scope, receipt-validity, uncertainty, and next-human-action review gate"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/lib/access-fixture.ts",
+      "description": "Controlled fictional active-run record with separate model summary, recorder event, checkpoint coverage, canary category, and source-bound fixture preview metadata"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/api/workspaces/[workspaceId]/runs/[runId]/stop/route.ts",
+      "description": "Signed RUN_EXECUTE boundary that stops only the active run and lets server-owned recorder facts finalize cancellation evidence"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/run-history-panel.tsx",
+      "description": "Live recorder view, keyboard stop, immutable terminal manifests, checkpoint coverage, recovery states, and frozen retry lineage"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/evidence-receipt-panel.tsx",
+      "description": "Eight ordered review questions, independent verification, sanitized export, named next human action, and bounded validity claim"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/approval-authority-panel.tsx",
+      "description": "Exact receipt-linked hold review, signed human decision forms, acknowledgements, and append-only history"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/integration/run-review-routes.test.ts",
+      "description": "Private active-run response, authorized stop with retained coverage, and server-side reviewer denial"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/unit/run-review-policy.test.ts",
+      "description": "Decision-readiness and clean-sampled-run authority examples"
+    },
+    {
+      "kind": "test",
+      "path": "apps/web/tests/property/run-review-policy.property.test.ts",
+      "description": "Fixed-seed completeness, uncertainty, and status-changing authority properties"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/run-review.feature",
+      "description": "Live stop, decision-ready receipt, signed keep-hold, and recovery-state browser stories tagged to UX-03 and functional requirements"
+    },
+    {
+      "kind": "test",
+      "path": "tests/bdd/run-review.steps.mjs",
+      "description": "Real Next.js, API, browser, keyboard, source-bound frame decoding, responsive capture, and causal-video bindings"
+    },
+    {
+      "kind": "config",
+      "path": "apps/web/app/globals.css",
+      "description": "Existing Pactwire design-system treatments for live facts, receipt readiness, signed decisions, terminal states, and responsive stacking"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/FIX-01/fixture-baseline-desktop.png",
+      "description": "Existing source-bound controlled-fixture recorder frame bundled into the live view; no mock or generated replacement"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/UX-03/README.md",
+      "description": "Curated red-green record, visual review, claim boundaries, and remaining completion gates"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-22T00:58:00.000Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "All workflows use the controlled fictional fixture, fictional identities, synthetic values, and reserved test destinations; no live vendor or student data was used.",
+    "The live preview is the latest deterministic recorder frame, not an interactive embedded browser.",
+    "A valid receipt proves included bytes have not changed; a clean or sampled run does not prove safety, compliance, approval, or behavior outside the named scope.",
+    "Model prose is displayed only as a non-authoritative action summary and is excluded from finding, receipt, approval, and recovery decisions.",
+    "Automated accessibility checks are not a substitute for the comprehensive manual WCAG 2.2 and screen-reader review owned by QLT-01."
+  ],
+  "reviewer": "codex-agent"
+}
