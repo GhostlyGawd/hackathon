@@ -127,6 +127,21 @@
       "command": "pnpm build; PACTWIRE_BDD_TAGS='@UX-02 or @UX-03' pnpm test:bdd -- --production",
       "exitCode": 0,
       "durationMs": 125400
+    },
+    {
+      "phase": "RED",
+      "name": "Complete deterministic gate exposed a legacy receipt-story selector ambiguity",
+      "command": "pnpm verify",
+      "exitCode": 1,
+      "durationMs": 548200,
+      "expectedFailure": "After 73 of 74 browser scenarios and 891 steps passed, the existing DET-04 assertion matched both the new readiness summary and the numbered next-human-decision row"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Focused receipt-story regression after scoping the next-human-decision assertion",
+      "command": "PACTWIRE_BDD_TAGS=@DET-04 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 5364
     }
   ],
   "testSummary": {

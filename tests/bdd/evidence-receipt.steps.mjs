@@ -123,13 +123,14 @@ Then(
   "the receipt says no approval state was changed and names the next human decision",
   async function () {
     const receipt = this.page.getByTestId("evidence-receipt-detail");
+    const story = receipt.getByTestId("receipt-story");
     await receipt
       .getByText("No approval state was changed by this receipt.", { exact: true })
       .waitFor();
-    await receipt
+    await story
       .getByText(/A human reviewer must review the recorded conflict/u)
       .waitFor();
-    await receipt
+    await story
       .getByText("A model cannot approve, restore, or make this decision.", {
         exact: true,
       })

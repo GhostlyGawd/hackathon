@@ -18,6 +18,8 @@ The first runs response test failed on missing private cache controls and then o
 
 After implementation, one optimized-production capture exposed a race in the acceptance harness: the source-bound Next image existed, but the assertion read `naturalWidth` before browser decoding completed. The acceptance step now awaits `HTMLImageElement.decode()`. The exact regression run passed all four scenarios and all 52 steps with no retries, failures, skips, or undefined steps.
 
+The first complete dependency-stack gate then exposed a second selector-only regression after 73 of 74 browser scenarios and 891 steps passed: the legacy DET-04 story used a broad next-human-action locator, while UX-03 intentionally presents that action in both the readiness summary and numbered receipt row. The assertion is now scoped to the receipt story. Both DET-04 scenarios and all 24 focused steps pass in the optimized production build; the corrected complete gate remains the next acceptance check.
+
 The two fixed-seed properties use seed `20260722` for 500 generated states each. They prove that decision readiness never appears without complete scope, valid evidence, and a named human action, and that uncertainty or missing authority never exposes a status-changing control.
 
 ## Current local evidence
