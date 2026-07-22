@@ -44,6 +44,7 @@ import {
   type RunManifest,
   type WorkspacePrincipal,
 } from "@pactwire/core";
+import { QualityTelemetryRuntime } from "./quality-telemetry-runtime";
 
 export const fixtureWorkspaceIds = Object.freeze({
   cedarRidge: "11111111-1111-4111-8111-111111111111",
@@ -115,6 +116,7 @@ export interface AccessRuntime {
   readonly evidenceReceiptService: EvidenceReceiptService;
   readonly approvalAuthorityRepository: InMemoryApprovalAuthorityRepository;
   readonly approvalAuthorityService: ApprovalAuthorityService;
+  readonly qualityTelemetry: QualityTelemetryRuntime;
 }
 
 export interface FixtureLiveRunReview {
@@ -1146,6 +1148,7 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
       },
     },
   );
+  const qualityTelemetry = new QualityTelemetryRuntime();
   return Object.freeze({
     repository,
     service,
@@ -1176,6 +1179,7 @@ async function createFixtureRuntime(): Promise<AccessRuntime> {
     evidenceReceiptService,
     approvalAuthorityRepository,
     approvalAuthorityService,
+    qualityTelemetry,
   });
 }
 

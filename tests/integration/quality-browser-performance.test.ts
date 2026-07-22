@@ -1,4 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+import process from "node:process";
 
 import {
   QUALITY_PROFILE,
@@ -140,5 +143,41 @@ describe("real quality browser performance", () => {
       sampleCount: 1,
     });
     expect(report.status).toBe("PASS");
+    if (process.env.PACTWIRE_WRITE_QUALITY_REPORTS === "1") {
+      const reportRoot = path.join(
+        process.cwd(),
+        "artifacts",
+        "verification",
+        "QLT-01",
+        "reports",
+      );
+      await mkdir(reportRoot, { recursive: true });
+      await writeFile(
+        path.join(reportRoot, "performance.json"),
+        `${JSON.stringify(
+          {
+            schemaVersion: "1.0.0",
+            taskId: "QLT-01",
+            capturedAt: new Date().toISOString(),
+            sourceCommitSha:
+              process.env.PACTWIRE_EVIDENCE_SOURCE_COMMIT ?? null,
+            browser: {
+              engine: "Chromium",
+              version: session.browser.version(),
+            },
+            sampleDefinition: {
+              consoleInteractions: 60,
+              evidenceSummaryTransitions: 20,
+              runProgressTransitions: 1,
+            },
+            profile: QUALITY_PROFILE,
+            report,
+          },
+          null,
+          2,
+        )}\n`,
+        "utf8",
+      );
+    }
   });
 });

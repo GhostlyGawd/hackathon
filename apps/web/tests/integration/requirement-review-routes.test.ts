@@ -151,6 +151,10 @@ describe("requirement review HTTP boundary", () => {
       details: { action: "Transmit" },
       confirmedBy: { kind: "HUMAN", actorId: "fictional-officer-a" },
     });
+    expect(
+      (await getAccessRuntime()).qualityTelemetry.report().analyticsEvents
+        .REQUIREMENT_CONFIRMED,
+    ).toBe(1);
     const history = await listRequirements(
       request(`${seeded.basePath}/requirements`, { cookie: officerCookie }),
       seeded.context,
@@ -194,6 +198,10 @@ describe("requirement review HTTP boundary", () => {
       seeded.context,
     );
     expect(created.status).toBe(201);
+    expect(
+      (await getAccessRuntime()).qualityTelemetry.report().analyticsEvents
+        .REQUIREMENT_MARKED_AMBIGUOUS,
+    ).toBe(1);
     const stale = await reviewRequirement(
       request(`${seeded.basePath}/requirements`, {
         method: "POST",

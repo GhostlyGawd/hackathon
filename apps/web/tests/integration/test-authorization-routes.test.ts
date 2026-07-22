@@ -154,6 +154,10 @@ describe("test authorization HTTP boundary", () => {
       kind: "HUMAN",
       actorId: "fictional-officer-a",
     });
+    expect(
+      (await getAccessRuntime()).qualityTelemetry.report().analyticsEvents
+        .AUTHORIZATION_CREATED,
+    ).toBe(1);
     const listed = await listAuthorizations(
       request(pathname, { cookie }),
       context(fixtureWorkspaceIds.cedarRidge, softwareId),
@@ -221,6 +225,9 @@ describe("test authorization HTTP boundary", () => {
     expect(body).toContain("DOMAIN_NOT_ALLOWED");
     expect(body).toContain("tracker.outside.invalid");
     expect(body).not.toContain("?secret=no");
+    const blockedReport = (await getAccessRuntime()).qualityTelemetry.report();
+    expect(blockedReport.observability.blockedActionCount).toBe(1);
+    expect(blockedReport.responsibilityLanes.HARNESS).toBe(1);
   });
 
   it("returns a recorded conflict when expired authorization reaches the queue gate", async () => {
@@ -262,6 +269,10 @@ describe("test authorization HTTP boundary", () => {
         auditRecorded: true,
       },
     });
+    expect(
+      (await getAccessRuntime()).qualityTelemetry.report().analyticsEvents
+        .AUTHORIZATION_EXPIRED,
+    ).toBe(1);
   });
 
   it("requires officer authority for revocation and blocks the queue after revocation", async () => {
@@ -306,6 +317,10 @@ describe("test authorization HTTP boundary", () => {
     await expect(revoked.json()).resolves.toMatchObject({
       authorization: { status: "REVOKED" },
     });
+    expect(
+      (await getAccessRuntime()).qualityTelemetry.report().analyticsEvents
+        .AUTHORIZATION_REVOKED,
+    ).toBe(1);
     const queue = await checkRunQueue(
       request(`${root}/${createdBody.authorization.id}/queue-check`, {
         method: "POST",

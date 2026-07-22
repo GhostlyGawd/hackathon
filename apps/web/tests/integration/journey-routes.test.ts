@@ -222,6 +222,10 @@ describe("named journey HTTP boundary", () => {
         expect.objectContaining({ sourceField: "submissionPhrase" }),
       ],
     });
+    expect(
+      (await getAccessRuntime()).qualityTelemetry.report().analyticsEvents
+        .JOURNEY_CREATED,
+    ).toBe(1);
     const listed = await listJourneys(
       request(
         `${seeded.path}?agreementVersionId=${seeded.agreementVersionId}`,

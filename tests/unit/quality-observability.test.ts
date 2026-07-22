@@ -105,6 +105,24 @@ describe("quality observability", () => {
         },
       }),
     );
+    store.recordLog(
+      createObservabilityLog({
+        logId: ids.log,
+        workspaceId: ids.workspace,
+        correlationId: ids.correlation,
+        occurredAt: "2026-07-22T01:00:00.500Z",
+        lane: "MODEL",
+        code: "MODEL_FAILURE",
+        artifact: { kind: "REQUIREMENT", id: "fictional-proposal-run-1" },
+        dimensions: { modelOutcome: "FAILED", failureCode: "PROVIDER_ERROR" },
+        measures: {
+          estimatedCostMicroUsd: 7,
+          latencyMs: 350,
+          modelFailureCount: 1,
+          retryCount: 1,
+        },
+      }),
+    );
     store.recordGuardrail(
       createGuardrailMetric({
         metricId: ids.guardrail,
@@ -124,11 +142,23 @@ describe("quality observability", () => {
     expect(report.observability).toMatchObject({
       blockedActionCount: 3,
       captureGapCount: 1,
-      estimatedCostMicroUsd: 25,
-      modelFailureCount: 0,
-      retryCount: 2,
+      estimatedCostMicroUsd: 32,
+      latencyMs: 350,
+      modelFailureCount: 1,
+      retryCount: 3,
     });
-    expect(report.guardrails.OUT_OF_SCOPE_ACTION).toEqual({ count: 0, passed: true });
+    expect(report.analyticsEvents.RUN_TERMINAL).toBe(1);
+    expect(report.analyticsEvents.RECEIPT_EXPORTED).toBe(0);
+    expect(report.guardrails.OUT_OF_SCOPE_ACTION).toEqual({
+      count: 0,
+      passed: true,
+      sampleCount: 1,
+    });
+    expect(report.guardrails.AUTOMATED_APPROVAL_OR_RESTORE).toEqual({
+      count: 0,
+      passed: false,
+      sampleCount: 0,
+    });
   });
 
   it("declares only the packaged Chromium profile supported and blocks silent degradation", () => {

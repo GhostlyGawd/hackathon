@@ -67,6 +67,14 @@ export async function POST(
         ? { effectiveUntil: optionalText(form, "effectiveUntil") }
         : {}),
     });
+    if (!result.duplicate) {
+      runtime.qualityTelemetry.recordEvent({
+        workspaceId,
+        name: "AGREEMENT_UPLOADED",
+        artifact: { kind: "AGREEMENT", id: result.agreement.id },
+        actor: { kind: "HUMAN", id: principal.userId },
+      });
+    }
     return NextResponse.json(result, { status: result.duplicate ? 200 : 201 });
   } catch (error) {
     return authorizationErrorResponse(error);

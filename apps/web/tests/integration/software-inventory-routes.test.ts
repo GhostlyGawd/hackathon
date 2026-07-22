@@ -6,7 +6,10 @@ import {
   GET as listSoftware,
   POST as createSoftware,
 } from "../../app/api/workspaces/[workspaceId]/software/route";
-import { fixtureWorkspaceIds } from "../../lib/access-fixture";
+import {
+  fixtureWorkspaceIds,
+  getAccessRuntime,
+} from "../../lib/access-fixture";
 
 interface RouteContext {
   readonly params: Promise<{ workspaceId: string }>;
@@ -111,6 +114,10 @@ describe("software inventory HTTP boundary", () => {
         isPactwireConclusion: false,
       }),
     );
+    expect(
+      (await getAccessRuntime()).qualityTelemetry.report().analyticsEvents
+        .SOFTWARE_RECORD_CREATED,
+    ).toBe(1);
 
     const listed = await listSoftware(
       request(`${pathname}?approvalState=APPROVED&query=northstar`, { cookie }),

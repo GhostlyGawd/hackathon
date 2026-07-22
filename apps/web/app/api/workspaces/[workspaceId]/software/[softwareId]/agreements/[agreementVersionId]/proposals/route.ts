@@ -16,6 +16,15 @@ function failureStatus(status: string): number {
   return status === "PROVIDER_ERROR" || status === "INCOMPLETE" ? 502 : 422;
 }
 
+function modelOutcome(
+  status: string,
+): "SUCCEEDED" | "REFUSED" | "INCOMPLETE" | "FAILED" {
+  if (status === "SUCCEEDED" || status === "REFUSED" || status === "INCOMPLETE") {
+    return status;
+  }
+  return "FAILED";
+}
+
 export async function GET(
   request: NextRequest,
   context: RouteContext,
@@ -56,6 +65,42 @@ export async function POST(
       softwareId,
       agreementVersionId,
     });
+    const correlationId = runtime.qualityTelemetry.newCorrelationId();
+    const outcome = modelOutcome(result.run.status);
+    const modelFailure = outcome === "FAILED" || outcome === "INCOMPLETE";
+    runtime.qualityTelemetry.recordLog({
+      workspaceId,
+      correlationId,
+      lane: "MODEL",
+      code: modelFailure ? "MODEL_FAILURE" : "MODEL_ACTION",
+      artifact: { kind: "REQUIREMENT", id: result.run.id },
+      actor: { kind: "AUTOMATION", id: result.run.requestedModel },
+      dimensions: {
+        modelOutcome: outcome,
+        ...(result.run.failureCode
+          ? { failureCode: result.run.failureCode }
+          : {}),
+      },
+      measures: {
+        estimatedCostMicroUsd: result.run.totalEstimatedCostMicroUsd,
+        latencyMs: result.run.attempts.reduce(
+          (total, attempt) => total + attempt.latencyMs,
+          0,
+        ),
+        retryCount: Math.max(0, result.run.attempts.length - 1),
+        modelFailureCount: modelFailure ? 1 : 0,
+      },
+    });
+    if (result.run.status === "SUCCEEDED" && result.proposals.length > 0) {
+      runtime.qualityTelemetry.recordEvent({
+        workspaceId,
+        correlationId,
+        name: "REQUIREMENT_PROPOSED",
+        artifact: { kind: "REQUIREMENT", id: result.proposals[0]!.id },
+        actor: { kind: "AUTOMATION", id: result.run.requestedModel },
+        dimensions: { modelOutcome: "SUCCEEDED" },
+      });
+    }
     if (result.run.status === "SUCCEEDED") {
       return NextResponse.json(result, {
         status: 201,

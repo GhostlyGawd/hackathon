@@ -6,6 +6,7 @@ import {
   createAnalyticsEvent,
   createPerformanceMeasurement,
 } from "../../packages/core/src/quality-observability.js";
+import { QualityTelemetryRuntime } from "../../apps/web/lib/quality-telemetry-runtime.js";
 
 const propertyParameters = { numRuns: 500, seed: 20260722 } as const;
 const workspaceId = "11111111-1111-4111-8111-111111111111";
@@ -75,6 +76,37 @@ describe("quality observability properties", () => {
             [...measurements]
               .sort((left, right) => left.measurementId.localeCompare(right.measurementId))
               .map(({ measurementId }) => measurementId),
+          );
+        },
+      ),
+      propertyParameters,
+    );
+  });
+
+  it("PROP-22: retried semantic events remain single analytics transitions", () => {
+    fc.assert(
+      fc.property(
+        fc.array(fc.integer({ min: 0, max: 24 }), {
+          minLength: 1,
+          maxLength: 200,
+        }),
+        (eventIndexes) => {
+          let identifier = 0;
+          const runtime = new QualityTelemetryRuntime({
+            idFactory: () =>
+              uuidFrom(identifier++, "88888888-8888-4888-8888"),
+            now: () => "2026-07-22T01:00:02.000Z",
+          });
+          for (const index of eventIndexes) {
+            runtime.recordEventOnce(`terminal:${index}`, {
+              workspaceId,
+              name: "RUN_TERMINAL",
+              artifact: { kind: "RUN", id: `fictional-retried-run-${index}` },
+              dimensions: { terminalState: "COMPLETED" },
+            });
+          }
+          expect(runtime.snapshot().events).toHaveLength(
+            new Set(eventIndexes).size,
           );
         },
       ),

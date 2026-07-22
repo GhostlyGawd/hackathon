@@ -31,6 +31,12 @@ export async function GET(
       workspaceId,
       receiptId,
     );
+    runtime.qualityTelemetry.recordEvent({
+      workspaceId,
+      name: "RECEIPT_EXPORTED",
+      artifact: { kind: "RECEIPT", id: receiptId },
+      actor: { kind: "HUMAN", id: principal.userId },
+    });
     return new NextResponse(serialized, {
       headers: {
         "cache-control": "private, no-store",

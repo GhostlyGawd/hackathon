@@ -29,12 +29,30 @@ export async function GET(
       workspaceId,
       receiptId,
     );
+    const verification = verifyEvidenceReceiptBundle(bundle);
+    const correlationId = runtime.qualityTelemetry.newCorrelationId();
+    runtime.qualityTelemetry.recordEvent({
+      workspaceId,
+      correlationId,
+      name: "RECEIPT_VIEWED",
+      artifact: { kind: "RECEIPT", id: receiptId },
+      actor: { kind: "HUMAN", id: principal.userId },
+    });
+    if (verification.status === "VALID") {
+      runtime.qualityTelemetry.recordEvent({
+        workspaceId,
+        correlationId,
+        name: "RECEIPT_VERIFIED",
+        artifact: { kind: "RECEIPT", id: receiptId },
+        actor: { kind: "AUTOMATION", id: "pactwire-receipt-verifier" },
+      });
+    }
     return NextResponse.json(
       {
         receipt: bundle.receipt,
         content: bundle.content,
         artifacts: bundle.artifacts.map(({ contentBase64: _content, ...artifact }) => artifact),
-        verification: verifyEvidenceReceiptBundle(bundle),
+        verification,
       },
       { headers: { "cache-control": "private, no-store" } },
     );

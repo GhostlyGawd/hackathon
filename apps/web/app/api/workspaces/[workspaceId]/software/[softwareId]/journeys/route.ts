@@ -54,14 +54,21 @@ export async function POST(
     if (!principal) throw new AuthenticationRequiredError();
     const { workspaceId, softwareId } = await context.params;
     const body = requestRecord(await request.json());
-    const journey = await (
-      await getAccessRuntime()
-    ).journeyAuthoringService.saveJourney({
+    const runtime = await getAccessRuntime();
+    const journey = await runtime.journeyAuthoringService.saveJourney({
       ...body,
       principal,
       workspaceId,
       softwareId,
     });
+    if (journey.version.version === 1) {
+      runtime.qualityTelemetry.recordEvent({
+        workspaceId,
+        name: "JOURNEY_CREATED",
+        artifact: { kind: "JOURNEY", id: journey.version.journeyId },
+        actor: { kind: "HUMAN", id: principal.userId },
+      });
+    }
     return NextResponse.json(
       { journey },
       {

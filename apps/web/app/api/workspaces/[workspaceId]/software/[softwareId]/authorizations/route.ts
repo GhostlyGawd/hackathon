@@ -55,6 +55,12 @@ export async function POST(
         popupPolicy: body["popupPolicy"],
         attestation: body["attestation"],
       });
+    runtime.qualityTelemetry.recordEvent({
+      workspaceId,
+      name: "AUTHORIZATION_CREATED",
+      artifact: { kind: "AUTHORIZATION", id: authorization.id },
+      actor: { kind: "HUMAN", id: principal.userId },
+    });
     return NextResponse.json({ authorization }, { status: 201 });
   } catch (error) {
     return authorizationErrorResponse(error);

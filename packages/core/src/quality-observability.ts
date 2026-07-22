@@ -130,7 +130,9 @@ const safeDimensionsSchema = z
         "NO_CONFLICT_OBSERVED_IN_NAMED_TESTS",
       ])
       .optional(),
-    approvalState: z.enum(["APPROVED", "HOLD", "REJECTED", "RETIRED"]).optional(),
+    approvalState: z
+      .enum(["UNKNOWN", "APPROVED", "HOLD", "REJECTED", "RETIRED"])
+      .optional(),
     decisionKind: z.enum(["KEEP_HOLD", "RESTORE_APPROVAL", "REJECT", "RETIRE"]).optional(),
     modelOutcome: z.enum(["SUCCEEDED", "REFUSED", "INCOMPLETE", "FAILED"]).optional(),
     browserEngine: z.enum(["CHROMIUM", "FIREFOX", "WEBKIT"]).optional(),
@@ -455,10 +457,13 @@ function performanceResult(
 }
 
 function sumMeasure(
-  events: readonly AnalyticsEvent[],
+  records: readonly (AnalyticsEvent | ObservabilityLog)[],
   key: keyof NonNullable<AnalyticsEvent["measures"]>,
 ): number {
-  return events.reduce((total, event) => total + (event.measures?.[key] ?? 0), 0);
+  return records.reduce(
+    (total, record) => total + (record.measures?.[key] ?? 0),
+    0,
+  );
 }
 
 export function buildQualityReport(snapshot: QualityTelemetrySnapshot) {
@@ -481,18 +486,37 @@ export function buildQualityReport(snapshot: QualityTelemetrySnapshot) {
   });
   const guardrails = Object.fromEntries(
     GUARDRAIL_KINDS.map((kind) => {
-      const count = snapshot.guardrails
-        .filter((metric) => metric.kind === kind)
+      const metrics = snapshot.guardrails.filter((metric) => metric.kind === kind);
+      const count = metrics
         .reduce((total, metric) => total + metric.count, 0);
-      return [kind, Object.freeze({ count, passed: count === 0 })];
+      return [
+        kind,
+        Object.freeze({
+          count,
+          sampleCount: metrics.length,
+          passed: metrics.length > 0 && count === 0,
+        }),
+      ];
     }),
-  ) as Readonly<Record<(typeof GUARDRAIL_KINDS)[number], Readonly<{ count: number; passed: boolean }>>>;
+  ) as Readonly<
+    Record<
+      (typeof GUARDRAIL_KINDS)[number],
+      Readonly<{ count: number; sampleCount: number; passed: boolean }>
+    >
+  >;
   const lanes = Object.fromEntries(
     OBSERVABILITY_LANES.map((lane) => [
       lane,
       snapshot.logs.filter((log) => log.lane === lane).length,
     ]),
   ) as Readonly<Record<(typeof OBSERVABILITY_LANES)[number], number>>;
+  const analyticsEvents = Object.fromEntries(
+    ANALYTICS_EVENT_NAMES.map((name) => [
+      name,
+      snapshot.events.filter((event) => event.name === name).length,
+    ]),
+  ) as Readonly<Record<(typeof ANALYTICS_EVENT_NAMES)[number], number>>;
+  const observableRecords = [...snapshot.events, ...snapshot.logs];
   const passed =
     Object.values(performance).every((result) => result.passed) &&
     Object.values(guardrails).every((result) => result.passed);
@@ -507,15 +531,20 @@ export function buildQualityReport(snapshot: QualityTelemetrySnapshot) {
       performanceSamples: snapshot.performance.length,
       guardrailMetrics: snapshot.guardrails.length,
     }),
+    analyticsEvents: Object.freeze(analyticsEvents),
     performance,
     guardrails: Object.freeze(guardrails),
     responsibilityLanes: Object.freeze(lanes),
     observability: Object.freeze({
-      estimatedCostMicroUsd: sumMeasure(snapshot.events, "estimatedCostMicroUsd"),
-      retryCount: sumMeasure(snapshot.events, "retryCount"),
-      blockedActionCount: sumMeasure(snapshot.events, "blockedActionCount"),
-      captureGapCount: sumMeasure(snapshot.events, "captureGapCount"),
-      modelFailureCount: sumMeasure(snapshot.events, "modelFailureCount"),
+      estimatedCostMicroUsd: sumMeasure(
+        observableRecords,
+        "estimatedCostMicroUsd",
+      ),
+      latencyMs: sumMeasure(observableRecords, "latencyMs"),
+      retryCount: sumMeasure(observableRecords, "retryCount"),
+      blockedActionCount: sumMeasure(observableRecords, "blockedActionCount"),
+      captureGapCount: sumMeasure(observableRecords, "captureGapCount"),
+      modelFailureCount: sumMeasure(observableRecords, "modelFailureCount"),
     }),
   });
 }
