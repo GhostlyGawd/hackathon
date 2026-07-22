@@ -136,6 +136,7 @@ class AccessWorld {
 setWorldConstructor(AccessWorld);
 
 Before(async function ({ pickle }) {
+  if (pickle.tags.some((tag) => tag.name === "@VAL-01")) return;
   const capturesUx03 = pickle.tags.some((tag) => tag.name === "@UX-03");
   const videoRoot = capturesUx03
     ? path.join(

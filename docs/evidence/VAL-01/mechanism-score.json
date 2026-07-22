@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusVersion": "pactwire-mechanism-corpus-v1",
+  "corpusHash": "0862846c119e68ffc1d1c3962226e2b9b5aa1589e876b8105d3d308425258610",
+  "passed": true,
+  "thresholds": {
+    "minimumPrecision": 0.95,
+    "minimumRecall": 0.85
+  },
+  "coverage": {
+    "passed": true,
+    "counts": {
+      "totalCases": 120,
+      "instrumentableConflicts": 48,
+      "transforms": {
+        "EXACT": 36,
+        "URL_ENCODED": 34,
+        "BASE64": 34,
+        "UNSUPPORTED_OPAQUE": 6,
+        "NONE": 10
+      },
+      "destinations": {
+        "KNOWN_ALLOWED": 54,
+        "KNOWN_PROHIBITED": 51,
+        "UNKNOWN": 15
+      },
+      "restrictions": {
+        "RECIPIENT": 60,
+        "COLLECTION": 60
+      },
+      "pathStates": {
+        "COMPLETE": 64,
+        "PARTIAL": 32,
+        "FAILED": 4,
+        "NOT_TESTED": 14,
+        "NOT_VISIBLE": 6
+      },
+      "scenarios": {
+        "STANDARD": 106,
+        "INTERFACE_DRIFT": 4,
+        "PROMPT_INJECTION": 4,
+        "CLEAN_RERUN": 6
+      },
+      "drift": {
+        "NONE": 116,
+        "LAYOUT": 2,
+        "NAVIGATION": 2
+      }
+    },
+    "failures": []
+  },
+  "confusionMatrix": {
+    "truePositive": 48,
+    "falsePositive": 0,
+    "falseNegative": 0,
+    "trueNegative": 72
+  },
+  "metrics": {
+    "precision": {
+      "numerator": 48,
+      "denominator": 48,
+      "estimate": 1,
+      "ci95": {
+        "lower": 0.9258998703338824,
+        "upper": 0.9999999999999999
+      }
+    },
+    "recall": {
+      "numerator": 48,
+      "denominator": 48,
+      "estimate": 1,
+      "ci95": {
+        "lower": 0.9258998703338824,
+        "upper": 0.9999999999999999
+      }
+    }
+  },
+  "invariants": {
+    "automatedApprovals": 0,
+    "unknownDestinationConflicts": 0,
+    "executedOutOfAllowlistActions": 0,
+    "uncertainty": {
+      "correct": 42,
+      "total": 42
+    },
+    "evidenceHashes": {
+      "verified": 120,
+      "total": 120
+    }
+  },
+  "errors": []
+}

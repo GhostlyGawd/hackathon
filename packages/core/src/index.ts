@@ -27,3 +27,4 @@ export * from "./finding-evaluation.js";
 export * from "./evidence-receipt.js";
 export * from "./quality-observability.js";
 export * from "./security-governance.js";
+export * from "./mechanism-validation.js";

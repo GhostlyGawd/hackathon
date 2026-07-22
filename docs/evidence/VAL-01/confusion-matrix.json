@@ -1,0 +1,33 @@
+{
+  "corpusHash": "0862846c119e68ffc1d1c3962226e2b9b5aa1589e876b8105d3d308425258610",
+  "confusionMatrix": {
+    "truePositive": 48,
+    "falsePositive": 0,
+    "falseNegative": 0,
+    "trueNegative": 72
+  },
+  "metrics": {
+    "precision": {
+      "numerator": 48,
+      "denominator": 48,
+      "estimate": 1,
+      "ci95": {
+        "lower": 0.9258998703338824,
+        "upper": 0.9999999999999999
+      }
+    },
+    "recall": {
+      "numerator": 48,
+      "denominator": 48,
+      "estimate": 1,
+      "ci95": {
+        "lower": 0.9258998703338824,
+        "upper": 0.9999999999999999
+      }
+    }
+  },
+  "thresholds": {
+    "minimumPrecision": 0.95,
+    "minimumRecall": 0.85
+  }
+}

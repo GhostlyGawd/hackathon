@@ -1,0 +1,297 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "VAL-01",
+  "title": "Build and run the blinded mechanism-correctness corpus",
+  "status": "COMPLETE",
+  "prdSections": [19],
+  "functionalRequirements": [],
+  "sourceCommitSha": "275dc630e55281c8d424ec612acd5f8a0e63d3c3",
+  "startedAt": "2026-07-22T04:37:00.000Z",
+  "completedAt": "2026-07-22T05:44:23.872Z",
+  "artifactRoot": "artifacts/verification/VAL-01/",
+  "curatedEvidenceRoot": "docs/evidence/VAL-01/",
+  "environment": {
+    "os": "Windows local; GitHub Actions Ubuntu and Windows",
+    "node": "24.14.1",
+    "pnpm": "11.6.0",
+    "ci": {
+      "provider": "github-actions",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29894214354",
+      "jobs": [
+        {
+          "name": "Verify on ubuntu-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29894214354/job/88840831642",
+          "status": "SUCCESS"
+        },
+        {
+          "name": "Verify on windows-latest",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29894214354/job/88840831589",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  },
+  "commands": [
+    {
+      "phase": "RED",
+      "name": "Mechanism scorer and corpus coverage contract did not exist",
+      "command": "pnpm exec vitest run --project unit tests/unit/mechanism-validation.test.ts",
+      "exitCode": 1,
+      "durationMs": 1000,
+      "expectedFailure": "The focused suite failed to import the not-yet-created packages/core/src/mechanism-validation module"
+    },
+    {
+      "phase": "GREEN",
+      "name": "Scorer, coverage, blindness, Wilson interval, and canonical-hash examples",
+      "command": "pnpm exec vitest run --project unit tests/unit/mechanism-validation.test.ts tests/unit/mechanism-validation-boundary.test.ts",
+      "exitCode": 0,
+      "durationMs": 1900
+    },
+    {
+      "phase": "GREEN",
+      "name": "Fixed-seed corpus reproducibility and public-path blindness properties",
+      "command": "pnpm exec vitest run --project property tests/property/mechanism-validation.property.test.ts",
+      "exitCode": 0,
+      "durationMs": 1600
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Actual product-boundary corpus and permanent mutation regression",
+      "command": "pnpm exec vitest run --project integration tests/integration/mechanism-validation.test.ts",
+      "exitCode": 0,
+      "durationMs": 1700
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Three-process blinded corpus generation, evaluation, independent scoring, and report generation",
+      "command": "pnpm validation:mechanism",
+      "exitCode": 0,
+      "durationMs": 6100,
+      "outputPath": "artifacts/verification/VAL-01/reports/mechanism-score.json"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Seven production-boundary mechanism stories",
+      "command": "PACTWIRE_BDD_TAGS=@VAL-01 pnpm test:bdd -- --production",
+      "exitCode": 0,
+      "durationMs": 59000,
+      "outputPath": "artifacts/verification/VAL-01/reports/cucumber.json"
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Static source, type, and package build gates",
+      "command": "pnpm lint; pnpm typecheck; pnpm build",
+      "exitCode": 0,
+      "durationMs": 35000
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Complete evidence-reconciled deterministic repository gate",
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "durationMs": 588900
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Clean-checkout Ubuntu and Windows verification on evidence head dec884917478553d23019e43bc18bc32c182ad2c",
+      "command": "GitHub Actions CI run 29894214354",
+      "exitCode": 0,
+      "durationMs": 508000
+    }
+  ],
+  "testSummary": {
+    "files": 125,
+    "passed": 447,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0
+  },
+  "propertyTests": {
+    "applicable": true,
+    "results": [
+      {
+        "id": "PROP-VAL-01-corpus-reproduces-by-seed",
+        "seed": 20260722,
+        "numRuns": 100,
+        "passed": true
+      },
+      {
+        "id": "PROP-VAL-01-evaluated-path-cannot-expose-ground-truth",
+        "seed": 20260722,
+        "numRuns": 100,
+        "passed": true
+      }
+    ]
+  },
+  "bdd": {
+    "applicable": true,
+    "scenarios": [
+      {
+        "feature": "mechanism-validation.feature",
+        "scenario": "A known prohibited exact transfer is a witnessed conflict",
+        "passed": true
+      },
+      {
+        "feature": "mechanism-validation.feature",
+        "scenario": "An unknown destination remains needs review",
+        "passed": true
+      },
+      {
+        "feature": "mechanism-validation.feature",
+        "scenario": "An unsupported transformation remains needs review",
+        "passed": true
+      },
+      {
+        "feature": "mechanism-validation.feature",
+        "scenario": "A missing required observation remains not visible",
+        "passed": true
+      },
+      {
+        "feature": "mechanism-validation.feature",
+        "scenario": "Prompt injection cannot become an observed result",
+        "passed": true
+      },
+      {
+        "feature": "mechanism-validation.feature",
+        "scenario": "A clean rerun remains not reobserved",
+        "passed": true
+      },
+      {
+        "feature": "mechanism-validation.feature",
+        "scenario": "The blinded corpus meets every mechanism threshold",
+        "passed": true
+      }
+    ]
+  },
+  "visualEvidence": {
+    "applicable": true,
+    "rationale": "VAL-01 changes no product screen or browser workflow. Its result is numerical, so a generated precision/recall chart bound to the machine-readable score is the applicable visual evidence; responsive screenshots are not applicable.",
+    "assets": [
+      {
+        "path": "docs/evidence/VAL-01/mechanism-results.md",
+        "kind": "chart",
+        "capturedAt": "2026-07-22T05:12:27.424Z",
+        "viewport": { "width": 1000, "height": 600 },
+        "altText": "Bar chart showing 100 percent precision against a 95 percent requirement and 100 percent recall against an 85 percent requirement for 48 controlled conflicts.",
+        "caption": "Controlled mechanism-corpus precision and recall with exact denominators, Wilson intervals, required thresholds, and confusion matrix.",
+        "provenance": "generated",
+        "sourceCommitSha": "275dc630e55281c8d424ec612acd5f8a0e63d3c3"
+      }
+    ]
+  },
+  "proofs": [
+    {
+      "kind": "schema",
+      "path": "packages/core/src/mechanism-validation.ts",
+      "description": "Strict public corpus, sealed oracle, prediction, score, coverage, confidence-interval, and canonical-hash contracts"
+    },
+    {
+      "kind": "config",
+      "path": "scripts/generate-mechanism-corpus.ts",
+      "description": "Seeded generator that writes separated public inputs and sealed expected outcomes"
+    },
+    {
+      "kind": "config",
+      "path": "scripts/evaluate-mechanism-corpus.ts",
+      "description": "Evaluated process that reads only the public corpus and statically rejects oracle access"
+    },
+    {
+      "kind": "config",
+      "path": "scripts/score-mechanism-corpus.ts",
+      "description": "Post-prediction scorer with independent evidence hashing, confidence intervals, invariants, error table, and chart output"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/mechanism-validation.test.ts",
+      "description": "Known confusion-matrix failure, deficient-coverage failure, Wilson interval, and canonical-hash examples"
+    },
+    {
+      "kind": "test",
+      "path": "tests/unit/mechanism-validation-boundary.test.ts",
+      "description": "Static evaluator import/read isolation and public-schema ground-truth rejection"
+    },
+    {
+      "kind": "test",
+      "path": "tests/property/mechanism-validation.property.test.ts",
+      "description": "Fixed-seed reproducibility and evaluated-corpus blindness properties"
+    },
+    {
+      "kind": "test",
+      "path": "tests/integration/mechanism-validation.test.ts",
+      "description": "All 120 cases through product boundaries plus a permanent false-negative and evidence-mutation regression"
+    },
+    {
+      "kind": "scenario",
+      "path": "tests/bdd/mechanism-validation.feature",
+      "description": "Seven representative bounded outcomes and whole-corpus threshold decision"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/VAL-01/corpus-public.json",
+      "description": "Public evaluator input containing 120 synthetic cases without expected outcomes"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/VAL-01/predictions.json",
+      "description": "Evaluator output created before the sealed oracle is available to the scoring process"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/VAL-01/mechanism-score.json",
+      "description": "Passing 120-case score with exact precision, recall, Wilson intervals, coverage, and invariant counts"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/VAL-01/confusion-matrix.json",
+      "description": "48 true positives, zero false positives, zero false negatives, and 72 true negatives"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/VAL-01/error-table.json",
+      "description": "Explicit zero-error result for the controlled run"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/VAL-01/hash-verification.json",
+      "description": "Independent canonical comparison for all 120 evidence hashes"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/VAL-01/corpus-coverage.json",
+      "description": "Exact counts for required transform, destination, restriction, path-state, drift, injection, and rerun classes"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/VAL-01/oracle-commitment.json",
+      "description": "Post-run SHA-256 commitment to the intentionally uncommitted 120-entry sealed oracle"
+    },
+    {
+      "kind": "report",
+      "path": "docs/evidence/VAL-01/cucumber.json",
+      "description": "Seven passing production-boundary scenarios and 57 steps"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/VAL-01/mechanism-results.md",
+      "description": "Generated precision and recall chart, exact denominator table, confusion matrix, and claim boundary"
+    },
+    {
+      "kind": "evidence",
+      "path": "docs/evidence/VAL-01/README.md",
+      "description": "Human-readable method, result, blindness boundary, visual rationale, and limitations"
+    }
+  ],
+  "sanitization": {
+    "reviewed": true,
+    "reviewedAt": "2026-07-22T05:12:27.424Z",
+    "findings": []
+  },
+  "knownLimitations": [
+    "The result covers a controlled seeded mechanism corpus, not live vendor interfaces, real accounts, real student data, legal compliance, safety, approval, or adoption.",
+    "The sealed answer file is isolated from the evaluator process and intentionally uncommitted, but a repository administrator can inspect or alter generator source; this is reproducible process isolation rather than cryptographic secrecy from the operator.",
+    "Collection restrictions are compiled through human-confirmed observable data-flow and destination rules; the harness does not interpret an agreement's legal meaning.",
+    "Interface-drift and prompt-injection cases exercise deterministic boundaries and do not establish live GPT-5.6 effectiveness; that claim remains owned by VAL-02.",
+    "Target-user usefulness and claim comprehension require qualified human review and remain owned by VAL-03."
+  ],
+  "reviewer": "codex-agent"
+}
