@@ -2,11 +2,12 @@
   "schemaVersion": "1.0.0",
   "taskId": "UX-02",
   "title": "Build agreement and journey review experiences",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETE",
   "prdSections": [12],
   "functionalRequirements": ["FR-012", "FR-013", "FR-014", "FR-020", "FR-022", "FR-024", "FR-025"],
-  "sourceCommitSha": "030e931fbe91e9d5e31ab5a94f30d8c5f7b8d287",
+  "sourceCommitSha": "baf2d665f96b8691c7d34b0dc8c4126ef8528cb3",
   "startedAt": "2026-07-21T16:34:00.000Z",
+  "completedAt": "2026-07-22T00:53:27.000Z",
   "artifactRoot": "artifacts/verification/UX-02/",
   "curatedEvidenceRoot": "docs/evidence/UX-02/",
   "environment": {
@@ -15,16 +16,16 @@
     "pnpm": "11.6.0",
     "ci": {
       "provider": "github-actions",
-      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29879337839",
+      "runUrl": "https://github.com/GhostlyGawd/hackathon/actions/runs/29881162864",
       "jobs": [
         {
           "name": "Ubuntu",
-          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29879337839/job/88796511560",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29881162864/job/88802139472",
           "status": "SUCCESS"
         },
         {
           "name": "Windows",
-          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29879337839/job/88796511713",
+          "url": "https://github.com/GhostlyGawd/hackathon/actions/runs/29881162864/job/88802139436",
           "status": "SUCCESS"
         }
       ]
@@ -147,6 +148,13 @@
       "command": "pnpm --filter @pactwire/web build; PACTWIRE_BDD_TAGS=@UX-02 pnpm test:bdd -- --production",
       "exitCode": 0,
       "durationMs": 113900
+    },
+    {
+      "phase": "REGRESSION",
+      "name": "Corrected-head clean-checkout verification on Ubuntu and Windows",
+      "command": "GitHub Actions run 29881162864: pnpm verify",
+      "exitCode": 0,
+      "durationMs": 470000
     }
   ],
   "testSummary": {
@@ -427,7 +435,6 @@
     "findings": []
   },
   "knownLimitations": [
-    "The final closure-head Windows job exposed an unbounded session-restoration wait. The source now aborts that read after five seconds, but UX-02 remains IN_PROGRESS until the corrected head is green on Ubuntu and Windows.",
     "This task's journey editor truthfully displays empty replay and repair histories; presentation of populated run, finding, receipt, and hold records is owned by UX-03.",
     "Automated Axe checks cover WCAG A and AA rules, while comprehensive manual screen-reader and WCAG 2.2 review remains QLT-01.",
     "A confirmed requirement is a bounded human test instruction, not legal meaning, software approval, safety, or compliance; a runnable journey is not evidence that a browser run occurred or passed.",
