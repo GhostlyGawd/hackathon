@@ -57,7 +57,7 @@ export async function seedPostgresApprovalFixture(): Promise<{
     [domainIds.workspace, domainIds.software, humanActor],
   );
   await database.query(
-    "INSERT INTO software_approval_origins (workspace_id, id, software_id, state, actor_kind, set_by, reason, source_reference, recorded_by, recorded_at) VALUES ($1, $2, $3, 'APPROVED', 'IMPORTED_SYSTEM', $4, 'Imported existing district approval record.', 'AP-2042', $5, now())",
+    "INSERT INTO software_approval_origins (workspace_id, id, software_id, state, actor_kind, set_by, reason, source_reference, recorded_by, recorded_at) VALUES ($1, $2, $3, 'APPROVED', 'IMPORTED_SYSTEM', $4, 'Imported existing district approval record.', 'AP-2042', $5, '2026-07-22T13:00:00.000Z')",
     [
       domainIds.workspace,
       "41414141-4141-4141-8141-414141414141",
